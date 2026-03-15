@@ -1,0 +1,2 @@
+# JimCapasitor
+Untuk belajar Capasitor
