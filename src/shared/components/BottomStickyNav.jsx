@@ -4,6 +4,16 @@ export default function BottomStickyNav() {
   const navigate = useNavigate()
   const location = useLocation()
   const isActive = (path) => location.pathname === path
+  const navBadges = [
+    { apiname: 'home', badge: null },
+    { apiname: 'explore', badge: 2 },
+    { apiname: 'promo', badge: 3 },
+    { apiname: 'activity', badge: 4 },
+    { apiname: 'chat', badge: 5 },
+  ]
+  const badgeByApi = Object.fromEntries(
+    navBadges.map((item) => [item.apiname, item.badge])
+  )
 
   return (
     <div className="fixed bottom-0 left-0 right-0">
@@ -14,9 +24,11 @@ export default function BottomStickyNav() {
         >
           <span className="relative text-base">
             🏠
-            <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
-              1
-            </span>
+            {badgeByApi.home != null && (
+              <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
+                {badgeByApi.home}
+              </span>
+            )}
           </span>
           <span>Home</span>
         </button>
@@ -26,9 +38,11 @@ export default function BottomStickyNav() {
         >
           <span className="relative text-base">
             🧭
-            <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
-              2
-            </span>
+            {badgeByApi.explore != null && (
+              <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
+                {badgeByApi.explore}
+              </span>
+            )}
           </span>
           <span>Explore</span>
         </button>
@@ -38,9 +52,11 @@ export default function BottomStickyNav() {
         >
           <span className="relative text-base">
             🎁
-            <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
-              3
-            </span>
+            {badgeByApi.promo != null && (
+              <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
+                {badgeByApi.promo}
+              </span>
+            )}
           </span>
           <span>Promo</span>
         </button>
@@ -50,9 +66,11 @@ export default function BottomStickyNav() {
         >
           <span className="relative text-base">
             🧾
-            <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
-              4
-            </span>
+            {badgeByApi.activity != null && (
+              <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
+                {badgeByApi.activity}
+              </span>
+            )}
           </span>
           <span>Activity</span>
         </button>
@@ -62,9 +80,11 @@ export default function BottomStickyNav() {
         >
           <span className="relative text-base">
             💬
-            <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
-              5
-            </span>
+            {badgeByApi.chat != null && (
+              <span className="absolute -right-2 -top-2 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white">
+                {badgeByApi.chat}
+              </span>
+            )}
           </span>
           <span>Chat</span>
         </button>
