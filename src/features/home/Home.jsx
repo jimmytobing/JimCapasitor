@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 
 export default function Home({ showToast }) {
-  debugger
+  
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -40,7 +40,7 @@ export default function Home({ showToast }) {
         <div className="mt-2 flex gap-2">
           <button
             className="flex-1 rounded-lg bg-gray-100 p-2"
-            onClick={() => showToast('Feature coming soon')}
+            onClick={() => navigate('/module-1')}
           >
             Pay
           </button>
