@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import PageShell from '../../shared/components/PageShell.jsx'
 
-export default function PromoPage() {
+export default function ExplorePage() {
   const navigate = useNavigate()
-  const items = ['Promo Card A', 'Promo Card B', 'Promo Card C']
+  const items = ['Explore A', 'Explore B', 'Explore C']
 
   return (
     <PageShell>
@@ -24,7 +24,7 @@ export default function PromoPage() {
           </div>
         ))}
       </div>
-      
+
       {/* Bottom Sticky Nav */}
       <BottomStickyNav />
     </PageShell>

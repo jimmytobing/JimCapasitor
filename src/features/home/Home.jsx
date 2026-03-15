@@ -1,15 +1,16 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import PageShell from '../../shared/components/PageShell.jsx'
+import TopBar from '../../shared/components/TopBar.jsx'
 
 export default function Home({ showToast }) {
   
   const navigate = useNavigate()
-  const location = useLocation()
-
-  const isActive = (path) => location.pathname === path
 
   const menuItems = [
     { label: 'Send', icon: '📤', action: () => navigate('/module-1') },
     { label: 'Topup', icon: '➕', action: () => navigate('/module-2') },
+    { label: 'Explore', icon: '🧭', action: () => navigate('/explore') },
     { label: 'Bills', icon: '🧾', action: () => showToast('Feature coming soon') },
     { label: 'Games', icon: '🎮', action: () => showToast('Feature coming soon') },
     { label: 'Food', icon: '🍔', action: () => showToast('Feature coming soon') },
@@ -19,16 +20,9 @@ export default function Home({ showToast }) {
   ]
 
   return (
-    <div className="mx-auto max-w-[420px] space-y-4 p-4">
+    <PageShell>
       {/* Top Bar */}
-      <div className="flex items-center gap-2">
-        <input
-          className="flex-1 rounded-lg bg-white p-2 shadow"
-          placeholder="Search"
-          type="text"
-        />
-        <div className="h-10 w-10 rounded-full bg-gray-300" />
-      </div>
+      <TopBar />
 
       {/* Banner */}
       <div className="rounded-lg bg-blue-100 p-4 shadow">Welcome</div>
@@ -85,38 +79,8 @@ export default function Home({ showToast }) {
         <div className="flex-1 rounded-lg bg-white p-3 text-center shadow">Promo 3</div>
       </div>
 
-      {/* Bottom Spacer */}
-      <div className="h-16" />
-
       {/* Bottom Sticky Nav */}
-      <div className="fixed bottom-0 left-0 right-0">
-        <div className="mx-auto flex max-w-[420px] justify-between bg-white p-2 shadow">
-          <button
-            className={`flex-1 ${isActive('/') ? 'font-semibold text-blue-600' : ''}`}
-            onClick={() => navigate('/')}
-          >
-            Home
-          </button>
-          <button
-            className={`flex-1 ${isActive('/promo') ? 'font-semibold text-blue-600' : ''}`}
-            onClick={() => navigate('/promo')}
-          >
-            Promo
-          </button>
-          <button
-            className={`flex-1 ${isActive('/activity') ? 'font-semibold text-blue-600' : ''}`}
-            onClick={() => navigate('/activity')}
-          >
-            Activity
-          </button>
-          <button
-            className={`flex-1 ${isActive('/chat') ? 'font-semibold text-blue-600' : ''}`}
-            onClick={() => navigate('/chat')}
-          >
-            Chat
-          </button>
-        </div>
-      </div>
-    </div>
+      <BottomStickyNav />
+    </PageShell>
   )
 }
