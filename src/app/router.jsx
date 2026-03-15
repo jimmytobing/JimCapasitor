@@ -8,7 +8,12 @@ import ChatPage from '../features/chat/ChatPage.jsx'
 
 export default function AppRoutes({ showToast }) {
   return (
-    <Routes>
+    <Routes
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Route path="/" element={<Home showToast={showToast} />} />
       <Route path="/module-1" element={<Module1Page />} />
       <Route path="/module-2" element={<Module2Page />} />
