@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 
 export default function Home({ showToast }) {
+  debugger
   const navigate = useNavigate()
   const location = useLocation()
 

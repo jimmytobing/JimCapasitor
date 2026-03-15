@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
-import Home from '../features/wallet/Home.jsx'
+import Home from '../features/home/Home.jsx'
 import Module1Page from '../features/module-1/Module1Page.jsx'
 import Module2Page from '../features/module-2/Module2Page.jsx'
 import PromoPage from '../features/promo/PromoPage.jsx'
