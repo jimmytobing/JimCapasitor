@@ -2,8 +2,8 @@ export default function HomeTopStickyNav({
   onAction,
   title = 'Loremipsum Title',
   subtitle = 'Massive Dynamic',
-  backgroundImage = "https://images.unsplash.com/photo-1622180203374-9524a54b734d?auto=format&fit=crop&w=1950&q=80",
-  avatarImage = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+  backgroundImage = "/resources/images/top-bg.jpg",
+  avatarImage = "/resources/images/avatar.jpg",
   showSearch = true,
   searchPlaceholder = 'Search something...',
 }) {

@@ -1,18 +1,20 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getRandomBadges } from '../utils/badges.js'
 
 export default function BottomStickyNav({ onAction }) {
   const navigate = useNavigate()
-  const notify = typeof onAction === 'function' ? onAction : () => {}
-  const navBadges = [
-    { apiname: 'home', badge: null },
-    { apiname: 'explore', badge: 2 },
-    { apiname: 'promo', badge: 3 },
-    { apiname: 'activity', badge: 4 },
-    { apiname: 'chat', badge: null },
-  ]
-  const badgeByApi = Object.fromEntries(
-    navBadges.map((item) => [item.apiname, item.badge])
-  )
+  const [badgeByApi, setBadgeByApi] = useState(() => {
+    const saved = localStorage.getItem('bottomNavBadges')
+    if (saved) {
+      try {
+        return JSON.parse(saved)
+      } catch {
+        return getRandomBadges()
+      }
+    }
+    return getRandomBadges()
+  })
   const badgeClass = (badge, position = '-right-2 -top-2') =>
     `absolute ${position} min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white${
       badge != null ? ' transition shadow' : ''
@@ -20,16 +22,40 @@ export default function BottomStickyNav({ onAction }) {
   const chatButtonClass = `relative flex h-20 w-20 -mt-10 items-center justify-center rounded-full border-4 border-gray-50 bg-blue-500 p-2 text-center text-3xl text-white shadow-2xl hover:border-blue-500${
     badgeByApi.chat != null ? ' transition duration-200 ease-in' : ''
   }`
+  const handleNavClick = (key, path) => {
+    setBadgeByApi((prev) => {
+      if (prev[key] == null) return prev
+      const next = { ...prev, [key]: null }
+      localStorage.setItem('bottomNavBadges', JSON.stringify(next))
+      return next
+    })
+    setTimeout(() => navigate(path), 0)
+  }
+
+  useEffect(() => {
+    localStorage.setItem('bottomNavBadges', JSON.stringify(badgeByApi))
+  }, [badgeByApi])
+
+  useEffect(() => {
+    const handleBadgesUpdate = (event) => {
+      if (!event?.detail) return
+      setBadgeByApi(event.detail)
+    }
+    window.addEventListener('bottomNavBadgesUpdate', handleBadgesUpdate)
+    return () => {
+      window.removeEventListener('bottomNavBadgesUpdate', handleBadgesUpdate)
+    }
+  }, [])
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30">
-      <div className="mx-auto max-w-[420px] pb-[env(safe-area-inset-bottom)]">
-        <div className="m-1 flex h-16 items-center justify-between overflow-visible rounded-2xl bg-gray-900 px-5 py-3 text-gray-400 shadow-3xl">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-[#edf2f7] shadow-[0_-8px_20px_rgba(0,0,0,0.06)]" />
+      <div className="relative w-full pb-[env(safe-area-inset-bottom)] pt-2">
+        <div className="mx-3 flex h-16 items-center justify-between overflow-visible rounded-2xl bg-gray-900 px-5 py-3 text-gray-400 shadow-3xl">
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          notify('Home')
-          navigate('/')
+          handleNavClick('home', '/')
         }}
       >
         <span className="relative">
@@ -64,8 +90,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          notify('Explore')
-          navigate('/explore')
+          handleNavClick('explore', '/explore')
         }}
       >
         <span className="relative">
@@ -96,19 +121,21 @@ export default function BottomStickyNav({ onAction }) {
             <div
               className={chatButtonClass}
               onClick={() => {
-                notify('Chat')
-                navigate('/chat')
+                handleNavClick('chat', '/chat')
               }}
               role="button"
               tabIndex={0}
             >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8"
+            className="h-10 w-10"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
-            <path d="M4 6.5A2.5 2.5 0 016.5 4h11A2.5 2.5 0 0120 6.5v6A2.5 2.5 0 0117.5 15H9l-4.5 3v-3H6.5A2.5 2.5 0 014 12.5v-6z" />
+            <path d="M7 4h10a5 5 0 015 5v3a5 5 0 01-5 5h-4.5L8 20.5V17H7a5 5 0 01-5-5V9a5 5 0 015-5z" />
+            <circle cx="9" cy="11" r="1.3" />
+            <circle cx="12" cy="11" r="1.3" />
+            <circle cx="15" cy="11" r="1.3" />
           </svg>
           {badgeByApi.chat != null && (
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full border-4 opacity-50" />
@@ -123,8 +150,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          notify('Promo')
-          navigate('/promo')
+          handleNavClick('promo', '/promo')
         }}
       >
         <span className="relative">
@@ -159,8 +185,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          notify('Activity')
-          navigate('/activity')
+          handleNavClick('activity', '/activity')
         }}
       >
         <span className="relative">

@@ -1,8 +1,20 @@
+import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import HomeTopStickyNav from '../../shared/components/HomeTopStickyNav.jsx'
+import { getRandomBadges } from '../../shared/utils/badges.js'
 
 export default function Home({ showToast }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
+  const navigate = useNavigate()
+  const refillBadges = () => {
+    const nextBadges = getRandomBadges()
+    localStorage.setItem('bottomNavBadges', JSON.stringify(nextBadges))
+    window.dispatchEvent(
+      new CustomEvent('bottomNavBadgesUpdate', { detail: nextBadges })
+    )
+  }
+  const glowButtonClass =
+    'shadow-md transition duration-200 ease-in-out active:shadow-[inset_0_0_18px_rgba(59,130,246,0.35)] active:scale-[0.98]'
 
   return (
     <div className="h-screen bg-[#edf2f7] overflow-y-auto hide-scrollbar">
@@ -11,50 +23,137 @@ export default function Home({ showToast }) {
           <HomeTopStickyNav onAction={notify} />
 
             <div className="relative z-0 space-y-4 p-3">
+            <div className="rounded-2xl bg-white p-4 shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-green-100 text-2xl">
+                    👛
+                  </div>
+                  <div className="space-y-0.5 leading-tight">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[11px] text-gray-500">Saldo Rupiah</p>
+                      <button
+                        className="flex h-5 w-5 items-center justify-center rounded-full border border-blue-200 text-[12px] font-semibold text-blue-600 shadow"
+                        onClick={() => {
+                          notify('Top up')
+                          refillBadges()
+                        }}
+                        aria-label="Top Up"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+                      Rp 12.780.500
+                    </p>
+                  </div>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    className="group flex w-10 flex-col items-center justify-center text-blue-600"
+                    onClick={() => notify('Bayar')}
+                    aria-label="Bayar"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition duration-300 ease-in hover:shadow-md group-active:shadow-[inset_0_0_18px_rgba(59,130,246,0.35)]">
+                      💵
+                    </span>
+                    <span className="mt-1 text-[9px] text-gray-600">Bayar</span>
+                  </button>
+                  <button
+                    className="group flex w-10 flex-col items-center justify-center text-blue-600"
+                    onClick={() => notify('Riwayat')}
+                    aria-label="Riwayat"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition duration-300 ease-in hover:shadow-md group-active:shadow-[inset_0_0_18px_rgba(59,130,246,0.35)]">
+                      🧾
+                    </span>
+                    <span className="mt-1 text-[9px] text-gray-600">Riwayat</span>
+                  </button>
+                  <button
+                    className="group flex w-10 flex-col items-center justify-center text-blue-600"
+                    onClick={() => notify('Lainnya')}
+                    aria-label="Lainnya"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition duration-300 ease-in hover:shadow-md group-active:shadow-[inset_0_0_18px_rgba(59,130,246,0.35)]">
+                      ⋯
+                    </span>
+                    <span className="mt-1 text-[9px] text-gray-600">Lainnya</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <h4 className="mt-2 font-semibold">Category</h4>
-            <div className="flex items-center justify-between space-x-3 overflow-x-auto text-gray-500 hide-scrollbar">
+            <div className="grid grid-cols-4 gap-3 text-gray-500">
               <button
-                className="mb-2 flex h-20 w-20 flex-col items-center justify-center rounded-2xl bg-white p-1 text-green-600 shadow transition duration-300 ease-in hover:shadow-md"
-                onClick={() => notify('Hotel tapped')}
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-green-600 shadow hover:shadow-md ${glowButtonClass}`}
+                onClick={() => navigate('/module-1')}
               >
                 <span className="text-xl">🏨</span>
                 <p className="mt-1 text-sm">Hotel</p>
               </button>
               <button
-                className="mb-2 flex h-20 w-20 flex-col items-center justify-center rounded-2xl bg-white p-1 text-yellow-600 shadow transition duration-300 ease-in hover:shadow-md"
-                onClick={() => notify('Bus tapped')}
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-yellow-600 shadow hover:shadow-md ${glowButtonClass}`}
+                onClick={() => navigate('/module-2')}
               >
                 <span className="text-xl">🚌</span>
                 <p className="mt-1 text-sm">Bus</p>
               </button>
               <button
-                className="mb-2 flex h-20 w-20 flex-col items-center justify-center rounded-2xl bg-white p-1 text-indigo-500 shadow transition duration-300 ease-in hover:shadow-md"
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-indigo-500 shadow hover:shadow-md ${glowButtonClass}`}
                 onClick={() => notify('Hills tapped')}
               >
                 <span className="text-xl">⛰️</span>
                 <p className="mt-1 text-sm">Hills</p>
               </button>
               <button
-                className="mb-2 flex h-20 w-20 flex-col items-center justify-center rounded-2xl bg-white p-1 text-pink-500 shadow transition duration-300 ease-in hover:shadow-md"
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-pink-500 shadow hover:shadow-md ${glowButtonClass}`}
                 onClick={() => notify('Beach tapped')}
               >
                 <span className="text-xl">🏖️</span>
                 <p className="mt-1 text-sm">Beach</p>
               </button>
+              <button
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-purple-500 shadow hover:shadow-md ${glowButtonClass}`}
+                onClick={() => notify('Flight tapped')}
+              >
+                <span className="text-xl">✈️</span>
+                <p className="mt-1 text-sm">Flight</p>
+              </button>
+              <button
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-blue-500 shadow hover:shadow-md ${glowButtonClass}`}
+                onClick={() => notify('Train tapped')}
+              >
+                <span className="text-xl">🚆</span>
+                <p className="mt-1 text-sm">Train</p>
+              </button>
+              <button
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-orange-500 shadow hover:shadow-md ${glowButtonClass}`}
+                onClick={() => notify('Food tapped')}
+              >
+                <span className="text-xl">🍜</span>
+                <p className="mt-1 text-sm">Food</p>
+              </button>
+              <button
+                className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-gray-600 shadow hover:shadow-md ${glowButtonClass}`}
+                onClick={() => notify('More tapped')}
+              >
+                <span className="text-xl">➕</span>
+                <p className="mt-1 text-sm">More</p>
+              </button>
             </div>
 
-            <h4 className="font-semibold">Recomented Hotels</h4>
-            <div className="grid w-full grid-cols-2 space-x-4">
+            <h4 className="font-semibold">Recoment</h4>
+            <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-2 hide-scrollbar">
               <button
-                className="relative my-2 h-64 w-full cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md"
+                className={`relative my-2 h-64 min-w-[70%] snap-start cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md ${glowButtonClass}`}
                 style={{
-                  backgroundImage:
-                    "url('https://images.unsplash.com/reserve/8T8J12VQxyqCiQFGa2ct_bahamas-atlantis.jpg?auto=format&fit=crop&w=1050&q=80')",
+                  backgroundImage: "url('/resources/images/hotel-1.jpg')",
                 }}
                 onClick={() => notify('Dubai hotel')}
               >
                 <div className="absolute inset-0 z-0 bg-gradient-to-t from-green-400 to-blue-400 opacity-50" />
-                <div className="relative flex h-72 w-full flex-row items-end">
+                <div className="relative flex h-64 w-full flex-row items-end">
                   <div className="absolute right-0 top-0 m-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +171,7 @@ export default function Home({ showToast }) {
                     </svg>
                   </div>
                   <div className="z-10 flex w-full flex-col rounded-lg p-6">
-                    <h4 className="mt-1 truncate text-xl font-semibold leading-tight text-white">
+                    <h4 className="truncate text-left text-xl font-semibold leading-tight text-white">
                       Loremipsum..
                     </h4>
                     <div className="flex items-center justify-between">
@@ -102,8 +201,8 @@ export default function Home({ showToast }) {
                         </h2>
                       </div>
                     </div>
-                    <div className="flex pt-4 text-sm text-gray-300">
-                      <div className="mr-auto flex items-center">
+                    <div className="flex items-center justify-between gap-3 pt-4 text-sm text-gray-300">
+                      <div className="flex items-center whitespace-nowrap">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="mr-1 h-5 w-5 text-yellow-500"
@@ -114,7 +213,7 @@ export default function Home({ showToast }) {
                         </svg>
                         <p className="font-normal">4.5</p>
                       </div>
-                      <div className="flex items-center font-medium text-white">
+                      <div className="flex items-center whitespace-nowrap font-medium text-white">
                         $1800
                         <span className="text-sm font-normal text-gray-300"> /wk</span>
                       </div>
@@ -124,15 +223,14 @@ export default function Home({ showToast }) {
               </button>
 
               <button
-                className="relative my-2 h-64 w-full cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md"
+                className={`relative my-2 h-64 min-w-[70%] snap-start cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md ${glowButtonClass}`}
                 style={{
-                  backgroundImage:
-                    "url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80')",
+                  backgroundImage: "url('/resources/images/hotel-2.jpg')",
                 }}
                 onClick={() => notify('India hotel')}
               >
                 <div className="absolute inset-0 z-0 bg-gradient-to-t from-blue-500 to-yellow-400 opacity-50" />
-                <div className="relative flex h-72 w-full flex-row items-end">
+                <div className="relative flex h-64 w-full flex-row items-end">
                   <div className="absolute right-0 top-0 m-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +248,7 @@ export default function Home({ showToast }) {
                     </svg>
                   </div>
                   <div className="z-10 flex w-full flex-col rounded-lg p-5">
-                    <h4 className="mt-1 truncate text-xl font-semibold leading-tight text-white">
+                    <h4 className="truncate text-left text-xl font-semibold leading-tight text-white">
                       Loremipsum..
                     </h4>
                     <div className="flex items-center justify-between">
@@ -180,8 +278,8 @@ export default function Home({ showToast }) {
                         </h2>
                       </div>
                     </div>
-                    <div className="flex pt-4 text-sm text-gray-300">
-                      <div className="mr-auto flex items-center">
+                    <div className="flex items-center justify-between gap-3 pt-4 text-sm text-gray-300">
+                      <div className="flex items-center whitespace-nowrap">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="mr-1 h-5 w-5 text-yellow-500"
@@ -192,7 +290,7 @@ export default function Home({ showToast }) {
                         </svg>
                         <p className="font-normal">4.5</p>
                       </div>
-                      <div className="flex items-center font-medium text-white">
+                      <div className="flex items-center whitespace-nowrap font-medium text-white">
                         $1800
                         <span className="text-sm font-normal text-gray-300"> /wk</span>
                       </div>
@@ -206,7 +304,7 @@ export default function Home({ showToast }) {
             <div className="grid grid-cols-1">
               <div className="flex rounded-2xl bg-white p-2 shadow-md">
                 <img
-                  src="https://images.unsplash.com/photo-1439130490301-25e322d88054?auto=format&fit=crop&w=1189&q=80"
+                  src="/resources/images/suggested-1.jpg"
                   alt="Just a flower"
                   className="h-16 w-16 rounded-xl object-cover"
                 />
