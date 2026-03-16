@@ -17,14 +17,14 @@ export default function BottomStickyNav({ onAction }) {
     `absolute ${position} min-w-[1.1rem] rounded-full bg-red-500 px-1 text-[10px] leading-4 text-white${
       badge != null ? ' transition shadow' : ''
     }`
-  const chatButtonClass = `relative flex h-20 w-20 items-center justify-center rounded-full border-4 border-gray-50 bg-blue-500 p-2 text-center text-3xl text-white shadow-2xl hover:border-blue-500${
+  const chatButtonClass = `relative flex h-20 w-20 -mt-10 items-center justify-center rounded-full border-4 border-gray-50 bg-blue-500 p-2 text-center text-3xl text-white shadow-2xl hover:border-blue-500${
     badgeByApi.chat != null ? ' transition duration-200 ease-in' : ''
   }`
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30">
-      <div className="mx-auto max-w-[420px] pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
-        <div className="m-2 flex items-center justify-between rounded-2xl bg-gray-900 p-5 px-6 text-gray-400 shadow-3xl">
+      <div className="mx-auto max-w-[420px] pb-[env(safe-area-inset-bottom)]">
+        <div className="m-1 flex h-16 items-center justify-between overflow-visible rounded-2xl bg-gray-900 px-5 py-3 text-gray-400 shadow-3xl">
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {

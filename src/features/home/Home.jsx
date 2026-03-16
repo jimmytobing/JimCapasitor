@@ -5,19 +5,9 @@ export default function Home({ showToast }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
 
   return (
-    <div
-      className="relative min-h-screen bg-[#edf2f7]"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?auto=format&fit=crop&w=1950&q=80')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <div className="absolute inset-0 bg-black/60" />
-
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-h-[82vh] space-y-3 overflow-y-auto rounded-3xl border-8 border-gray-800 bg-white shadow-2xl sm:w-6/12 lg:w-4/12 xl:w-4/12 hide-scrollbar">
+    <div className="h-screen bg-[#edf2f7] overflow-y-auto hide-scrollbar">
+      <div className="min-h-screen pb-28 pt-0">
+        <div className="w-full space-y-3 rounded-none border-0 bg-white shadow-none">
           <HomeTopStickyNav onAction={notify} />
 
             <div className="relative z-0 space-y-4 p-3">

@@ -11,9 +11,11 @@ export default function HomeTopStickyNav({
 
   return (
     <div
-      className="relative sticky top-0 z-20 h-36 w-full cursor-pointer rounded-b-3xl bg-center object-cover shadow-lg"
+      className="relative sticky top-0 z-20 w-full cursor-pointer rounded-b-3xl bg-center object-cover shadow-lg"
       style={{
         backgroundImage: `url('${backgroundImage}')`,
+        height: 'calc(9rem + env(safe-area-inset-top))',
+        paddingTop: 'env(safe-area-inset-top)',
       }}
     >
       <nav className="relative z-10 mx-auto flex h-18 items-center justify-between p-2">
