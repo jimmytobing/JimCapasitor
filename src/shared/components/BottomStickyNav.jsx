@@ -1,4 +1,7 @@
+import { useNavigate } from 'react-router-dom'
+
 export default function BottomStickyNav({ onAction }) {
+  const navigate = useNavigate()
   const notify = typeof onAction === 'function' ? onAction : () => {}
   const navBadges = [
     { apiname: 'home', badge: null },
@@ -19,10 +22,15 @@ export default function BottomStickyNav({ onAction }) {
   }`
 
   return (
-    <div className="sticky bottom-2 m-2 flex items-center justify-between rounded-2xl bg-gray-900 p-5 px-6 text-gray-400 shadow-3xl">
-      <button
+    <div className="fixed bottom-0 left-0 right-0 z-30">
+      <div className="mx-auto max-w-[420px] pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+        <div className="m-2 flex items-center justify-between rounded-2xl bg-gray-900 p-5 px-6 text-gray-400 shadow-3xl">
+          <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
-        onClick={() => notify('Home')}
+        onClick={() => {
+          notify('Home')
+          navigate('/')
+        }}
       >
         <span className="relative">
           <svg
@@ -53,9 +61,12 @@ export default function BottomStickyNav({ onAction }) {
         </span>
         <span>Home</span>
       </button>
-      <button
+          <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
-        onClick={() => notify('Explore')}
+        onClick={() => {
+          notify('Explore')
+          navigate('/explore')
+        }}
       >
         <span className="relative">
           <svg
@@ -81,13 +92,16 @@ export default function BottomStickyNav({ onAction }) {
         </span>
         <span>Explore</span>
       </button>
-      <div className="flex flex-col items-center hover:text-blue-400">
-        <div
-          className={chatButtonClass}
-          onClick={() => notify('Chat')}
-          role="button"
-          tabIndex={0}
-        >
+          <div className="flex flex-col items-center hover:text-blue-400">
+            <div
+              className={chatButtonClass}
+              onClick={() => {
+                notify('Chat')
+                navigate('/chat')
+              }}
+              role="button"
+              tabIndex={0}
+            >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-8 w-8"
@@ -104,11 +118,14 @@ export default function BottomStickyNav({ onAction }) {
               {badgeByApi.chat}
             </span>
           )}
-        </div>
-      </div>
-      <button
+            </div>
+          </div>
+          <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
-        onClick={() => notify('Promo')}
+        onClick={() => {
+          notify('Promo')
+          navigate('/promo')
+        }}
       >
         <span className="relative">
           <svg
@@ -139,9 +156,12 @@ export default function BottomStickyNav({ onAction }) {
         </span>
         <span>Promo</span>
       </button>
-      <button
+          <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
-        onClick={() => notify('Activity')}
+        onClick={() => {
+          notify('Activity')
+          navigate('/activity')
+        }}
       >
         <span className="relative">
           <svg
@@ -165,7 +185,9 @@ export default function BottomStickyNav({ onAction }) {
           )}
         </span>
         <span>Activity</span>
-      </button>
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
