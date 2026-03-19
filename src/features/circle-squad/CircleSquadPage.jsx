@@ -38,7 +38,7 @@ const circles = [
 
 const actions = [
   { id: 'chat', label: 'Chat', emoji: '💬' },
-  { id: 'challenge', label: 'Challenge', emoji: '🏆' },
+  { id: 'challenge', label: 'Friend Quiz', emoji: '🏆' },
   { id: 'ranking', label: 'Ranking', emoji: '📊' },
 ]
 
@@ -107,6 +107,10 @@ export default function CircleSquadPage({ showToast }) {
                             }
                             if (action.id === 'ranking') {
                               navigate(`/friend-ranking?circle=${circle.id}`)
+                              return
+                            }
+                            if (action.id === 'challenge') {
+                              navigate(`/friend-quiz?circle=${circle.id}`)
                               return
                             }
                             notify(`${circle.title} - ${action.label}`)
