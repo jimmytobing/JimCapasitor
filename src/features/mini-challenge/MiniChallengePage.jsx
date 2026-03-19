@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import { currentUser } from '../chat/chatData.js'
 
 const challengeItems = [
   {
@@ -26,10 +27,16 @@ const challengeItems = [
 ]
 
 const pollOptions = [
-  { name: '', votes: 32, avatar: 'J', avatarTone: 'from-amber-400 to-orange-500' },
-  { name: 'Bayu', votes: 21, avatar: 'B', avatarTone: 'from-sky-400 to-blue-500' },
-  { name: 'Angga', votes: 27, avatar: 'A', avatarTone: 'from-pink-400 to-rose-500' },
-  { name: 'Ryan', votes: 14, avatar: 'R', avatarTone: 'from-violet-400 to-fuchsia-500' },
+  {
+    name: currentUser.name,
+    gender: currentUser.gender,
+    votes: 32,
+    avatar: currentUser.avatar,
+    avatarTone: currentUser.avatarTone,
+  },
+  { name: 'Bayu', gender: 'pria', votes: 21, avatar: 'B', avatarTone: 'from-sky-400 to-blue-500' },
+  { name: 'Angga', gender: 'pria', votes: 27, avatar: 'A', avatarTone: 'from-pink-400 to-rose-500' },
+  { name: 'Ryan', gender: 'pria', votes: 14, avatar: 'R', avatarTone: 'from-violet-400 to-fuchsia-500' },
 ]
 
 export default function MiniChallengePage({ showToast }) {

@@ -4,6 +4,7 @@ import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 const nearbyFriends = [
   {
     name: 'Joshua',
+    gender: 'pria',
     place: '0.4 km dari kamu',
     area: 'Lagi di cafe Sudirman',
     avatar: 'J',
@@ -11,6 +12,7 @@ const nearbyFriends = [
   },
   {
     name: 'Bayu',
+    gender: 'pria',
     place: '0.9 km dari kamu',
     area: 'Dekat kampus barat',
     avatar: 'B',
@@ -18,6 +20,7 @@ const nearbyFriends = [
   },
   {
     name: 'Angga',
+    gender: 'pria',
     place: '1.3 km dari kamu',
     area: 'Main di taman kota',
     avatar: 'A',
@@ -28,6 +31,7 @@ const nearbyFriends = [
 const onlineFriends = [
   {
     name: 'Ryan',
+    gender: 'pria',
     activity: 'Online 2 menit lalu',
     status: 'Sedang buka chat',
     avatar: 'R',
@@ -35,6 +39,7 @@ const onlineFriends = [
   },
   {
     name: 'Vina',
+    gender: 'wanita',
     activity: 'Online sekarang',
     status: 'Baru update story',
     avatar: 'V',
@@ -42,6 +47,7 @@ const onlineFriends = [
   },
   {
     name: 'Graciella',
+    gender: 'wanita',
     activity: 'Online 5 menit lalu',
     status: 'Lagi cek circle',
     avatar: 'G',

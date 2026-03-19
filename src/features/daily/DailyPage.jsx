@@ -10,9 +10,9 @@ const moodOptions = [
 ]
 
 const friendsSeed = [
-  { name: 'Joshua', moodId: 'ngantuk' },
-  { name: 'Bayu', moodId: 'happy' },
-  { name: 'Angga', moodId: 'bad-mood' },
+  { name: 'Joshua', gender: 'pria', moodId: 'ngantuk' },
+  { name: 'Bayu', gender: 'pria', moodId: 'happy' },
+  { name: 'Angga', gender: 'pria', moodId: 'bad-mood' },
 ]
 
 export default function DailyPage({ showToast }) {

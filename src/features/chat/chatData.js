@@ -1,14 +1,25 @@
+export const currentUser = {
+  id: 'me',
+  name: 'Gracia',
+  age: 12,
+  gender: 'wanita',
+  hobby: ['menyanyi', 'dance'],
+  avatar: 'G',
+  avatarTone: 'from-pink-400 to-rose-500',
+}
+
 export const chatThreads = [
   {
     id: 'bayu',
     name: 'Bayu',
+    gender: 'pria',
     avatar: 'B',
     avatarTone: 'from-sky-400 to-blue-500',
     preview: 'Gas main nanti malam? Joshua juga kayaknya join.',
     time: '21:14',
     circles: ['best-friend', 'school-friend', 'game-friend'],
     messages: [
-      { id: 1, from: 'Bayu', text: 'Jim, nanti malam jadi online kan?', time: '20:11' },
+      { id: 1, from: 'Bayu', text: 'Gracia, nanti malam jadi online kan?', time: '20:11' },
       { id: 2, from: 'me', text: 'Jadi. Abis makan dulu bentar.', time: '20:12' },
       { id: 3, from: 'Bayu', text: 'Oke. Aku udah kabarin Joshua juga.', time: '20:13' },
       { id: 4, from: 'me', text: 'Main apa? Mobile Legend lagi?', time: '20:14' },
@@ -24,6 +35,7 @@ export const chatThreads = [
   {
     id: 'angga',
     name: 'Angga',
+    gender: 'pria',
     avatar: 'A',
     avatarTone: 'from-amber-400 to-orange-500',
     preview: 'Besok nongkrong jadi di cafe yang kemarin?',
@@ -46,6 +58,7 @@ export const chatThreads = [
   {
     id: 'vina',
     name: 'Vina',
+    gender: 'wanita',
     avatar: 'V',
     avatarTone: 'from-fuchsia-400 to-pink-500',
     preview: 'Aku masih ngakak sama kejadian Bayu tadi.',
@@ -68,6 +81,7 @@ export const chatThreads = [
   {
     id: 'joshua',
     name: 'Joshua',
+    gender: 'pria',
     avatar: 'J',
     avatarTone: 'from-orange-400 to-amber-500',
     preview: '',
@@ -79,6 +93,7 @@ export const chatThreads = [
   {
     id: 'fikri',
     name: 'Fikri',
+    gender: 'pria',
     avatar: 'F',
     avatarTone: 'from-violet-400 to-fuchsia-500',
     preview: '',
@@ -90,6 +105,7 @@ export const chatThreads = [
   {
     id: 'nanda',
     name: 'Nanda',
+    gender: 'wanita',
     avatar: 'N',
     avatarTone: 'from-cyan-400 to-blue-500',
     preview: '',
@@ -101,6 +117,7 @@ export const chatThreads = [
   {
     id: 'ryan',
     name: 'Ryan',
+    gender: 'pria',
     avatar: 'R',
     avatarTone: 'from-emerald-400 to-teal-500',
     preview: '',
@@ -112,6 +129,7 @@ export const chatThreads = [
   {
     id: 'graciella',
     name: 'Graciella',
+    gender: 'wanita',
     avatar: 'G',
     avatarTone: 'from-pink-400 to-rose-500',
     preview: '',
@@ -123,6 +141,7 @@ export const chatThreads = [
   {
     id: 'dina',
     name: 'Dina',
+    gender: 'wanita',
     avatar: 'D',
     avatarTone: 'from-slate-500 to-slate-700',
     preview: '',
@@ -134,6 +153,7 @@ export const chatThreads = [
   {
     id: 'caca',
     name: 'Caca',
+    gender: 'wanita',
     avatar: 'C',
     avatarTone: 'from-rose-400 to-pink-500',
     preview: '',
@@ -145,6 +165,7 @@ export const chatThreads = [
   {
     id: 'rafi',
     name: 'Rafi',
+    gender: 'pria',
     avatar: 'R',
     avatarTone: 'from-lime-400 to-emerald-500',
     preview: '',
@@ -156,6 +177,7 @@ export const chatThreads = [
   {
     id: 'dion',
     name: 'Dion',
+    gender: 'pria',
     avatar: 'D',
     avatarTone: 'from-indigo-400 to-blue-500',
     preview: '',
@@ -167,6 +189,7 @@ export const chatThreads = [
   {
     id: 'fitri',
     name: 'Fitri',
+    gender: 'wanita',
     avatar: 'F',
     avatarTone: 'from-fuchsia-400 to-pink-500',
     preview: '',
@@ -178,6 +201,7 @@ export const chatThreads = [
   {
     id: 'lola',
     name: 'Lola',
+    gender: 'wanita',
     avatar: 'L',
     avatarTone: 'from-orange-400 to-amber-500',
     preview: '',
@@ -189,6 +213,7 @@ export const chatThreads = [
   {
     id: 'zaki',
     name: 'Zaki',
+    gender: 'pria',
     avatar: 'Z',
     avatarTone: 'from-sky-400 to-cyan-500',
     preview: '',
@@ -200,6 +225,7 @@ export const chatThreads = [
   {
     id: 'putri',
     name: 'Putri',
+    gender: 'wanita',
     avatar: 'P',
     avatarTone: 'from-purple-400 to-violet-500',
     preview: '',
@@ -211,6 +237,7 @@ export const chatThreads = [
   {
     id: 'yusuf',
     name: 'Yusuf',
+    gender: 'pria',
     avatar: 'Y',
     avatarTone: 'from-teal-400 to-emerald-500',
     preview: '',
@@ -222,6 +249,7 @@ export const chatThreads = [
   {
     id: 'kevin',
     name: 'Kevin',
+    gender: 'pria',
     avatar: 'K',
     avatarTone: 'from-violet-400 to-indigo-500',
     preview: '',
@@ -233,6 +261,7 @@ export const chatThreads = [
   {
     id: 'salma',
     name: 'Salma',
+    gender: 'wanita',
     avatar: 'S',
     avatarTone: 'from-pink-400 to-rose-500',
     preview: '',
@@ -244,6 +273,7 @@ export const chatThreads = [
   {
     id: 'bimo-best',
     name: 'Bimo',
+    gender: 'pria',
     avatar: 'B',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',
@@ -255,6 +285,7 @@ export const chatThreads = [
   {
     id: 'tara-best',
     name: 'Tara',
+    gender: 'wanita',
     avatar: 'T',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',
@@ -266,6 +297,7 @@ export const chatThreads = [
   {
     id: 'mira-school',
     name: 'Mira',
+    gender: 'wanita',
     avatar: 'M',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',
@@ -277,6 +309,7 @@ export const chatThreads = [
   {
     id: 'tono-school',
     name: 'Tono',
+    gender: 'pria',
     avatar: 'T',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',
@@ -288,6 +321,7 @@ export const chatThreads = [
   {
     id: 'raka-game',
     name: 'Raka',
+    gender: 'pria',
     avatar: 'R',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',
@@ -299,6 +333,7 @@ export const chatThreads = [
   {
     id: 'nisa-game',
     name: 'Nisa',
+    gender: 'wanita',
     avatar: 'N',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',
@@ -310,6 +345,7 @@ export const chatThreads = [
   {
     id: 'leo-secret',
     name: 'Leo',
+    gender: 'pria',
     avatar: 'L',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',
@@ -321,6 +357,7 @@ export const chatThreads = [
   {
     id: 'maya-secret',
     name: 'Maya',
+    gender: 'wanita',
     avatar: 'M',
     avatarTone: 'from-slate-300 to-slate-500',
     preview: '',

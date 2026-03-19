@@ -1,70 +1,67 @@
 import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
-
-const rankingByCircle = {
-  'best-friend': {
-    title: 'Best Friend Ranking',
-    friends: [
-      { name: 'Bayu', level: 12, chat: 214, challenge: 18, hangout: 11 },
-      { name: 'Ryan', level: 10, chat: 167, challenge: 12, hangout: 9 },
-      { name: 'Angga', level: 9, chat: 149, challenge: 10, hangout: 8 },
-      { name: 'Joshua', level: 8, chat: 132, challenge: 9, hangout: 7 },
-    ],
-  },
-  'school-friend': {
-    title: 'School Friend Ranking',
-    friends: [
-      { name: 'Nanda', level: 8, chat: 121, challenge: 9, hangout: 6 },
-      { name: 'Caca', level: 7, chat: 116, challenge: 8, hangout: 5 },
-      { name: 'Rafi', level: 6, chat: 104, challenge: 6, hangout: 5 },
-      { name: 'Dion', level: 6, chat: 96, challenge: 5, hangout: 4 },
-      { name: 'Fitri', level: 5, chat: 91, challenge: 5, hangout: 4 },
-      { name: 'Lola', level: 5, chat: 88, challenge: 4, hangout: 4 },
-      { name: 'Zaki', level: 5, chat: 82, challenge: 4, hangout: 3 },
-      { name: 'Putri', level: 4, chat: 76, challenge: 4, hangout: 3 },
-      { name: 'Yusuf', level: 4, chat: 72, challenge: 3, hangout: 3 },
-      { name: 'Joshua', level: 4, chat: 70, challenge: 3, hangout: 2 },
-      { name: 'Bayu', level: 3, chat: 64, challenge: 2, hangout: 2 },
-      { name: 'Angga', level: 3, chat: 58, challenge: 2, hangout: 2 },
-    ],
-  },
-  'game-friend': {
-    title: 'Game Friend Ranking',
-    friends: [
-      { name: 'Fikri', level: 11, chat: 172, challenge: 20, hangout: 6 },
-      { name: 'Joshua', level: 9, chat: 151, challenge: 16, hangout: 5 },
-      { name: 'Graciella', level: 7, chat: 118, challenge: 11, hangout: 4 },
-      { name: 'Salma', level: 6, chat: 101, challenge: 9, hangout: 4 },
-      { name: 'Kevin', level: 5, chat: 86, challenge: 7, hangout: 3 },
-      { name: 'Bayu', level: 5, chat: 82, challenge: 7, hangout: 3 },
-    ],
-  },
-  'secret-circle': {
-    title: 'Secret Circle Ranking',
-    friends: [
-      { name: 'Vina', level: 9, chat: 133, challenge: 8, hangout: 5 },
-      { name: 'Ryan', level: 8, chat: 117, challenge: 7, hangout: 4 },
-      { name: 'Dina', level: 7, chat: 104, challenge: 6, hangout: 4 },
-    ],
-  },
-}
+import { chatThreads, circleTitles } from '../chat/chatData.js'
 
 const podiumStyles = {
   0: 'bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-200 ring-yellow-300',
-  1: 'bg-gradient-to-r from-slate-100 via-slate-50 to-slate-200 ring-slate-300',
+  1: 'bg-gradient-to-r from-[#eef2f7] via-[#d8dee8] to-[#c4ccd8] ring-[#aab4c3]',
   2: 'bg-gradient-to-r from-orange-100 via-amber-50 to-orange-200 ring-orange-300',
 }
+
+const avatarTones = [
+  'from-orange-400 to-amber-500',
+  'from-sky-400 to-cyan-500',
+  'from-pink-400 to-rose-500',
+  'from-violet-400 to-purple-500',
+  'from-emerald-400 to-teal-500',
+  'from-fuchsia-400 to-pink-500',
+]
 
 export default function FriendRankingPage({ showToast }) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const circleId = searchParams.get('circle') || 'best-friend'
-  const data = useMemo(
-    () => rankingByCircle[circleId] ?? rankingByCircle['best-friend'],
-    [circleId]
-  )
   const notify = typeof showToast === 'function' ? showToast : () => {}
+
+  const getAvatarTone = (name, index) => {
+    const total = name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
+    return avatarTones[(total + index) % avatarTones.length]
+  }
+
+  const data = useMemo(() => {
+    const activeCircleId = circleTitles[circleId] ? circleId : 'best-friend'
+    const friends = chatThreads
+      .filter((thread) => thread.circles?.includes(activeCircleId))
+      .map((thread, index) => {
+        const nameScore = thread.name
+          .split('')
+          .reduce((sum, char) => sum + char.charCodeAt(0), 0)
+        const messageCount = thread.messages.length
+        const chat = messageCount > 0 ? messageCount * 18 + (nameScore % 40) : 8 + (nameScore % 18)
+        const challenge = Math.max(1, Math.round(chat / 12) + (index % 3))
+        const hangout = Math.max(1, Math.round(challenge / 2) + (nameScore % 3))
+        const level = Math.max(2, Math.round(chat / 18) + challenge + hangout)
+
+        return {
+          ...thread,
+          chat,
+          challenge,
+          hangout,
+          level,
+        }
+      })
+      .sort((left, right) => {
+        if (right.level !== left.level) return right.level - left.level
+        if (right.chat !== left.chat) return right.chat - left.chat
+        return left.name.localeCompare(right.name)
+      })
+
+    return {
+      title: `${circleTitles[activeCircleId]} Ranking`,
+      friends,
+    }
+  }, [circleId])
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
@@ -102,26 +99,31 @@ export default function FriendRankingPage({ showToast }) {
                   <button
                     key={friend.name}
                     className={`w-full rounded-3xl p-4 text-left shadow-sm ring-1 transition ${
-                      podiumStyles[index] ?? 'bg-slate-50 ring-slate-100 hover:bg-slate-100'
+                      podiumStyles[index] ?? 'bg-white ring-slate-300 hover:bg-slate-50'
                     }`}
                     onClick={() => notify(`${friend.name} Friendship Level ${friend.level}`)}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
-                          {index + 1}
+                        <p className="min-w-[1.5rem] text-lg font-bold text-slate-700">
+                          {index + 1}.
+                        </p>
+                        <div
+                          className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${
+                            friend.avatarTone ?? getAvatarTone(friend.name, index)
+                          } text-sm font-semibold text-white shadow-sm`}
+                        >
+                          {friend.avatar ?? friend.name.slice(0, 1)}
                         </div>
                         <div>
-                          <p className="text-base font-semibold text-slate-900">
-                            Jimmy ❤️ {friend.name}
-                          </p>
+                          <p className="text-base font-semibold text-slate-900">{friend.name}</p>
                           <p className="mt-1 text-sm text-slate-500">
                             Friendship Level {friend.level}
                           </p>
                         </div>
                       </div>
                       <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
-                        Lv {friend.level}
+                        {`Lv ${friend.level}`}
                       </span>
                     </div>
 

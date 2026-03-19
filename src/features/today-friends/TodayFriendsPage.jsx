@@ -11,6 +11,7 @@ const feedItems = [
     people: [
       {
         name: 'Bayu',
+        gender: 'pria',
         detail: 'lagi aktif sekarang',
         handle: '@bayu',
         avatar: 'B',
@@ -18,6 +19,7 @@ const feedItems = [
       },
       {
         name: 'Nanda',
+        gender: 'wanita',
         detail: 'lagi aktif sekarang',
         handle: '@nanda',
         avatar: 'N',
@@ -25,6 +27,7 @@ const feedItems = [
       },
       {
         name: 'Rafi',
+        gender: 'pria',
         detail: 'lagi aktif sekarang',
         handle: '@rafi',
         avatar: 'R',
@@ -41,6 +44,7 @@ const feedItems = [
     people: [
       {
         name: 'Angga',
+        gender: 'pria',
         detail: 'ulang tahun hari ini',
         handle: '@angga',
         avatar: 'A',
@@ -58,15 +62,15 @@ const feedItems = [
       {
         name: 'Mobile Legend',
         players: [
-          { name: 'Joshua', handle: '@joshua', avatar: 'J', avatarTone: 'from-violet-400 to-fuchsia-500' },
-          { name: 'Fikri', handle: '@fikri', avatar: 'F', avatarTone: 'from-indigo-400 to-violet-500' },
+          { name: 'Joshua', gender: 'pria', handle: '@joshua', avatar: 'J', avatarTone: 'from-violet-400 to-fuchsia-500' },
+          { name: 'Fikri', gender: 'pria', handle: '@fikri', avatar: 'F', avatarTone: 'from-indigo-400 to-violet-500' },
         ],
       },
       {
         name: 'Roblox',
         players: [
-          { name: 'Vina', handle: '@vina', avatar: 'V', avatarTone: 'from-pink-400 to-rose-500' },
-          { name: 'Graciella', handle: '@graciella', avatar: 'G', avatarTone: 'from-cyan-400 to-blue-500' },
+          { name: 'Vina', gender: 'wanita', handle: '@vina', avatar: 'V', avatarTone: 'from-pink-400 to-rose-500' },
+          { name: 'Graciella', gender: 'wanita', handle: '@graciella', avatar: 'G', avatarTone: 'from-cyan-400 to-blue-500' },
         ],
       },
     ],
@@ -80,6 +84,7 @@ const feedItems = [
     people: [
       {
         name: 'Dina',
+        gender: 'wanita',
         detail: 'lagi sedih dan butuh teman cerita',
         handle: '@dina',
         avatar: 'D',
