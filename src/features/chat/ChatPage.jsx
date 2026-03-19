@@ -1,19 +1,523 @@
+import { useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
-import PageShell from '../../shared/components/PageShell.jsx'
+
+const chatThreads = [
+  {
+    id: 'bayu',
+    name: 'Bayu',
+    avatar: 'B',
+    avatarTone: 'from-sky-400 to-blue-500',
+    preview: 'Gas main nanti malam? Jimmy juga kayaknya join.',
+    time: '21:14',
+    circles: ['best-friend', 'school-friend', 'game-friend'],
+    messages: [
+      { id: 1, from: 'Bayu', text: 'Jim, nanti malam jadi online kan?', time: '20:11' },
+      { id: 2, from: 'me', text: 'Jadi. Abis makan dulu bentar.', time: '20:12' },
+      { id: 3, from: 'Bayu', text: 'Oke. Aku udah kabarin Jimmy juga.', time: '20:13' },
+      { id: 4, from: 'me', text: 'Main apa? Mobile Legend lagi?', time: '20:14' },
+      { id: 5, from: 'Bayu', text: 'Iya. Tapi kalau Fikri masuk bisa rank bareng.', time: '20:16' },
+      { id: 6, from: 'me', text: 'Boleh. Jam 9 pas ya.', time: '20:17' },
+      { id: 7, from: 'Bayu', text: 'Sip. Jangan bilang OTW padahal masih mandi ya.', time: '20:18' },
+      { id: 8, from: 'me', text: 'Fitnah itu masih disimpan terus rupanya.', time: '20:19' },
+      { id: 9, from: 'Bayu', text: 'Legend tidak boleh hilang.', time: '20:20' },
+      { id: 10, from: 'me', text: 'Gas. Nanti kalau Jimmy telat kita troll dulu.', time: '20:22' },
+      { id: 11, from: 'Bayu', text: 'Deal. Aku standby jam 9 kurang.', time: '21:14' },
+    ],
+  },
+  {
+    id: 'angga',
+    name: 'Angga',
+    avatar: 'A',
+    avatarTone: 'from-amber-400 to-orange-500',
+    preview: 'Besok nongkrong jadi di cafe yang kemarin?',
+    time: '19:42',
+    circles: ['best-friend', 'school-friend'],
+    messages: [
+      { id: 1, from: 'Angga', text: 'Besok nongkrong jadi kan?', time: '18:54' },
+      { id: 2, from: 'me', text: 'Jadi harusnya. Tempatnya masih sama?', time: '18:55' },
+      { id: 3, from: 'Angga', text: 'Aku kepikiran cafe yang kemarin. Enak buat duduk lama.', time: '18:56' },
+      { id: 4, from: 'me', text: 'Yang colokan banyak itu?', time: '18:57' },
+      { id: 5, from: 'Angga', text: 'Iya. Bayu juga cocok kalau mau kerja sambil ngopi.', time: '18:58' },
+      { id: 6, from: 'me', text: 'Jam berapa enaknya?', time: '18:59' },
+      { id: 7, from: 'Angga', text: 'Sekitar jam 4 sore biar nggak terlalu rame.', time: '19:00' },
+      { id: 8, from: 'me', text: 'Oke. Aku bisa.', time: '19:01' },
+      { id: 9, from: 'Angga', text: 'Kalau Ryan join berarti lengkap.', time: '19:03' },
+      { id: 10, from: 'me', text: 'Coba aku chat dia nanti.', time: '19:05' },
+      { id: 11, from: 'Angga', text: 'Sip. Besok fix ya, jangan buyar lagi.', time: '19:42' },
+    ],
+  },
+  {
+    id: 'vina',
+    name: 'Vina',
+    avatar: 'V',
+    avatarTone: 'from-fuchsia-400 to-pink-500',
+    preview: 'Aku masih ngakak sama kejadian Bayu tadi.',
+    time: '16:08',
+    circles: ['school-friend', 'secret-circle'],
+    messages: [
+      { id: 1, from: 'Vina', text: 'Aku masih ngakak sama kejadian Bayu tadi.', time: '15:41' },
+      { id: 2, from: 'me', text: 'Yang jatuh dari sepeda itu?', time: '15:41' },
+      { id: 3, from: 'Vina', text: 'Iya. Ekspresinya setelah bangun itu loh.', time: '15:42' },
+      { id: 4, from: 'me', text: 'Paling lucu pas dia nanya “nggak ada yang lihat kan?”', time: '15:43' },
+      { id: 5, from: 'Vina', text: 'Padahal kita udah ketawa dari awal dia oleng.', time: '15:44' },
+      { id: 6, from: 'me', text: 'Ada yang sempat rekam nggak?', time: '15:45' },
+      { id: 7, from: 'Vina', text: 'Ryan katanya sempat buka kamera tapi telat.', time: '15:46' },
+      { id: 8, from: 'me', text: 'Sayang banget. Itu bisa masuk Today Memory.', time: '15:47' },
+      { id: 9, from: 'Vina', text: 'At least ceritanya udah cukup buat bikin ketawa seharian.', time: '15:49' },
+      { id: 10, from: 'me', text: 'Besok pasti masih dibahas lagi.', time: '15:50' },
+      { id: 11, from: 'Vina', text: 'Jelas. Itu material bercandaan seminggu.', time: '16:08' },
+    ],
+  },
+  {
+    id: 'jimmy',
+    name: 'Jimmy',
+    avatar: 'J',
+    avatarTone: 'from-orange-400 to-amber-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['best-friend', 'game-friend'],
+    messages: [],
+  },
+  {
+    id: 'fikri',
+    name: 'Fikri',
+    avatar: 'F',
+    avatarTone: 'from-violet-400 to-fuchsia-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['game-friend'],
+    messages: [],
+  },
+  {
+    id: 'nanda',
+    name: 'Nanda',
+    avatar: 'N',
+    avatarTone: 'from-cyan-400 to-blue-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'ryan',
+    name: 'Ryan',
+    avatar: 'R',
+    avatarTone: 'from-emerald-400 to-teal-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['best-friend', 'secret-circle'],
+    messages: [],
+  },
+  {
+    id: 'gracia',
+    name: 'Gracia',
+    avatar: 'G',
+    avatarTone: 'from-pink-400 to-rose-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['game-friend'],
+    messages: [],
+  },
+  {
+    id: 'dina',
+    name: 'Dina',
+    avatar: 'D',
+    avatarTone: 'from-slate-500 to-slate-700',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['secret-circle'],
+    messages: [],
+  },
+  {
+    id: 'caca',
+    name: 'Caca',
+    avatar: 'C',
+    avatarTone: 'from-rose-400 to-pink-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'rafi',
+    name: 'Rafi',
+    avatar: 'R',
+    avatarTone: 'from-lime-400 to-emerald-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'dion',
+    name: 'Dion',
+    avatar: 'D',
+    avatarTone: 'from-indigo-400 to-blue-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'fitri',
+    name: 'Fitri',
+    avatar: 'F',
+    avatarTone: 'from-fuchsia-400 to-pink-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'lola',
+    name: 'Lola',
+    avatar: 'L',
+    avatarTone: 'from-orange-400 to-amber-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'zaki',
+    name: 'Zaki',
+    avatar: 'Z',
+    avatarTone: 'from-sky-400 to-cyan-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'putri',
+    name: 'Putri',
+    avatar: 'P',
+    avatarTone: 'from-purple-400 to-violet-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'yusuf',
+    name: 'Yusuf',
+    avatar: 'Y',
+    avatarTone: 'from-teal-400 to-emerald-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'kevin',
+    name: 'Kevin',
+    avatar: 'K',
+    avatarTone: 'from-violet-400 to-indigo-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['game-friend'],
+    messages: [],
+  },
+  {
+    id: 'salma',
+    name: 'Salma',
+    avatar: 'S',
+    avatarTone: 'from-pink-400 to-rose-500',
+    preview: '',
+    time: '',
+    inactive: false,
+    circles: ['game-friend'],
+    messages: [],
+  },
+  {
+    id: 'bimo-best',
+    name: 'Bimo',
+    avatar: 'B',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['best-friend'],
+    messages: [],
+  },
+  {
+    id: 'tara-best',
+    name: 'Tara',
+    avatar: 'T',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['best-friend'],
+    messages: [],
+  },
+  {
+    id: 'mira-school',
+    name: 'Mira',
+    avatar: 'M',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'tono-school',
+    name: 'Tono',
+    avatar: 'T',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['school-friend'],
+    messages: [],
+  },
+  {
+    id: 'raka-game',
+    name: 'Raka',
+    avatar: 'R',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['game-friend'],
+    messages: [],
+  },
+  {
+    id: 'nisa-game',
+    name: 'Nisa',
+    avatar: 'N',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['game-friend'],
+    messages: [],
+  },
+  {
+    id: 'leo-secret',
+    name: 'Leo',
+    avatar: 'L',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['secret-circle'],
+    messages: [],
+  },
+  {
+    id: 'maya-secret',
+    name: 'Maya',
+    avatar: 'M',
+    avatarTone: 'from-slate-300 to-slate-500',
+    preview: '',
+    time: '',
+    inactive: true,
+    circles: ['secret-circle'],
+    messages: [],
+  },
+]
+
+const circleTitles = {
+  'best-friend': 'Best Friend',
+  'school-friend': 'School Friend',
+  'game-friend': 'Game Friend',
+  'secret-circle': 'Secret Circle',
+}
 
 export default function ChatPage() {
-  const items = ['Chat Thread A', 'Chat Thread B', 'Chat Thread C']
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const [selectedThreadId, setSelectedThreadId] = useState(null)
+  const circleId = searchParams.get('circle')
+  const visibleThreads = useMemo(() => {
+    if (!circleId) {
+      return chatThreads.filter((thread) => thread.messages.length > 0)
+    }
+    return chatThreads.filter((thread) => thread.circles?.includes(circleId))
+  }, [circleId])
+  const selectedThread = useMemo(
+    () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? null,
+    [selectedThreadId, visibleThreads]
+  )
 
   return (
-    <PageShell>
-      <div className="space-y-2">
-        {items.map((item) => (
-          <div key={item} className="rounded-lg bg-white p-4 shadow">
-            {item}
-          </div>
-        ))}
+    <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
+      <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
+        <section className="bg-white shadow-none">
+          {selectedThread ? (
+            <>
+              <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-800 px-5 py-6 text-white">
+                <button
+                  className="text-sm font-medium text-white/80"
+                  onClick={() => setSelectedThreadId(null)}
+                >
+                  {'< Back'}
+                </button>
+                <div className="mt-3 flex items-center gap-3">
+                  <div
+                    className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${selectedThread.avatarTone} text-sm font-semibold text-white`}
+                  >
+                    {selectedThread.avatar}
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-semibold">{selectedThread.name}</h1>
+                    <p className="text-sm text-white/75">
+                      {selectedThread.inactive
+                        ? 'member non-aktif'
+                        : selectedThread.time
+                          ? `last seen ${selectedThread.time}`
+                          : 'belum ada chat'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 bg-[#e5ddd5] p-3">
+                {selectedThread.messages.length === 0 && (
+                  <div className="rounded-2xl bg-white p-4 text-center text-sm text-slate-500 shadow-sm">
+                    Belum ada chat terakhir.
+                  </div>
+                )}
+                {selectedThread.messages.map((message) => {
+                  const isMe = message.from === 'me'
+                  return (
+                    <div
+                      key={message.id}
+                      className={`flex items-end gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}
+                    >
+                      {!isMe && (
+                        <div
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${selectedThread.avatarTone} text-xs font-semibold text-white shadow-sm`}
+                        >
+                          {selectedThread.avatar}
+                        </div>
+                      )}
+                      <div
+                        className={`max-w-[78%] rounded-[20px] px-4 py-3 shadow-sm ${
+                          isMe
+                            ? 'rounded-br-md bg-[#dcf8c6] text-slate-800'
+                            : 'rounded-bl-md bg-white text-slate-800'
+                        }`}
+                      >
+                        {!isMe && (
+                          <p className="mb-1 text-xs font-semibold text-sky-700">
+                            {selectedThread.name}
+                          </p>
+                        )}
+                        <p className="text-sm leading-6">{message.text}</p>
+                        <p className="mt-1 text-right text-[11px] text-slate-400">
+                          {message.time}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-800 px-5 py-8 text-white">
+                <button
+                  className="text-sm font-medium text-white/80"
+                  onClick={() => navigate(circleId ? '/circle-squad' : '/')}
+                >
+                  {'< Back'}
+                </button>
+                <h1 className="text-2xl font-semibold">Chat</h1>
+                <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/85">
+                  {circleId && circleTitles[circleId]
+                    ? `List chat untuk ${circleTitles[circleId]}. Klik salah satu untuk buka percakapan.`
+                    : 'Mulai dari list chat, lalu buka percakapan untuk lihat tek-tokan yang panjang.'}
+                </p>
+              </div>
+
+              <div className="space-y-4 p-3">
+                <div className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Chat list</h2>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {circleId && circleTitles[circleId]
+                          ? `Teman-teman di ${circleTitles[circleId]}.`
+                          : 'Pilih salah satu untuk masuk ke tampilan chat masing-masing.'}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                      {visibleThreads.length} threads
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    {visibleThreads.map((thread) => (
+                      <button
+                        key={thread.id}
+                        className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left shadow-sm ring-1 transition ${
+                          thread.inactive
+                            ? 'bg-slate-100 ring-slate-200 hover:bg-slate-200'
+                            : 'bg-slate-50 ring-slate-100 hover:bg-slate-100'
+                        }`}
+                        onClick={() => setSelectedThreadId(thread.id)}
+                      >
+                        <div
+                          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${thread.avatarTone} text-base font-semibold text-white shadow-sm`}
+                        >
+                          {thread.avatar}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <p
+                              className={`truncate text-base font-semibold ${
+                                thread.inactive ? 'text-slate-500' : 'text-slate-900'
+                              }`}
+                            >
+                              {thread.name}
+                            </p>
+                            {thread.inactive ? (
+                              <span className="rounded-full bg-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-500">
+                                inactive
+                              </span>
+                            ) : thread.time ? (
+                              <span className="text-xs font-medium text-slate-400">
+                                {thread.time}
+                              </span>
+                            ) : null}
+                          </div>
+                          {thread.preview ? (
+                            <p className="mt-1 truncate text-sm text-slate-500">
+                              {thread.preview}
+                            </p>
+                          ) : (
+                            <p className="mt-1 text-sm text-slate-300"> </p>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </section>
       </div>
       <BottomStickyNav />
-    </PageShell>
+    </div>
   )
 }

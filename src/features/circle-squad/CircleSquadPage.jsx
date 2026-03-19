@@ -8,6 +8,7 @@ const circles = [
     emoji: '💛',
     members: '4 member aktif',
     accent: 'from-amber-400 to-orange-500',
+    chatCount: '4 chats',
   },
   {
     id: 'school-friend',
@@ -15,6 +16,7 @@ const circles = [
     emoji: '🎒',
     members: '12 member aktif',
     accent: 'from-sky-400 to-blue-500',
+    chatCount: '4 chats',
   },
   {
     id: 'game-friend',
@@ -22,6 +24,7 @@ const circles = [
     emoji: '🎮',
     members: '6 member aktif',
     accent: 'from-violet-400 to-fuchsia-500',
+    chatCount: '4 chats',
   },
   {
     id: 'secret-circle',
@@ -29,6 +32,7 @@ const circles = [
     emoji: '🔒',
     members: '3 member aktif',
     accent: 'from-slate-700 to-slate-900',
+    chatCount: '3 chats',
   },
 ]
 
@@ -96,7 +100,13 @@ export default function CircleSquadPage({ showToast }) {
                         <button
                           key={`${circle.id}-${action.id}`}
                           className="rounded-2xl bg-white px-3 py-3 text-center shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"
-                          onClick={() => notify(`${circle.title} - ${action.label}`)}
+                          onClick={() => {
+                            if (action.id === 'chat') {
+                              navigate(`/chat?circle=${circle.id}`)
+                              return
+                            }
+                            notify(`${circle.title} - ${action.label}`)
+                          }}
                         >
                           <div className="text-lg">{action.emoji}</div>
                           <div className="mt-1 text-sm font-semibold text-slate-800">
