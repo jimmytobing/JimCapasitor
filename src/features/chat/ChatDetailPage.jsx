@@ -29,7 +29,7 @@ export default function ChatDetailPage() {
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
       <div className="min-h-screen">
         <section className="bg-white shadow-none">
-          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-800 px-5 pb-6 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
+          <div className="sticky top-0 z-30 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-800 px-5 pb-6 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white shadow-sm">
             <button
               className="text-sm font-medium text-white/80"
               onClick={() => navigate(circleId ? `/chat?circle=${circleId}` : '/chat')}
