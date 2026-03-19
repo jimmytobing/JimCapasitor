@@ -129,10 +129,10 @@ export default function Home({ showToast }) {
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-orange-500 shadow hover:shadow-md ${glowButtonClass}`}
-                onClick={() => notify('Food tapped')}
+                onClick={() => navigate('/friend-stats')}
               >
-                <span className="text-xl">🍜</span>
-                <p className="mt-1 text-sm">Food</p>
+                <span className="text-xl">📊</span>
+                <p className="mt-1 text-center text-[11px] leading-tight">Friend Stats</p>
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-gray-600 shadow hover:shadow-md ${glowButtonClass}`}
