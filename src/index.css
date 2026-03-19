@@ -2,8 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
 body {
   margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 35%),
+    linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #0f172a;
+  font-family:
+    'Avenir Next',
+    'Segoe UI',
+    sans-serif;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -14,4 +28,19 @@ body {
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+@keyframes install-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.install-float {
+  animation: install-float 2.8s ease-in-out infinite;
 }
