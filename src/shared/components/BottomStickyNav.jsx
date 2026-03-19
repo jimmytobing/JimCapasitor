@@ -180,7 +180,7 @@ export default function BottomStickyNav({ onAction }) {
             </span>
           )}
         </span>
-        <span>Promo</span>
+        <span>Today Memory</span>
       </button>
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"

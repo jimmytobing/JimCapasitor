@@ -6,6 +6,7 @@ import TodayFriendsPage from '../features/today-friends/TodayFriendsPage.jsx'
 import CircleSquadPage from '../features/circle-squad/CircleSquadPage.jsx'
 import MiniChallengePage from '../features/mini-challenge/MiniChallengePage.jsx'
 import FriendRadarPage from '../features/friend-radar/FriendRadarPage.jsx'
+import ActivitySuggestionPage from '../features/activity-suggestion/ActivitySuggestionPage.jsx'
 import PromoPage from '../features/promo/PromoPage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
@@ -25,6 +26,10 @@ export default function AppRoutes({ showToast }) {
       <Route path="/circle-squad" element={<CircleSquadPage showToast={showToast} />} />
       <Route path="/mini-challenge" element={<MiniChallengePage showToast={showToast} />} />
       <Route path="/friend-radar" element={<FriendRadarPage showToast={showToast} />} />
+      <Route
+        path="/activity-suggestion"
+        element={<ActivitySuggestionPage showToast={showToast} />}
+      />
       <Route path="/promo" element={<PromoPage />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/chat" element={<ChatPage />} />
