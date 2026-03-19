@@ -115,10 +115,10 @@ export default function Home({ showToast }) {
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-purple-500 shadow hover:shadow-md ${glowButtonClass}`}
-                onClick={() => notify('Flight tapped')}
+                onClick={() => navigate('/friend-radar')}
               >
-                <span className="text-xl">✈️</span>
-                <p className="mt-1 text-sm">Flight</p>
+                <span className="text-xl">📍</span>
+                <p className="mt-1 text-center text-[11px] leading-tight">Friend Radar</p>
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-blue-500 shadow hover:shadow-md ${glowButtonClass}`}
