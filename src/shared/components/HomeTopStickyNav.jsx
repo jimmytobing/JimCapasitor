@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom'
+
 export default function HomeTopStickyNav({
   onAction,
   title = 'Loremipsum Title',
@@ -7,6 +9,7 @@ export default function HomeTopStickyNav({
   showSearch = true,
   searchPlaceholder = 'Search something...',
 }) {
+  const navigate = useNavigate()
   const notify = typeof onAction === 'function' ? onAction : () => {}
 
   return (
@@ -48,11 +51,13 @@ export default function HomeTopStickyNav({
           <div className="relative flex items-center justify-end">
             <div className="inline relative">
               <div className="block flex-grow-0 flex-shrink-0">
-                <img
-                  className="h-8 w-8 rounded-xl border border-yellow-300 shadow"
-                  src={avatarImage}
-                  alt="User avatar"
-                />
+                <button type="button" onClick={() => navigate('/user-profile')}>
+                  <img
+                    className="h-8 w-8 rounded-xl border border-yellow-300 shadow"
+                    src={avatarImage}
+                    alt="User avatar"
+                  />
+                </button>
               </div>
             </div>
           </div>

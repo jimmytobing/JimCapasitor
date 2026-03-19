@@ -13,6 +13,8 @@ import FriendRankingPage from '../features/friend-ranking/FriendRankingPage.jsx'
 import FriendQuizPage from '../features/friend-quiz/FriendQuizPage.jsx'
 import NewFriendQuizPage from '../features/friend-quiz/NewFriendQuizPage.jsx'
 import MemoryTimelinePage from '../features/memory-timeline/MemoryTimelinePage.jsx'
+import UserProfilePage from '../features/user-profile/UserProfilePage.jsx'
+import EditUserProfilePage from '../features/user-profile/EditUserProfilePage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
@@ -42,6 +44,8 @@ export default function AppRoutes({ showToast }) {
       <Route path="/friend-quiz/new" element={<NewFriendQuizPage showToast={showToast} />} />
       <Route path="/friend-ranking" element={<FriendRankingPage showToast={showToast} />} />
       <Route path="/memory-timeline/:friendId" element={<MemoryTimelinePage />} />
+      <Route path="/user-profile" element={<UserProfilePage showToast={showToast} />} />
+      <Route path="/user-profile/edit" element={<EditUserProfilePage showToast={showToast} />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/chat" element={<ChatPage />} />
       <Route path="/chat/:threadId" element={<ChatDetailPage />} />
