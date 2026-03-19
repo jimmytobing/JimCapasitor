@@ -107,7 +107,7 @@ export default function DailyPage({ showToast }) {
                             {friend.name} - {mood.emoji} {mood.label}
                           </p>
                           <p className="mt-1 text-sm text-slate-500">
-                            Teman bisa langsung merespon mood ini.
+                            Kamu bisa langsung merespon mood ini.
                           </p>
                         </div>
                         <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-emerald-700">

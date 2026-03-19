@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
@@ -26,6 +27,14 @@ const boardItems = [
         title: 'Alarm rapat circle jam 7',
         caption: 'Semua baca, semua mute, tidak ada yang join tepat waktu.',
       },
+      {
+        id: 'meme-3',
+        art: '🫥',
+        sender: 'Ryan',
+        time: '22:16',
+        title: 'Mode silent pas ditag',
+        caption: 'Aktif di grup lain, tapi begitu ditanya langsung menghilang.',
+      },
     ],
   },
   {
@@ -51,6 +60,14 @@ const boardItems = [
         time: '08:21',
         title: 'Angga typo legendaris',
         caption: '"Semnagat" sekarang jadi quote wajib tiap pagi.',
+      },
+      {
+        id: 'joke-3',
+        art: '😌',
+        sender: 'Jimmy',
+        time: '20:04',
+        title: 'Percaya diri tanpa alasan',
+        caption: '"Tenang, aku hafal jalan" lalu tetap nyasar dua kali.',
       },
     ],
   },
@@ -78,12 +95,22 @@ const boardItems = [
         title: 'Voice note salah kirim',
         caption: 'Momen paling chaos yang masih sering di-replay.',
       },
+      {
+        id: 'screenshot-3',
+        art: '📷',
+        sender: 'Bayu',
+        time: '18:27',
+        title: 'Screenshot chat setengah sadar',
+        caption: 'Balasan yang dikirim terlalu cepat dan langsung disesali.',
+      },
     ],
   },
 ]
 
 export default function InsideJokePage() {
   const navigate = useNavigate()
+  const [openItemId, setOpenItemId] = useState('meme')
+  const itemRefs = useRef({})
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
       <div className="min-h-screen pb-28">
@@ -117,76 +144,99 @@ export default function InsideJokePage() {
               </div>
 
               <div className="mt-4 space-y-3">
-                {boardItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="overflow-hidden rounded-3xl bg-slate-50 shadow-sm ring-1 ring-slate-100"
-                  >
-                    <div className={`bg-gradient-to-r ${item.tone} px-4 py-4 text-white`}>
-                      <div className="flex items-center gap-3">
+                {boardItems.map((item) => {
+                  const isOpen = openItemId === item.id
+                  return (
+                    <div
+                      key={item.id}
+                      ref={(node) => {
+                        itemRefs.current[item.id] = node
+                      }}
+                      className="overflow-hidden rounded-3xl bg-slate-50 shadow-sm ring-1 ring-slate-100"
+                    >
+                      <button
+                        className={`flex w-full items-center gap-3 bg-gradient-to-r ${item.tone} px-4 py-4 text-left text-white`}
+                        onClick={() => {
+                          setOpenItemId((prev) => {
+                            const nextId = prev === item.id ? '' : item.id
+                            if (nextId) {
+                              requestAnimationFrame(() => {
+                                itemRefs.current[item.id]?.scrollIntoView({
+                                  behavior: 'smooth',
+                                  block: 'start',
+                                })
+                              })
+                            }
+                            return nextId
+                          })
+                        }}
+                      >
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-sm">
                           {item.icon}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <h3 className="text-lg font-semibold">{item.title}</h3>
                           <p className="text-sm text-white/80">{item.note}</p>
                         </div>
-                      </div>
-                    </div>
+                        <span className="text-2xl leading-none">{isOpen ? '−' : '+'}</span>
+                      </button>
 
-                    <div className="bg-white px-4 py-4">
-                      <p className="text-sm leading-6 text-slate-600">{item.description}</p>
-                      <div className="mt-4 space-y-3">
-                        {item.examples.map((example) => (
-                          <div
-                            key={example.id}
-                            className="rounded-3xl bg-slate-50 p-3 ring-1 ring-slate-100"
-                          >
-                            <div className="flex items-center justify-between gap-3 px-1">
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${item.tone} text-base text-white shadow-sm`}
-                                >
-                                  {example.sender[0]}
+                      {isOpen && (
+                        <div className="bg-white px-4 py-4">
+                          <p className="text-sm leading-6 text-slate-600">{item.description}</p>
+                          <div className="mt-4 space-y-3">
+                            {item.examples.map((example) => (
+                              <div
+                                key={example.id}
+                                className="rounded-3xl bg-slate-50 p-3 ring-1 ring-slate-100"
+                              >
+                                <div className="flex items-center justify-between gap-3 px-1">
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${item.tone} text-base text-white shadow-sm`}
+                                    >
+                                      {example.sender[0]}
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-semibold text-slate-900">
+                                        {example.sender}
+                                      </p>
+                                      <p className="text-xs text-slate-400">saved image message</p>
+                                    </div>
+                                  </div>
+                                  <span className="text-xs font-medium text-slate-400">
+                                    {example.time}
+                                  </span>
                                 </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-slate-900">
-                                    {example.sender}
-                                  </p>
-                                  <p className="text-xs text-slate-400">saved image message</p>
-                                </div>
-                              </div>
-                              <span className="text-xs font-medium text-slate-400">
-                                {example.time}
-                              </span>
-                            </div>
 
-                            <div className="mt-3 pl-8">
-                              <div className="relative w-full max-w-[88%]">
-                                <div className="relative rounded-[22px] rounded-tl-md bg-[#dcf8c6] p-2 shadow-sm">
-                                  <span className="absolute -left-2 top-4 h-4 w-4 rotate-45 rounded-sm bg-[#dcf8c6]" />
-                                  <p className="px-1 pb-2 text-sm font-semibold leading-5 text-slate-800">
-                                    {example.title}
-                                  </p>
-                                  <div className="overflow-hidden rounded-[18px] bg-white p-4 shadow-inner">
-                                    <div className="flex items-center justify-center rounded-[14px] border border-slate-200 bg-white px-4 py-10 text-center">
-                                      <div>
-                                        <div className="text-5xl">{example.art}</div>
-                                        <p className="mt-3 text-base font-semibold text-slate-800">
-                                          {example.caption}
-                                        </p>
+                                <div className="mt-3 pl-8">
+                                  <div className="relative w-full max-w-[88%]">
+                                    <div className="relative rounded-[22px] rounded-tl-md bg-[#dcf8c6] p-2 shadow-sm">
+                                      <span className="absolute -left-2 top-4 h-4 w-4 rotate-45 rounded-sm bg-[#dcf8c6]" />
+                                      <p className="px-1 pb-2 text-sm font-semibold leading-5 text-slate-800">
+                                        {example.title}
+                                      </p>
+                                      <div className="overflow-hidden rounded-[18px] bg-white p-4 shadow-inner">
+                                        <div className="flex items-center justify-center rounded-[14px] border border-slate-200 bg-white px-4 py-10 text-center">
+                                          <div>
+                                            <div className="text-5xl">{example.art}</div>
+                                            <p className="mt-3 text-base font-semibold text-slate-800">
+                                              {example.caption}
+                                            </p>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
