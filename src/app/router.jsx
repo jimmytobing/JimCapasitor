@@ -9,6 +9,7 @@ import FriendRadarPage from '../features/friend-radar/FriendRadarPage.jsx'
 import ActivitySuggestionPage from '../features/activity-suggestion/ActivitySuggestionPage.jsx'
 import TodayMemoryPage from '../features/today-memory/TodayMemoryPage.jsx'
 import FriendStatsPage from '../features/friend-stats/FriendStatsPage.jsx'
+import FriendRankingPage from '../features/friend-ranking/FriendRankingPage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
@@ -34,6 +35,7 @@ export default function AppRoutes({ showToast }) {
       />
       <Route path="/today-memory" element={<TodayMemoryPage />} />
       <Route path="/friend-stats" element={<FriendStatsPage showToast={showToast} />} />
+      <Route path="/friend-ranking" element={<FriendRankingPage showToast={showToast} />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/chat" element={<ChatPage />} />
       <Route path="/chat/:threadId" element={<ChatDetailPage />} />

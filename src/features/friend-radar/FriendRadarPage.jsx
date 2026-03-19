@@ -3,7 +3,7 @@ import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
 const nearbyFriends = [
   {
-    name: 'Jimmy',
+    name: 'Joshua',
     place: '0.4 km dari kamu',
     area: 'Lagi di cafe Sudirman',
     avatar: 'J',

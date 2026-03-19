@@ -10,7 +10,7 @@ const moodOptions = [
 ]
 
 const friendsSeed = [
-  { name: 'Jimmy', moodId: 'ngantuk' },
+  { name: 'Joshua', moodId: 'ngantuk' },
   { name: 'Bayu', moodId: 'happy' },
   { name: 'Angga', moodId: 'bad-mood' },
 ]

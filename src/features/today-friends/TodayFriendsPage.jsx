@@ -58,7 +58,7 @@ const feedItems = [
       {
         name: 'Mobile Legend',
         players: [
-          { name: 'Jimmy', handle: '@jimmy', avatar: 'J', avatarTone: 'from-violet-400 to-fuchsia-500' },
+          { name: 'Joshua', handle: '@joshua', avatar: 'J', avatarTone: 'from-violet-400 to-fuchsia-500' },
           { name: 'Fikri', handle: '@fikri', avatar: 'F', avatarTone: 'from-indigo-400 to-violet-500' },
         ],
       },

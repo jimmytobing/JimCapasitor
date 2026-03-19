@@ -105,6 +105,10 @@ export default function CircleSquadPage({ showToast }) {
                               navigate(`/chat?circle=${circle.id}`)
                               return
                             }
+                            if (action.id === 'ranking') {
+                              navigate(`/friend-ranking?circle=${circle.id}`)
+                              return
+                            }
                             notify(`${circle.title} - ${action.label}`)
                           }}
                         >

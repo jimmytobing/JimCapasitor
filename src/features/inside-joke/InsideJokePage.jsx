@@ -14,9 +14,9 @@ const boardItems = [
       {
         id: 'meme-1',
         art: '🤣',
-        sender: 'Jimmy',
+        sender: 'Joshua',
         time: '09:14',
-        title: 'Jimmy tiap bilang "OTW"',
+        title: 'Joshua tiap bilang "OTW"',
         caption: 'Padahal masih mandi dan baru cari kaos.',
       },
       {
@@ -64,7 +64,7 @@ const boardItems = [
       {
         id: 'joke-3',
         art: '😌',
-        sender: 'Jimmy',
+        sender: 'Joshua',
         time: '20:04',
         title: 'Percaya diri tanpa alasan',
         caption: '"Tenang, aku hafal jalan" lalu tetap nyasar dua kali.',

@@ -5,7 +5,7 @@ const suggestionCards = [
   {
     id: 'game',
     icon: '🎮',
-    title: 'Jimmy dan Bayu sama-sama online.',
+    title: 'Joshua dan Bayu sama-sama online.',
     prompt: 'Mau main game bareng?',
     detail: 'Keduanya aktif dalam 3 menit terakhir dan biasa main di jam ini.',
     action: 'Ajak main',
