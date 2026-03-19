@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom'
 import Home from '../features/home/Home.jsx'
 import ExplorePage from '../features/explore/ExplorePage.jsx'
-import Module1Page from '../features/module-1/Module1Page.jsx'
-import Module2Page from '../features/module-2/Module2Page.jsx'
+import DailyPage from '../features/daily/DailyPage.jsx'
+import TodayFriendsPage from '../features/today-friends/TodayFriendsPage.jsx'
 import PromoPage from '../features/promo/PromoPage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
@@ -17,8 +17,8 @@ export default function AppRoutes({ showToast }) {
     >
       <Route path="/" element={<Home showToast={showToast} />} />
       <Route path="/explore" element={<ExplorePage />} />
-      <Route path="/module-1" element={<Module1Page />} />
-      <Route path="/module-2" element={<Module2Page />} />
+      <Route path="/daily" element={<DailyPage showToast={showToast} />} />
+      <Route path="/today-friends" element={<TodayFriendsPage showToast={showToast} />} />
       <Route path="/promo" element={<PromoPage />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/chat" element={<ChatPage />} />

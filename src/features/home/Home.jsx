@@ -87,17 +87,17 @@ export default function Home({ showToast }) {
             <div className="grid grid-cols-4 gap-3 text-gray-500">
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-green-600 shadow hover:shadow-md ${glowButtonClass}`}
-                onClick={() => navigate('/module-1')}
+                onClick={() => navigate('/daily')}
               >
-                <span className="text-xl">🏨</span>
-                <p className="mt-1 text-sm">Hotel</p>
+                <span className="text-xl">📆</span>
+                <p className="mt-1 text-center text-xs leading-tight">Daily Check-in</p>
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-yellow-600 shadow hover:shadow-md ${glowButtonClass}`}
-                onClick={() => navigate('/module-2')}
+                onClick={() => navigate('/today-friends')}
               >
-                <span className="text-xl">🚌</span>
-                <p className="mt-1 text-sm">Bus</p>
+                <span className="text-xl">👥</span>
+                <p className="mt-1 text-center text-[11px] leading-tight">Today With Friends</p>
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-indigo-500 shadow hover:shadow-md ${glowButtonClass}`}
