@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
 const challengeItems = [
@@ -32,6 +33,7 @@ const pollOptions = [
 ]
 
 export default function MiniChallengePage({ showToast }) {
+  const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const totalVotes = pollOptions.reduce((sum, option) => sum + option.votes, 0)
 
@@ -40,7 +42,12 @@ export default function MiniChallengePage({ showToast }) {
       <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
         <section className="bg-white shadow-none">
           <div className="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 px-5 py-8 text-white">
-            <p className="text-sm font-medium text-white/80">Category 4</p>
+            <button
+              className="text-sm font-medium text-white/80"
+              onClick={() => navigate('/')}
+            >
+              {'< Back'}
+            </button>
             <h1 className="mt-1 text-2xl font-semibold">Mini Challenge</h1>
             <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/90">
               Aktivitas kecil yang cepat dimainkan dan cocok untuk menaikkan engagement.

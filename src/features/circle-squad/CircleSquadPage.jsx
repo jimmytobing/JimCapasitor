@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
 const circles = [
@@ -38,6 +39,7 @@ const actions = [
 ]
 
 export default function CircleSquadPage({ showToast }) {
+  const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
 
   return (
@@ -45,7 +47,12 @@ export default function CircleSquadPage({ showToast }) {
       <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
         <section className="bg-white shadow-none">
           <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-fuchsia-900 px-5 py-8 text-white">
-            <p className="text-sm font-medium text-white/70">Category 3</p>
+            <button
+              className="text-sm font-medium text-white/70"
+              onClick={() => navigate('/')}
+            >
+              {'< Back'}
+            </button>
             <h1 className="mt-1 text-2xl font-semibold">Circle / Squad</h1>
             <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/85">
               Kelola circle terdekatmu dan buka interaksi utama dalam satu tap.

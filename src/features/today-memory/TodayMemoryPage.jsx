@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
 const memoryItems = [
@@ -7,11 +8,11 @@ const memoryItems = [
     title: 'Foto bareng teman',
     note: 'Tersimpan hari ini',
     description: 'Kumpulan foto hangout, nongkrong, dan momen spontan bareng circle.',
-    timestamp: '19 Maret 2026, 17:42',
+    timestamp: '19 Maret 2026',
     photos: [
-      { id: 'photo-1', title: 'Sore di taman kota', art: '🌇' },
-      { id: 'photo-2', title: 'Ngopi habis kelas', art: '☕' },
-      { id: 'photo-3', title: 'Selfie sebelum pulang', art: '🤳' },
+      { id: 'photo-1', title: 'Sore di taman kota', art: '🌇', time: '16:05' },
+      { id: 'photo-2', title: 'Ngopi habis kelas', art: '☕', time: '16:48' },
+      { id: 'photo-3', title: 'Selfie sebelum pulang', art: '🤳', time: '17:21' },
     ],
     tone: 'from-amber-400 to-orange-500',
   },
@@ -41,14 +42,20 @@ const memoryItems = [
   },
 ]
 
-export default function PromoPage() {
+export default function TodayMemoryPage() {
+  const navigate = useNavigate()
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
       <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
         <section className="bg-white shadow-none">
           <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-5 py-8 text-white">
-            <p className="text-sm font-medium text-white/80">Navbar</p>
-            <h1 className="mt-1 text-2xl font-semibold">Today Memory</h1>
+            <button
+              className="text-sm font-medium text-white/80"
+              onClick={() => navigate('/')}
+            >
+              {'< Back'}
+            </button>
+            <h1 className="mt-1 text-2xl font-semibold">Today Memory Board</h1>
             <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/90">
               Simpan foto bareng teman, cerita hari ini, dan moment lucu supaya memori
               pertemanan tidak hilang.
@@ -94,21 +101,26 @@ export default function PromoPage() {
                       </p>
 
                       {item.id === 'photo' ? (
-                        <div className="mt-4 grid grid-cols-3 gap-3">
+                        <div className="mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 hide-scrollbar">
                           {item.photos.map((photo) => (
                             <div
                               key={photo.id}
-                              className="overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-100"
+                              className="min-w-[78%] snap-start overflow-hidden rounded-2xl border-2 border-slate-300 bg-white shadow-sm"
                             >
                               <div
-                                className={`flex aspect-[3/4] items-center justify-center bg-gradient-to-br ${item.tone} text-4xl text-white`}
+                                className="flex aspect-[16/10] items-center justify-center border-b-2 border-slate-300 bg-white text-5xl"
                               >
                                 {photo.art}
                               </div>
-                              <div className="bg-white px-3 py-3">
-                                <p className="text-sm font-semibold leading-5 text-slate-800">
-                                  {photo.title}
-                                </p>
+                              <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-3">
+                                <div className="flex items-center justify-between gap-3">
+                                  <p className="text-sm font-semibold leading-5 text-white">
+                                    {photo.title}
+                                  </p>
+                                  <span className="shrink-0 text-xs font-medium text-white/80">
+                                    {photo.time}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           ))}

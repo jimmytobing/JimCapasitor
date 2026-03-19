@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
 const moodOptions = [
@@ -15,6 +16,7 @@ const friendsSeed = [
 ]
 
 export default function DailyPage({ showToast }) {
+  const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const [selectedMood, setSelectedMood] = useState('happy')
 
@@ -29,7 +31,12 @@ export default function DailyPage({ showToast }) {
       <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
         <section className="overflow-hidden bg-white shadow-none">
           <div className={`bg-gradient-to-r ${selectedMoodData.accent} px-5 py-8 text-white`}>
-            <p className="text-sm font-medium text-white/80">Category 1</p>
+            <button
+              className="text-sm font-medium text-white/80"
+              onClick={() => navigate('/')}
+            >
+              {'< Back'}
+            </button>
             <h1 className="mt-1 text-2xl font-semibold">Daily Check-in</h1>
             <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/90">
               Pilih mood hari ini, lalu biarkan teman lihat dan kasih respon cepat.

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
 const feedItems = [
@@ -89,6 +90,7 @@ const feedItems = [
 ]
 
 export default function TodayFriendsPage({ showToast }) {
+  const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
 
   return (
@@ -96,7 +98,12 @@ export default function TodayFriendsPage({ showToast }) {
       <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
         <section className="bg-white shadow-none">
           <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-800 px-5 py-8 text-white">
-            <p className="text-sm font-medium text-white/70">Category 2</p>
+            <button
+              className="text-sm font-medium text-white/70"
+              onClick={() => navigate('/')}
+            >
+              {'< Back'}
+            </button>
             <h1 className="mt-1 text-2xl font-semibold">Today With Friends</h1>
             <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/85">
               Feed kecil untuk lihat kondisi teman hari ini dalam satu halaman.

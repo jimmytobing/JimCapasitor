@@ -150,7 +150,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          handleNavClick('promo', '/promo')
+          handleNavClick('promo', '/today-memory')
         }}
       >
         <span className="relative">

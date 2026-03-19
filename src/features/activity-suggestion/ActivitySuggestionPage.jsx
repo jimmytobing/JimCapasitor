@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 
 const suggestionCards = [
@@ -31,6 +32,7 @@ const suggestionCards = [
 ]
 
 export default function ActivitySuggestionPage({ showToast }) {
+  const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
 
   return (
@@ -38,7 +40,12 @@ export default function ActivitySuggestionPage({ showToast }) {
       <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
         <section className="bg-white shadow-none">
           <div className="bg-gradient-to-r from-blue-700 via-cyan-600 to-emerald-400 px-5 py-8 text-white">
-            <p className="text-sm font-medium text-white/80">Category 6</p>
+            <button
+              className="text-sm font-medium text-white/80"
+              onClick={() => navigate('/')}
+            >
+              {'< Back'}
+            </button>
             <h1 className="mt-1 text-2xl font-semibold">Activity Suggestion</h1>
             <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/90">
               App memberi ide aktivitas otomatis berdasarkan siapa yang online dan siapa yang
