@@ -37,11 +37,13 @@ export default function ChatDetailPage() {
               {'< Back'}
             </button>
             <div className="mt-3 flex items-center gap-3">
-              <div
+              <button
+                type="button"
                 className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${thread.avatarTone} text-sm font-semibold text-white`}
+                onClick={() => navigate(`/memory-timeline/${thread.id}`)}
               >
                 {thread.avatar}
-              </div>
+              </button>
               <div>
                 <h1 className="text-xl font-semibold">{thread.name}</h1>
                 <p className="text-sm text-white/75">
@@ -70,11 +72,13 @@ export default function ChatDetailPage() {
                   className={`flex items-end gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}
                 >
                   {!isMe && (
-                    <div
+                    <button
+                      type="button"
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${thread.avatarTone} text-xs font-semibold text-white shadow-sm`}
+                      onClick={() => navigate(`/memory-timeline/${thread.id}`)}
                     >
                       {thread.avatar}
-                    </div>
+                    </button>
                   )}
                   <div
                     className={`max-w-[78%] rounded-[20px] px-4 py-3 shadow-sm ${

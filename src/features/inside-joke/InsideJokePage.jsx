@@ -192,11 +192,15 @@ export default function InsideJokePage() {
                               >
                                 <div className="flex items-center justify-between gap-3 px-1">
                                   <div className="flex items-center gap-2">
-                                    <div
+                                    <button
+                                      type="button"
                                       className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${item.tone} text-base text-white shadow-sm`}
+                                      onClick={() =>
+                                        navigate(`/memory-timeline/${example.sender.toLowerCase()}`)
+                                      }
                                     >
                                       {example.sender[0]}
-                                    </div>
+                                    </button>
                                     <div>
                                       <p className="text-sm font-semibold text-slate-900">
                                         {example.sender}

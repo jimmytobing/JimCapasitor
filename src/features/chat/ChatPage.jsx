@@ -52,25 +52,30 @@ export default function ChatPage() {
 
               <div className="mt-4 space-y-3">
                 {visibleThreads.map((thread) => (
-                  <button
+                  <div
                     key={thread.id}
                     className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left shadow-sm ring-1 transition ${
                       thread.inactive
                         ? 'bg-slate-100 ring-slate-200 hover:bg-slate-200'
                         : 'bg-slate-50 ring-slate-100 hover:bg-slate-100'
                     }`}
-                    onClick={() =>
-                      navigate(
-                        circleId ? `/chat/${thread.id}?circle=${circleId}` : `/chat/${thread.id}`
-                      )
-                    }
                   >
-                    <div
+                    <button
+                      type="button"
                       className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${thread.avatarTone} text-base font-semibold text-white shadow-sm`}
+                      onClick={() => navigate(`/memory-timeline/${thread.id}`)}
                     >
                       {thread.avatar}
-                    </div>
-                    <div className="min-w-0 flex-1">
+                    </button>
+                    <button
+                      type="button"
+                      className="min-w-0 flex-1 text-left"
+                      onClick={() =>
+                        navigate(
+                          circleId ? `/chat/${thread.id}?circle=${circleId}` : `/chat/${thread.id}`
+                        )
+                      }
+                    >
                       <div className="flex items-center justify-between gap-3">
                         <p
                           className={`truncate text-base font-semibold ${
@@ -92,8 +97,8 @@ export default function ChatPage() {
                       ) : (
                         <p className="mt-1 text-sm text-slate-300"> </p>
                       )}
-                    </div>
-                  </button>
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

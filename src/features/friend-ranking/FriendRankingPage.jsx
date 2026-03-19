@@ -96,31 +96,36 @@ export default function FriendRankingPage({ showToast }) {
 
               <div className="mt-4 space-y-3">
                 {data.friends.map((friend, index) => (
-                  <button
+                  <div
                     key={friend.name}
                     className={`w-full rounded-3xl p-4 text-left shadow-sm ring-1 transition ${
                       podiumStyles[index] ?? 'bg-white ring-slate-300 hover:bg-slate-50'
                     }`}
-                    onClick={() => notify(`${friend.name} Friendship Level ${friend.level}`)}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <p className="min-w-[1.5rem] text-lg font-bold text-slate-700">
                           {index + 1}.
                         </p>
-                        <div
+                        <button
+                          type="button"
                           className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${
                             friend.avatarTone ?? getAvatarTone(friend.name, index)
                           } text-sm font-semibold text-white shadow-sm`}
+                          onClick={() => navigate(`/memory-timeline/${friend.id}`)}
                         >
                           {friend.avatar ?? friend.name.slice(0, 1)}
-                        </div>
-                        <div>
+                        </button>
+                        <button
+                          type="button"
+                          className="text-left"
+                          onClick={() => notify(`${friend.name} Friendship Level ${friend.level}`)}
+                        >
                           <p className="text-base font-semibold text-slate-900">{friend.name}</p>
                           <p className="mt-1 text-sm text-slate-500">
                             Friendship Level {friend.level}
                           </p>
-                        </div>
+                        </button>
                       </div>
                       <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
                         {`Lv ${friend.level}`}
@@ -153,7 +158,7 @@ export default function FriendRankingPage({ showToast }) {
                         </p>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

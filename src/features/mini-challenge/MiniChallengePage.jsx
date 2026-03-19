@@ -116,21 +116,30 @@ export default function MiniChallengePage({ showToast }) {
 
                   <div className="mt-4 space-y-2">
                     {pollOptions.map((option) => (
-                      <button
+                      <div
                         key={option.name}
                         className="w-full rounded-2xl bg-white px-4 py-3 text-left shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"
-                        onClick={() => notify(`Vote untuk ${option.name}`)}
                       >
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex min-w-0 items-center gap-3">
-                            <span
+                            <button
+                              type="button"
                               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${option.avatarTone} text-xs font-semibold text-white`}
+                              onClick={() => {
+                                if (option.name && option.name !== currentUser.name) {
+                                  navigate(`/memory-timeline/${option.name.toLowerCase()}`)
+                                }
+                              }}
                             >
                               {option.avatar}
-                            </span>
-                            <span className="min-w-0 text-sm font-semibold text-slate-800">
+                            </button>
+                            <button
+                              type="button"
+                              className="min-w-0 text-sm font-semibold text-slate-800"
+                              onClick={() => notify(`Vote untuk ${option.name}`)}
+                            >
                               {option.name}
-                            </span>
+                            </button>
                           </div>
                           <div className="ml-auto flex w-[72%] max-w-[280px] items-center justify-end gap-3">
                             <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
@@ -144,7 +153,7 @@ export default function MiniChallengePage({ showToast }) {
                             </div>
                           </div>
                         </div>
-                      </button>
+                      </div>
                     ))}
                   </div>
                 </div>

@@ -159,20 +159,28 @@ export default function TodayFriendsPage({ showToast }) {
                                   </div>
                                   <div className="mt-2 flex flex-wrap gap-2">
                                     {game.players.map((player) => (
-                                      <button
+                                      <div
                                         key={`${game.name}-${player.name}`}
                                         className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
-                                        onClick={() =>
-                                          notify(`${player.name} lagi main ${game.name}`)
-                                        }
                                       >
-                                        <span
+                                        <button
+                                          type="button"
                                           className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${player.avatarTone} text-[11px] font-semibold text-white`}
+                                          onClick={() =>
+                                            navigate(`/memory-timeline/${player.name.toLowerCase()}`)
+                                          }
                                         >
                                           {player.avatar}
-                                        </span>
-                                        <span>{player.name}</span>
-                                      </button>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            notify(`${player.name} lagi main ${game.name}`)
+                                          }
+                                        >
+                                          <span>{player.name}</span>
+                                        </button>
+                                      </div>
                                     ))}
                                   </div>
                                 </div>
@@ -181,18 +189,25 @@ export default function TodayFriendsPage({ showToast }) {
                           ) : (
                             <div className="mt-3 space-y-3">
                               {item.people.map((person) => (
-                                <button
+                                <div
                                   key={`${item.id}-${person.name}`}
                                   className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"
-                                  onClick={() => notify(`${person.name} ${person.detail}`)}
                                 >
-                                  <div
+                                  <button
+                                    type="button"
                                     className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${person.avatarTone} text-base font-semibold text-white shadow-sm`}
+                                    onClick={() =>
+                                      navigate(`/memory-timeline/${person.name.toLowerCase()}`)
+                                    }
                                   >
                                     {person.avatar}
                                     <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
-                                  </div>
-                                  <div className="min-w-0 flex-1">
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="min-w-0 flex-1 text-left"
+                                    onClick={() => notify(`${person.name} ${person.detail}`)}
+                                  >
                                     <div className="flex items-center justify-between gap-3">
                                       <p className="truncate text-base font-semibold text-slate-900">
                                         {person.name}
@@ -204,8 +219,8 @@ export default function TodayFriendsPage({ showToast }) {
                                     <p className="mt-1 text-sm leading-5 text-slate-500">
                                       {person.detail}
                                     </p>
-                                  </div>
-                                </button>
+                                  </button>
+                                </div>
                               ))}
                             </div>
                           )}

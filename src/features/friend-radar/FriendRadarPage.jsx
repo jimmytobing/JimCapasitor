@@ -92,20 +92,27 @@ export default function FriendRadarPage({ showToast }) {
 
                   <div className="mt-5 grid grid-cols-3 gap-3">
                     {nearbyFriends.map((friend) => (
-                      <button
+                      <div
                         key={friend.name}
                         className="rounded-2xl bg-white/8 p-3 text-left backdrop-blur-sm ring-1 ring-white/10 transition hover:bg-white/12"
-                        onClick={() => notify(`${friend.name} ${friend.place}`)}
                       >
-                        <div
+                        <button
+                          type="button"
                           className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${friend.tone} text-sm font-semibold text-white`}
+                          onClick={() => navigate(`/memory-timeline/${friend.name.toLowerCase()}`)}
                         >
                           {friend.avatar}
-                        </div>
-                        <p className="mt-3 text-sm font-semibold text-white">{friend.name}</p>
-                        <p className="mt-1 text-xs text-sky-100">{friend.place}</p>
-                        <p className="mt-1 text-xs text-slate-300">{friend.area}</p>
-                      </button>
+                        </button>
+                        <button
+                          type="button"
+                          className="block text-left"
+                          onClick={() => notify(`${friend.name} ${friend.place}`)}
+                        >
+                          <p className="mt-3 text-sm font-semibold text-white">{friend.name}</p>
+                          <p className="mt-1 text-xs text-sky-100">{friend.place}</p>
+                          <p className="mt-1 text-xs text-slate-300">{friend.area}</p>
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -127,18 +134,23 @@ export default function FriendRadarPage({ showToast }) {
 
               <div className="mt-4 space-y-3">
                 {onlineFriends.map((friend) => (
-                  <button
+                  <div
                     key={friend.name}
                     className="flex w-full items-center gap-3 rounded-2xl bg-slate-50 p-3 text-left shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"
-                    onClick={() => notify(`${friend.name} ${friend.activity}`)}
                   >
-                    <div
+                    <button
+                      type="button"
                       className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${friend.tone} text-base font-semibold text-white shadow-sm`}
+                      onClick={() => navigate(`/memory-timeline/${friend.name.toLowerCase()}`)}
                     >
                       {friend.avatar}
                       <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
-                    </div>
-                    <div className="min-w-0 flex-1">
+                    </button>
+                    <button
+                      type="button"
+                      className="min-w-0 flex-1 text-left"
+                      onClick={() => notify(`${friend.name} ${friend.activity}`)}
+                    >
                       <div className="flex items-center justify-between gap-3">
                         <p className="truncate text-base font-semibold text-slate-900">
                           {friend.name}
@@ -148,8 +160,8 @@ export default function FriendRadarPage({ showToast }) {
                         </span>
                       </div>
                       <p className="mt-1 text-sm leading-5 text-slate-500">{friend.status}</p>
-                    </div>
-                  </button>
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
