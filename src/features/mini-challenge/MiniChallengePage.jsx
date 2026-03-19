@@ -26,7 +26,7 @@ const challengeItems = [
 ]
 
 const pollOptions = [
-  { name: 'Jimmy', votes: 32, avatar: 'J', avatarTone: 'from-amber-400 to-orange-500' },
+  { name: '', votes: 32, avatar: 'J', avatarTone: 'from-amber-400 to-orange-500' },
   { name: 'Bayu', votes: 21, avatar: 'B', avatarTone: 'from-sky-400 to-blue-500' },
   { name: 'Angga', votes: 27, avatar: 'A', avatarTone: 'from-pink-400 to-rose-500' },
   { name: 'Ryan', votes: 14, avatar: 'R', avatarTone: 'from-violet-400 to-fuchsia-500' },

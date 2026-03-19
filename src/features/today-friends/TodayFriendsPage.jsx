@@ -66,7 +66,7 @@ const feedItems = [
         name: 'Roblox',
         players: [
           { name: 'Vina', handle: '@vina', avatar: 'V', avatarTone: 'from-pink-400 to-rose-500' },
-          { name: 'Gracia', handle: '@gracia', avatar: 'G', avatarTone: 'from-cyan-400 to-blue-500' },
+          { name: 'Graciella', handle: '@graciella', avatar: 'G', avatarTone: 'from-cyan-400 to-blue-500' },
         ],
       },
     ],

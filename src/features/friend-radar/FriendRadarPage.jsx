@@ -41,7 +41,7 @@ const onlineFriends = [
     tone: 'from-emerald-400 to-teal-500',
   },
   {
-    name: 'Gracia',
+    name: 'Graciella',
     activity: 'Online 5 menit lalu',
     status: 'Lagi cek circle',
     avatar: 'G',

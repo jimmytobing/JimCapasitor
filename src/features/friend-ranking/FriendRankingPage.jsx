@@ -34,7 +34,7 @@ const rankingByCircle = {
     friends: [
       { name: 'Fikri', level: 11, chat: 172, challenge: 20, hangout: 6 },
       { name: 'Joshua', level: 9, chat: 151, challenge: 16, hangout: 5 },
-      { name: 'Gracia', level: 7, chat: 118, challenge: 11, hangout: 4 },
+      { name: 'Graciella', level: 7, chat: 118, challenge: 11, hangout: 4 },
       { name: 'Salma', level: 6, chat: 101, challenge: 9, hangout: 4 },
       { name: 'Kevin', level: 5, chat: 86, challenge: 7, hangout: 3 },
       { name: 'Bayu', level: 5, chat: 82, challenge: 7, hangout: 3 },

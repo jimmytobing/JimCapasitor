@@ -66,7 +66,7 @@ export const chatThreads = [
     ],
   },
   {
-    id: 'jimmy',
+    id: 'joshua',
     name: 'Joshua',
     avatar: 'J',
     avatarTone: 'from-orange-400 to-amber-500',
@@ -110,8 +110,8 @@ export const chatThreads = [
     messages: [],
   },
   {
-    id: 'gracia',
-    name: 'Gracia',
+    id: 'graciella',
+    name: 'Graciella',
     avatar: 'G',
     avatarTone: 'from-pink-400 to-rose-500',
     preview: '',
