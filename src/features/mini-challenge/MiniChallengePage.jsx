@@ -24,10 +24,16 @@ const challengeItems = [
   },
 ]
 
-const pollOptions = ['Jimmy', 'Bayu', 'Angga', 'Ryan']
+const pollOptions = [
+  { name: 'Jimmy', votes: 32, avatar: 'J', avatarTone: 'from-amber-400 to-orange-500' },
+  { name: 'Bayu', votes: 21, avatar: 'B', avatarTone: 'from-sky-400 to-blue-500' },
+  { name: 'Angga', votes: 27, avatar: 'A', avatarTone: 'from-pink-400 to-rose-500' },
+  { name: 'Ryan', votes: 14, avatar: 'R', avatarTone: 'from-violet-400 to-fuchsia-500' },
+]
 
 export default function MiniChallengePage({ showToast }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
+  const totalVotes = pollOptions.reduce((sum, option) => sum + option.votes, 0)
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
@@ -97,12 +103,33 @@ export default function MiniChallengePage({ showToast }) {
                   <div className="mt-4 space-y-2">
                     {pollOptions.map((option) => (
                       <button
-                        key={option}
-                        className="flex w-full items-center justify-between rounded-2xl bg-white px-4 py-3 text-left shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"
-                        onClick={() => notify(`Vote untuk ${option}`)}
+                        key={option.name}
+                        className="w-full rounded-2xl bg-white px-4 py-3 text-left shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"
+                        onClick={() => notify(`Vote untuk ${option.name}`)}
                       >
-                        <span className="text-sm font-semibold text-slate-800">{option}</span>
-                        <span className="text-sm text-slate-400">vote</span>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <span
+                              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${option.avatarTone} text-xs font-semibold text-white`}
+                            >
+                              {option.avatar}
+                            </span>
+                            <span className="min-w-0 text-sm font-semibold text-slate-800">
+                              {option.name}
+                            </span>
+                          </div>
+                          <div className="ml-auto flex w-[72%] max-w-[280px] items-center justify-end gap-3">
+                            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                              <div
+                                className="ml-auto h-full rounded-full bg-sky-500"
+                                style={{ width: `${(option.votes / totalVotes) * 100}%` }}
+                              />
+                            </div>
+                            <div className="shrink-0 text-right">
+                              <span className="text-sm text-slate-400">{option.votes} vote</span>
+                            </div>
+                          </div>
+                        </div>
                       </button>
                     ))}
                   </div>
