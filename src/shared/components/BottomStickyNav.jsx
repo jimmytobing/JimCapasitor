@@ -90,7 +90,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          handleNavClick('explore', '/explore')
+          handleNavClick('explore', '/inside-joke')
         }}
       >
         <span className="relative">
@@ -115,7 +115,7 @@ export default function BottomStickyNav({ onAction }) {
             </span>
           )}
         </span>
-        <span>Explore</span>
+        <span>Inside Joke</span>
       </button>
           <div className="flex flex-col items-center hover:text-blue-400">
             <div

@@ -1,9 +1,10 @@
 import { Route, Routes } from 'react-router-dom'
 import Home from '../features/home/Home.jsx'
-import ExplorePage from '../features/explore/ExplorePage.jsx'
+import InsideJokePage from '../features/inside-joke/InsideJokePage.jsx'
 import DailyPage from '../features/daily/DailyPage.jsx'
 import TodayFriendsPage from '../features/today-friends/TodayFriendsPage.jsx'
 import CircleSquadPage from '../features/circle-squad/CircleSquadPage.jsx'
+import MiniChallengePage from '../features/mini-challenge/MiniChallengePage.jsx'
 import PromoPage from '../features/promo/PromoPage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
@@ -17,10 +18,11 @@ export default function AppRoutes({ showToast }) {
       }}
     >
       <Route path="/" element={<Home showToast={showToast} />} />
-      <Route path="/explore" element={<ExplorePage />} />
+      <Route path="/inside-joke" element={<InsideJokePage />} />
       <Route path="/daily" element={<DailyPage showToast={showToast} />} />
       <Route path="/today-friends" element={<TodayFriendsPage showToast={showToast} />} />
       <Route path="/circle-squad" element={<CircleSquadPage showToast={showToast} />} />
+      <Route path="/mini-challenge" element={<MiniChallengePage showToast={showToast} />} />
       <Route path="/promo" element={<PromoPage />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/chat" element={<ChatPage />} />

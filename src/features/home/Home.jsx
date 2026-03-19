@@ -108,10 +108,10 @@ export default function Home({ showToast }) {
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-pink-500 shadow hover:shadow-md ${glowButtonClass}`}
-                onClick={() => notify('Beach tapped')}
+                onClick={() => navigate('/mini-challenge')}
               >
-                <span className="text-xl">🏖️</span>
-                <p className="mt-1 text-sm">Beach</p>
+                <span className="text-xl">🎯</span>
+                <p className="mt-1 text-center text-[11px] leading-tight">Mini Challenge</p>
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-purple-500 shadow hover:shadow-md ${glowButtonClass}`}
