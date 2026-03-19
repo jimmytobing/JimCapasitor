@@ -49,7 +49,7 @@ export default function BottomStickyNav({ onAction }) {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30">
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-[#edf2f7] shadow-[0_-8px_20px_rgba(0,0,0,0.06)]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-[#edf2f7] shadow-[0_-8px_20px_rgba(0,0,0,0.06)]" />
       <div className="relative w-full pb-[env(safe-area-inset-bottom)] pt-2">
         <div className="mx-3 flex h-16 items-center justify-between overflow-visible rounded-2xl bg-gray-900 px-5 py-3 text-gray-400 shadow-3xl">
           <button

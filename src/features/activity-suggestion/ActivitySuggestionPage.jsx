@@ -37,9 +37,9 @@ export default function ActivitySuggestionPage({ showToast }) {
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
-      <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
+      <div className="min-h-screen pb-28">
         <section className="bg-white shadow-none">
-          <div className="bg-gradient-to-r from-blue-700 via-cyan-600 to-emerald-400 px-5 py-8 text-white">
+          <div className="bg-gradient-to-r from-blue-700 via-cyan-600 to-emerald-400 px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
             <button
               className="text-sm font-medium text-white/80"
               onClick={() => navigate('/')}

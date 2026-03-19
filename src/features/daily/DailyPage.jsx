@@ -28,9 +28,9 @@ export default function DailyPage({ showToast }) {
 
   return (
     <div className="h-screen bg-[#edf2f7] overflow-y-auto hide-scrollbar">
-      <div className="min-h-screen pb-28 pt-[calc(1rem+env(safe-area-inset-top))]">
+      <div className="min-h-screen pb-28">
         <section className="overflow-hidden bg-white shadow-none">
-          <div className={`bg-gradient-to-r ${selectedMoodData.accent} px-5 py-8 text-white`}>
+          <div className={`bg-gradient-to-r ${selectedMoodData.accent} px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white`}>
             <button
               className="text-sm font-medium text-white/80"
               onClick={() => navigate('/')}

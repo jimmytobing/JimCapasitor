@@ -10,6 +10,7 @@ import ActivitySuggestionPage from '../features/activity-suggestion/ActivitySugg
 import TodayMemoryPage from '../features/today-memory/TodayMemoryPage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
+import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
 
 export default function AppRoutes({ showToast }) {
   return (
@@ -33,6 +34,7 @@ export default function AppRoutes({ showToast }) {
       <Route path="/today-memory" element={<TodayMemoryPage />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/chat" element={<ChatPage />} />
+      <Route path="/chat/:threadId" element={<ChatDetailPage />} />
     </Routes>
   )
 }
