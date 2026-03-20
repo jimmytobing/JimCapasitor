@@ -24,6 +24,39 @@ npx cap sync
 npm run android
 ```
 
+## Salesforce API From Capacitor
+
+Metode paling sederhana di project ini memakai `CapacitorHttp` dengan bearer token Salesforce yang sudah kamu punya.
+
+1. Copy `.env.example` jadi `.env`
+2. Isi:
+
+```bash
+VITE_SALESFORCE_INSTANCE_URL=https://your-domain.my.salesforce.com
+VITE_SALESFORCE_ACCESS_TOKEN=YOUR_SALESFORCE_ACCESS_TOKEN
+VITE_SALESFORCE_API_VERSION=v61.0
+```
+
+3. Jalankan app:
+
+```bash
+npm run dev
+```
+
+4. Buka halaman Settings lalu tekan `Tes Koneksi Salesforce`
+
+Yang sudah dipasang:
+
+- Service Salesforce di `src/shared/services/salesforce.js`
+- Request native via `CapacitorHttp` saat jalan di Android/iOS
+- Fallback `fetch` saat jalan di browser
+- Contoh query `Account` untuk verifikasi koneksi
+
+Catatan:
+
+- Cara ini cocok untuk demo, prototyping, atau koneksi internal cepat.
+- Untuk production, lebih aman ganti ke OAuth 2.0 / PKCE dan jangan simpan access token statis di app.
+
 ## App Name & Icon
 
 - App name is set to `Jim Wallet` in `capacitor.config.json` and `android/app/src/main/res/values/strings.xml`.
