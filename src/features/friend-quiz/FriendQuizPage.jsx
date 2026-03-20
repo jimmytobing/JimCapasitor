@@ -46,7 +46,7 @@ export default function FriendQuizPage({ showToast }) {
           <div className="bg-gradient-to-r from-violet-700 via-fuchsia-600 to-pink-500 px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
             <button
               className="text-sm font-medium text-white/80"
-              onClick={() => navigate('/circle-squad')}
+              onClick={() => navigate('/circle')}
             >
               {'< Back'}
             </button>

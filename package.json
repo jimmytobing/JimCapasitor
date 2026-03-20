@@ -9,6 +9,7 @@
     "build": "vite build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "pwa": "npm run deploy",
     "preview": "vite preview",
     "android": "npm run build && npx cap sync && npx cap run android"
   },

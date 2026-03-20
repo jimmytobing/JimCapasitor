@@ -107,7 +107,7 @@ const boardItems = [
   },
 ]
 
-export default function InsideJokePage() {
+export default function JokesPage() {
   const navigate = useNavigate()
   const [openItemId, setOpenItemId] = useState('meme')
   const itemRefs = useRef({})

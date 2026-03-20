@@ -42,7 +42,7 @@ const memoryItems = [
   },
 ]
 
-export default function TodayMemoryPage() {
+export default function MemoryPage() {
   const navigate = useNavigate()
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">

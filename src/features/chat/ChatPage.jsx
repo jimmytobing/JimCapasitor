@@ -22,7 +22,7 @@ export default function ChatPage() {
           <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-800 px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
             <button
               className="text-sm font-medium text-white/80"
-              onClick={() => navigate(circleId ? '/circle-squad' : '/')}
+              onClick={() => navigate(circleId ? '/circle' : '/')}
             >
               {'< Back'}
             </button>

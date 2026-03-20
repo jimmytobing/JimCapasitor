@@ -55,7 +55,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          handleNavClick('home', '/')
+          handleNavClick('home', '/home')
         }}
       >
         <span className="relative">
@@ -90,7 +90,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          handleNavClick('explore', '/inside-joke')
+          handleNavClick('circle', '/circle')
         }}
       >
         <span className="relative">
@@ -101,21 +101,26 @@ export default function BottomStickyNav({ onAction }) {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <circle cx="12" cy="12" r="9" strokeWidth="2" />
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M12 7v5l3 3"
+              d="M8 11a3 3 0 116 0 3 3 0 01-6 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M3 19a6 6 0 0110-3.9A6 6 0 0121 19"
             />
           </svg>
-          {badgeByApi.explore != null && (
-            <span className={badgeClass(badgeByApi.explore)}>
-              {badgeByApi.explore}
+          {badgeByApi.circle != null && (
+            <span className={badgeClass(badgeByApi.circle)}>
+              {badgeByApi.circle}
             </span>
           )}
         </span>
-        <span>Inside Joke</span>
+        <span>Circle</span>
       </button>
           <div className="flex flex-col items-center hover:text-blue-400">
             <div
@@ -150,7 +155,7 @@ export default function BottomStickyNav({ onAction }) {
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          handleNavClick('promo', '/today-memory')
+          handleNavClick('memory', '/memory')
         }}
       >
         <span className="relative">
@@ -174,18 +179,18 @@ export default function BottomStickyNav({ onAction }) {
               d="M9 12l2 2 4-4"
             />
           </svg>
-          {badgeByApi.promo != null && (
-            <span className={badgeClass(badgeByApi.promo)}>
-              {badgeByApi.promo}
+          {badgeByApi.memory != null && (
+            <span className={badgeClass(badgeByApi.memory)}>
+              {badgeByApi.memory}
             </span>
           )}
         </span>
-        <span>Today Memory</span>
+        <span>Memory</span>
       </button>
           <button
         className="flex flex-col items-center text-[11px] leading-tight transition duration-200 ease-in hover:text-blue-400"
         onClick={() => {
-          handleNavClick('activity', '/activity')
+          handleNavClick('insideJoke', '/jokes')
         }}
       >
         <span className="relative">
@@ -196,20 +201,21 @@ export default function BottomStickyNav({ onAction }) {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
+            <circle cx="12" cy="12" r="9" strokeWidth="2" />
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"
-              d="M4 19h16M5 16l2-6 3 4 3-7 3 5 2-2"
+              d="M12 7v5l3 3"
             />
           </svg>
-          {badgeByApi.activity != null && (
-            <span className={badgeClass(badgeByApi.activity)}>
-              {badgeByApi.activity}
+          {badgeByApi.insideJoke != null && (
+            <span className={badgeClass(badgeByApi.insideJoke)}>
+              {badgeByApi.insideJoke}
             </span>
           )}
         </span>
-        <span>Activity</span>
+        <span>Jokes</span>
           </button>
         </div>
       </div>

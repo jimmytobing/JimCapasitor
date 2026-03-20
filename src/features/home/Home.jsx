@@ -103,10 +103,10 @@ export default function Home({ showToast }) {
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-indigo-500 shadow hover:shadow-md ${glowButtonClass}`}
-                onClick={() => navigate('/circle-squad')}
+                onClick={() => navigate('/activity')}
               >
-                <span className="text-xl">🫂</span>
-                <p className="mt-1 text-center text-[11px] leading-tight">Circle / Squad</p>
+                <span className="text-xl">🏃</span>
+                <p className="mt-1 text-center text-[11px] leading-tight">Activity</p>
               </button>
               <button
                 className={`flex h-20 w-full flex-col items-center justify-center rounded-2xl bg-white p-1 text-pink-500 shadow hover:shadow-md ${glowButtonClass}`}

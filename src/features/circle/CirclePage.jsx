@@ -42,7 +42,7 @@ const actions = [
   { id: 'ranking', label: 'Ranking', emoji: '📊' },
 ]
 
-export default function CircleSquadPage({ showToast }) {
+export default function CirclePage({ showToast }) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
 

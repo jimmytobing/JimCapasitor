@@ -70,7 +70,7 @@ export default function FriendRankingPage({ showToast }) {
           <div className="bg-gradient-to-r from-rose-700 via-pink-600 to-orange-400 px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
             <button
               className="text-sm font-medium text-white/80"
-              onClick={() => navigate('/circle-squad')}
+              onClick={() => navigate('/circle')}
             >
               {'< Back'}
             </button>
