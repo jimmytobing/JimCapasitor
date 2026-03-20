@@ -30,7 +30,7 @@ export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
         v7_relativeSplatPath: true,
       }}
     >
-      <Route path="/home" element={<Home showToast={showToast} />} />
+      <Route path="/home" element={<Home showToast={showToast} themeMode={themeMode} />} />
       <Route path="/jokes" element={<JokesPage />} />
       <Route path="/daily" element={<DailyPage showToast={showToast} />} />
       <Route path="/today-friends" element={<TodayFriendsPage showToast={showToast} />} />

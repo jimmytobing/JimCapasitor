@@ -6,28 +6,39 @@ export default function HomeTopStickyNav({
   onAction,
   title = 'HypeZone',
   subtitle = 'Bekasi',
-  backgroundImage = getAssetUrl('/resources/images/top-bg.jpg'),
   avatarImage = getAssetUrl('/resources/images/avatar.jpg'),
   showSearch = true,
   searchPlaceholder = 'Search something...',
+  themeMode = 'default',
 }) {
   const navigate = useNavigate()
   const notify = typeof onAction === 'function' ? onAction : () => {}
+  const isBlackTheme = themeMode === 'black'
 
   return (
     <div
-      className="relative sticky top-0 z-20 w-full cursor-pointer rounded-b-3xl bg-center object-cover shadow-lg"
+      className={`relative sticky top-0 z-20 w-full cursor-pointer rounded-b-3xl shadow-lg ${
+        'bg-gradient-to-r from-cyan-400 via-sky-500 to-fuchsia-500'
+      }`}
       style={{
-        backgroundImage: `url('${backgroundImage}')`,
         height: 'calc(9rem + env(safe-area-inset-top))',
         paddingTop: 'env(safe-area-inset-top)',
       }}
     >
+      <div
+        className={`absolute inset-0 z-0 ${
+          isBlackTheme
+            ? 'bg-[linear-gradient(180deg,rgba(15,23,42,0.06)_0%,rgba(15,23,42,0.22)_100%)]'
+            : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.18)_100%)]'
+        }`}
+      />
       <nav className="relative z-10 mx-auto flex h-18 items-center justify-between p-2">
         <div className="inline relative">
           <button
             type="button"
-            className="relative mr-3 inline-flex items-center text-gray-300 hover:text-white"
+            className={`relative mr-3 inline-flex items-center ${
+              isBlackTheme ? 'text-gray-300 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+            }`}
             onClick={() => {
               notify('Buka settings')
               navigate('/settings')
@@ -58,7 +69,9 @@ export default function HomeTopStickyNav({
               <div className="block flex-grow-0 flex-shrink-0">
                 <button type="button" onClick={() => navigate('/user-profile')}>
                   <img
-                    className="h-8 w-8 rounded-xl border border-yellow-300 shadow"
+                    className={`h-8 w-8 rounded-xl shadow ${
+                      isBlackTheme ? 'border border-yellow-300' : 'border border-slate-200'
+                    }`}
                     src={avatarImage}
                     alt="User avatar"
                   />
@@ -69,13 +82,21 @@ export default function HomeTopStickyNav({
         </div>
       </nav>
 
-      <div className="flex w-full flex-col rounded-lg px-3">
-        <h4 className="truncate text-xl font-semibold leading-tight text-white">
+      <div className="relative z-10 flex w-full flex-col rounded-lg px-3">
+        <h4
+          className={`truncate text-xl font-semibold leading-tight ${
+            isBlackTheme ? 'text-white' : 'text-slate-900'
+          }`}
+        >
           {title}
         </h4>
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <h2 className="flex items-center text-sm font-normal text-gray-100">
+            <h2
+              className={`flex items-center text-sm font-normal ${
+                isBlackTheme ? 'text-gray-100' : 'text-slate-500'
+              }`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="mr-1 h-4 w-4"
@@ -103,14 +124,22 @@ export default function HomeTopStickyNav({
       </div>
 
       {showSearch && (
-        <div className="z-10 mt-3 flex items-center justify-between px-3">
-          <div className="relative w-full">
+        <div className="absolute inset-x-0 bottom-0 z-30 translate-y-1/2 px-3">
+          <div className="relative z-30 w-full">
             <input
               type="text"
-              className="w-full rounded-xl border-0 bg-white p-3 shadow"
+              className={`w-full rounded-xl p-3 shadow backdrop-blur-sm ${
+                isBlackTheme
+                  ? 'border border-white/30 bg-white/90'
+                  : 'border border-slate-300 bg-white/75'
+              }`}
               placeholder={searchPlaceholder}
             />
-            <div className="absolute right-0 top-0 p-4 pr-3 text-gray-400">
+            <div
+              className={`absolute right-0 top-0 z-40 p-4 pr-3 ${
+                isBlackTheme ? 'text-gray-400' : 'text-slate-400'
+              }`}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"

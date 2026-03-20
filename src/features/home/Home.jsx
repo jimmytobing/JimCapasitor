@@ -107,7 +107,7 @@ const communitySuggestions = [
   },
 ]
 
-export default function Home({ showToast }) {
+export default function Home({ showToast, themeMode = 'default' }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const navigate = useNavigate()
   const refillBadges = () => {
@@ -124,7 +124,7 @@ export default function Home({ showToast }) {
     <div className="h-screen bg-[#edf2f7] overflow-y-auto hide-scrollbar">
       <div className="min-h-screen pb-28 pt-0">
         <div className="w-full space-y-3 rounded-none border-0 bg-white shadow-none">
-          <HomeTopStickyNav onAction={notify} />
+          <HomeTopStickyNav onAction={notify} themeMode={themeMode} />
 
             <div className="relative z-0 space-y-4 p-3">
             <div className="rounded-2xl bg-white p-4 shadow-md">
