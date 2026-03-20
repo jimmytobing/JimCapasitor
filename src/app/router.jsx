@@ -16,6 +16,8 @@ import MemoryTimelinePage from '../features/memory-timeline/MemoryTimelinePage.j
 import UserProfilePage from '../features/user-profile/UserProfilePage.jsx'
 import EditUserProfilePage from '../features/user-profile/EditUserProfilePage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
+import ActivityDetailPage, { ActivityTypePage } from '../features/activity/ActivityDetailPage.jsx'
+import EditActivityCategoryPage from '../features/activity/EditActivityCategoryPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
 
@@ -46,7 +48,20 @@ export default function AppRoutes({ showToast }) {
       <Route path="/memory-timeline/:friendId" element={<MemoryTimelinePage />} />
       <Route path="/user-profile" element={<UserProfilePage showToast={showToast} />} />
       <Route path="/user-profile/edit" element={<EditUserProfilePage showToast={showToast} />} />
-      <Route path="/activity" element={<ActivityPage />} />
+      <Route path="/activity" element={<ActivityPage showToast={showToast} />} />
+      <Route path="/activity/:activityId" element={<ActivityTypePage showToast={showToast} />} />
+      <Route
+        path="/activity/:activityId/edit-category"
+        element={<EditActivityCategoryPage showToast={showToast} />}
+      />
+      <Route
+        path="/activity/:activityId/new"
+        element={<ActivityDetailPage showToast={showToast} />}
+      />
+      <Route
+        path="/activity/:activityId/:entryId"
+        element={<ActivityDetailPage showToast={showToast} />}
+      />
       <Route path="/chat" element={<ChatPage />} />
       <Route path="/chat/:threadId" element={<ChatDetailPage />} />
       <Route path="/inside-joke" element={<Navigate to="/jokes" replace />} />
