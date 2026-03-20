@@ -108,6 +108,83 @@ export async function querySalesforce(soql) {
   })
 }
 
+export async function querySalesforceGraphQL(query, variables = {}) {
+  const payload = await sendSalesforceRequest('graphql', {
+    method: 'POST',
+    data: {
+      query,
+      variables,
+    },
+  })
+
+  if (payload?.errors?.length) {
+    throw new Error(payload.errors[0]?.message || 'GraphQL Salesforce gagal.')
+  }
+
+  return payload?.data
+}
+
+export async function fetchAccountContactsByName(accountName) {
+  const data = await querySalesforceGraphQL(
+    `
+      query AccountContacts($accountName: String!) {
+        uiapi {
+          query {
+            Account(
+              where: { Name: { eq: $accountName } }
+              first: 1
+            ) {
+              edges {
+                node {
+                  Id
+                  Name {
+                    value
+                  }
+                  Contacts(first: 200) {
+                    edges {
+                      node {
+                        Id
+                        FirstName {
+                          value
+                        }
+                        LastName {
+                          value
+                        }
+                        Name {
+                          value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    { accountName }
+  )
+
+  const accountNode = data?.uiapi?.query?.Account?.edges?.[0]?.node
+
+  if (!accountNode) {
+    return null
+  }
+
+  return {
+    id: accountNode.Id,
+    name: accountNode.Name?.value || accountName,
+    contacts:
+      accountNode.Contacts?.edges?.map(({ node }) => ({
+        id: node.Id,
+        firstName: node.FirstName?.value || '',
+        lastName: node.LastName?.value || '',
+        name: node.Name?.value || [node.FirstName?.value, node.LastName?.value].filter(Boolean).join(' '),
+      })) || [],
+  }
+}
+
 export async function fetchSampleAccounts(limit = 5) {
   const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(limit, 1), 20) : 5
 

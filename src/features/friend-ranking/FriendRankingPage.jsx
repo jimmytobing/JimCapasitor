@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
+import { fetchAccountContactsByName } from '../../shared/services/salesforce.js'
 import { chatThreads, circleTitles } from '../chat/chatData.js'
 
 const podiumStyles = {
@@ -15,9 +16,16 @@ export default function FriendRankingPage({ showToast }) {
   const [searchParams] = useSearchParams()
   const circleId = searchParams.get('circle') || 'best-friend'
   const notify = typeof showToast === 'function' ? showToast : () => {}
+  const [salesforceState, setSalesforceState] = useState({
+    isLoading: false,
+    error: '',
+    title: '',
+    friends: [],
+  })
 
-  const data = useMemo(() => {
-    const activeCircleId = circleTitles[circleId] ? circleId : 'best-friend'
+  const activeCircleId = circleTitles[circleId] ? circleId : 'best-friend'
+
+  const localData = useMemo(() => {
     const friends = chatThreads
       .filter((thread) => thread.circles?.includes(activeCircleId))
       .map((thread, index) => {
@@ -48,7 +56,96 @@ export default function FriendRankingPage({ showToast }) {
       title: `${circleTitles[activeCircleId]} Ranking`,
       friends,
     }
-  }, [circleId])
+  }, [activeCircleId])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    if (activeCircleId !== 'school-friend') {
+      setSalesforceState({
+        isLoading: false,
+        error: '',
+        title: '',
+        friends: [],
+      })
+      return undefined
+    }
+
+    const loadSchoolFriends = async () => {
+      setSalesforceState((current) => ({
+        ...current,
+        isLoading: true,
+        error: '',
+      }))
+
+      try {
+        const account = await fetchAccountContactsByName('School Friend')
+
+        if (!account) {
+          throw new Error('Account School Friend tidak ditemukan di Salesforce.')
+        }
+
+        const friends = account.contacts
+          .map((contact, index) => {
+            const displayName = contact.name || `Contact ${index + 1}`
+            const seed = displayName.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
+            const chat = 24 + (seed % 80)
+            const challenge = 3 + (seed % 9)
+            const hangout = 2 + ((seed + index) % 7)
+            const level = Math.max(3, Math.round(chat / 14) + challenge + hangout)
+
+            return {
+              id: contact.id,
+              name: displayName,
+              avatar: displayName.slice(0, 1),
+              chat,
+              challenge,
+              hangout,
+              level,
+            }
+          })
+          .sort((left, right) => {
+            if (right.level !== left.level) return right.level - left.level
+            if (right.chat !== left.chat) return right.chat - left.chat
+            return left.name.localeCompare(right.name)
+          })
+
+        if (isCancelled) return
+
+        setSalesforceState({
+          isLoading: false,
+          error: '',
+          title: `${account.name} Ranking`,
+          friends,
+        })
+        notify(`Salesforce memuat ${friends.length} school friends`)
+      } catch (error) {
+        if (isCancelled) return
+
+        setSalesforceState({
+          isLoading: false,
+          error: error.message || 'Gagal memuat school friends dari Salesforce.',
+          title: '',
+          friends: [],
+        })
+        notify('Gagal mengambil ranking dari Salesforce')
+      }
+    }
+
+    loadSchoolFriends()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [activeCircleId, notify])
+
+  const data =
+    activeCircleId === 'school-friend' && salesforceState.friends.length > 0
+      ? {
+          title: salesforceState.title,
+          friends: salesforceState.friends,
+        }
+      : localData
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
@@ -73,15 +170,32 @@ export default function FriendRankingPage({ showToast }) {
                 <div>
                   <h2 className="text-base font-semibold text-slate-900">{data.title}</h2>
                   <p className="mt-1 text-sm text-slate-500">
-                    Diurutkan berdasarkan friendship level tertinggi di circle ini.
+                    {activeCircleId === 'school-friend'
+                      ? 'Data school friend diambil dari Salesforce GraphQL dan diurutkan berdasarkan friendship level.'
+                      : 'Diurutkan berdasarkan friendship level tertinggi di circle ini.'}
                   </p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                  Top bonds
+                  {activeCircleId === 'school-friend' ? 'SF GraphQL' : 'Top bonds'}
                 </span>
               </div>
 
               <div className="mt-4 space-y-3">
+                {activeCircleId === 'school-friend' && salesforceState.isLoading ? (
+                  <div className="rounded-3xl border border-sky-100 bg-sky-50 p-4 text-sm text-sky-700">
+                    Mengambil Account dan Contacts dari Salesforce...
+                  </div>
+                ) : null}
+
+                {activeCircleId === 'school-friend' && salesforceState.error ? (
+                  <div className="rounded-3xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-700">
+                    {salesforceState.error}
+                    <div className="mt-1 text-amber-600">
+                      Halaman menampilkan fallback data lokal supaya flow app tetap jalan.
+                    </div>
+                  </div>
+                ) : null}
+
                 {data.friends.map((friend, index) => (
                   <div
                     key={friend.name}

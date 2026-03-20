@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
+import { fetchAccountContactsByName } from '../../shared/services/salesforce.js'
 import { chatThreads, circleTitles } from './chatData.js'
 
 export default function ChatPage({ themeMode = 'default' }) {
@@ -9,13 +10,91 @@ export default function ChatPage({ themeMode = 'default' }) {
   const [searchParams] = useSearchParams()
   const circleId = searchParams.get('circle')
   const isBlackTheme = themeMode === 'black'
+  const [salesforceState, setSalesforceState] = useState({
+    isLoading: false,
+    error: '',
+    threads: [],
+  })
 
-  const visibleThreads = useMemo(() => {
+  const localThreads = useMemo(() => {
     if (!circleId) {
       return chatThreads.filter((thread) => thread.messages.length > 0)
     }
     return chatThreads.filter((thread) => thread.circles?.includes(circleId))
   }, [circleId])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    if (circleId !== 'school-friend') {
+      setSalesforceState({
+        isLoading: false,
+        error: '',
+        threads: [],
+      })
+      return undefined
+    }
+
+    const loadSchoolFriendThreads = async () => {
+      setSalesforceState({
+        isLoading: true,
+        error: '',
+        threads: [],
+      })
+
+      try {
+        const account = await fetchAccountContactsByName('School Friend')
+
+        if (!account) {
+          throw new Error('Account School Friend tidak ditemukan di Salesforce.')
+        }
+
+        const threads = account.contacts.map((contact, index) => {
+          const displayName = contact.name || `Contact ${index + 1}`
+
+          return {
+            id: `sf-contact-${contact.id}`,
+            salesforceContactId: contact.id,
+            name: displayName,
+            avatar: displayName.slice(0, 1),
+            avatarTone: 'from-sky-400 to-cyan-500',
+            preview: 'Contact dari Salesforce GraphQL',
+            time: '',
+            inactive: false,
+            messages: [],
+            source: 'salesforce',
+          }
+        })
+
+        if (isCancelled) return
+
+        setSalesforceState({
+          isLoading: false,
+          error: '',
+          threads,
+        })
+      } catch (error) {
+        if (isCancelled) return
+
+        setSalesforceState({
+          isLoading: false,
+          error: error.message || 'Gagal memuat chat school friend dari Salesforce.',
+          threads: [],
+        })
+      }
+    }
+
+    loadSchoolFriendThreads()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [circleId])
+
+  const visibleThreads =
+    circleId === 'school-friend' && salesforceState.threads.length > 0
+      ? salesforceState.threads
+      : localThreads
 
   return (
     <div
@@ -54,8 +133,10 @@ export default function ChatPage({ themeMode = 'default' }) {
                     Chat list
                   </h2>
                   <p className={`mt-1 text-sm ${isBlackTheme ? 'text-slate-300' : 'text-slate-500'}`}>
-                    {circleId && circleTitles[circleId]
-                      ? `Teman-teman di ${circleTitles[circleId]}.`
+                    {circleId === 'school-friend'
+                      ? 'Teman-teman school friend dari Salesforce GraphQL.'
+                      : circleId && circleTitles[circleId]
+                        ? `Teman-teman di ${circleTitles[circleId]}.`
                       : 'Pilih salah satu untuk masuk ke tampilan chat masing-masing.'}
                   </p>
                 </div>
@@ -71,6 +152,30 @@ export default function ChatPage({ themeMode = 'default' }) {
               </div>
 
               <div className="mt-4 space-y-3">
+                {circleId === 'school-friend' && salesforceState.isLoading ? (
+                  <div
+                    className={`rounded-2xl p-4 text-sm ${
+                      isBlackTheme
+                        ? 'border border-cyan-500/20 bg-cyan-500/10 text-cyan-100'
+                        : 'border border-sky-100 bg-sky-50 text-sky-700'
+                    }`}
+                  >
+                    Mengambil daftar contact School Friend dari Salesforce...
+                  </div>
+                ) : null}
+
+                {circleId === 'school-friend' && salesforceState.error ? (
+                  <div
+                    className={`rounded-2xl p-4 text-sm ${
+                      isBlackTheme
+                        ? 'border border-amber-500/20 bg-amber-500/10 text-amber-100'
+                        : 'border border-amber-100 bg-amber-50 text-amber-700'
+                    }`}
+                  >
+                    {salesforceState.error}
+                  </div>
+                ) : null}
+
                 {visibleThreads.map((thread) => (
                   <div
                     key={thread.id}
@@ -99,11 +204,12 @@ export default function ChatPage({ themeMode = 'default' }) {
                     <button
                       type="button"
                       className="min-w-0 flex-1 text-left"
-                      onClick={() =>
+                      onClick={() => {
+                        if (thread.source === 'salesforce') return
                         navigate(
                           circleId ? `/chat/${thread.id}?circle=${circleId}` : `/chat/${thread.id}`
                         )
-                      }
+                      }}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <p
@@ -119,7 +225,17 @@ export default function ChatPage({ themeMode = 'default' }) {
                         >
                           {thread.name}
                         </p>
-                        {thread.inactive ? (
+                        {thread.source === 'salesforce' ? (
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                              isBlackTheme
+                                ? 'border border-cyan-400/20 bg-cyan-400/10 text-cyan-100'
+                                : 'bg-cyan-50 text-cyan-700'
+                            }`}
+                          >
+                            Salesforce
+                          </span>
+                        ) : thread.inactive ? (
                           <span
                             className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                               isBlackTheme
@@ -142,6 +258,11 @@ export default function ChatPage({ themeMode = 'default' }) {
                       ) : (
                         <p className={`mt-1 text-sm ${isBlackTheme ? 'text-slate-500' : 'text-slate-300'}`}> </p>
                       )}
+                      {thread.source === 'salesforce' ? (
+                        <p className={`mt-1 text-xs ${isBlackTheme ? 'text-cyan-200/80' : 'text-cyan-700'}`}>
+                          Contact tampil dari Salesforce. Detail chat lokal belum dibuat.
+                        </p>
+                      ) : null}
                     </button>
                   </div>
                 ))}
