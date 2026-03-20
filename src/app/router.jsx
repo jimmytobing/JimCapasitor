@@ -20,8 +20,9 @@ import ActivityDetailPage, { ActivityTypePage } from '../features/activity/Activ
 import EditActivityCategoryPage from '../features/activity/EditActivityCategoryPage.jsx'
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
+import SettingsPage from '../features/settings/SettingsPage.jsx'
 
-export default function AppRoutes({ showToast }) {
+export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
   return (
     <Routes
       future={{
@@ -62,8 +63,18 @@ export default function AppRoutes({ showToast }) {
         path="/activity/:activityId/:entryId"
         element={<ActivityDetailPage showToast={showToast} />}
       />
-      <Route path="/chat" element={<ChatPage />} />
-      <Route path="/chat/:threadId" element={<ChatDetailPage />} />
+      <Route path="/chat" element={<ChatPage themeMode={themeMode} />} />
+      <Route path="/chat/:threadId" element={<ChatDetailPage themeMode={themeMode} />} />
+      <Route
+        path="/settings"
+        element={
+          <SettingsPage
+            showToast={showToast}
+            themeMode={themeMode}
+            setThemeMode={setThemeMode}
+          />
+        }
+      />
       <Route path="/inside-joke" element={<Navigate to="/jokes" replace />} />
       <Route path="/circle-squad" element={<Navigate to="/circle" replace />} />
       <Route path="/today-memory" element={<Navigate to="/memory" replace />} />

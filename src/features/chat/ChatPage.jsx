@@ -3,10 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import { chatThreads, circleTitles } from './chatData.js'
 
-export default function ChatPage() {
+export default function ChatPage({ themeMode = 'default' }) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const circleId = searchParams.get('circle')
+  const isBlackTheme = themeMode === 'black'
 
   const visibleThreads = useMemo(() => {
     if (!circleId) {
@@ -16,9 +17,13 @@ export default function ChatPage() {
   }, [circleId])
 
   return (
-    <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
+    <div
+      className={`h-screen overflow-y-auto hide-scrollbar ${
+        isBlackTheme ? 'bg-[#050816] text-slate-100' : 'bg-[#edf2f7] text-slate-900'
+      }`}
+    >
       <div className="min-h-screen pb-28">
-        <section className="bg-white shadow-none">
+        <section className={`${isBlackTheme ? 'bg-transparent' : 'bg-white'} shadow-none`}>
           <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-800 px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
             <button
               className="text-sm font-medium text-white/80"
@@ -35,17 +40,31 @@ export default function ChatPage() {
           </div>
 
           <div className="space-y-4 p-3">
-            <div className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+            <div
+              className={`rounded-3xl p-4 ${
+                isBlackTheme
+                  ? 'border border-white/10 bg-slate-950/80 shadow-[0_24px_80px_rgba(2,6,23,0.45)] backdrop-blur-xl'
+                  : 'bg-white shadow-sm ring-1 ring-slate-100'
+              }`}
+            >
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-base font-semibold text-slate-900">Chat list</h2>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <h2 className={`text-base font-semibold ${isBlackTheme ? 'text-white' : 'text-slate-900'}`}>
+                    Chat list
+                  </h2>
+                  <p className={`mt-1 text-sm ${isBlackTheme ? 'text-slate-300' : 'text-slate-500'}`}>
                     {circleId && circleTitles[circleId]
                       ? `Teman-teman di ${circleTitles[circleId]}.`
                       : 'Pilih salah satu untuk masuk ke tampilan chat masing-masing.'}
                   </p>
                 </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    isBlackTheme
+                      ? 'border border-white/10 bg-white/5 text-slate-200'
+                      : 'bg-slate-100 text-slate-600'
+                  }`}
+                >
                   {visibleThreads.length} threads
                 </span>
               </div>
@@ -54,10 +73,14 @@ export default function ChatPage() {
                 {visibleThreads.map((thread) => (
                   <div
                     key={thread.id}
-                    className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left shadow-sm ring-1 transition ${
-                      thread.inactive
-                        ? 'bg-slate-100 ring-slate-200 hover:bg-slate-200'
-                        : 'bg-slate-50 ring-slate-100 hover:bg-slate-100'
+                    className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left transition ${
+                      isBlackTheme
+                        ? thread.inactive
+                          ? 'border border-white/10 bg-slate-900/90 shadow-[0_16px_40px_rgba(2,6,23,0.28)] hover:bg-slate-900'
+                          : 'border border-white/10 bg-slate-950/80 shadow-[0_16px_40px_rgba(2,6,23,0.28)] hover:bg-slate-900/90'
+                        : thread.inactive
+                          ? 'shadow-sm ring-1 ring-slate-200 bg-slate-100 hover:bg-slate-200'
+                          : 'shadow-sm ring-1 ring-slate-100 bg-slate-50 hover:bg-slate-100'
                     }`}
                   >
                     <button
@@ -79,23 +102,39 @@ export default function ChatPage() {
                       <div className="flex items-center justify-between gap-3">
                         <p
                           className={`truncate text-base font-semibold ${
-                            thread.inactive ? 'text-slate-500' : 'text-slate-900'
+                            isBlackTheme
+                              ? thread.inactive
+                                ? 'text-slate-400'
+                                : 'text-white'
+                              : thread.inactive
+                                ? 'text-slate-500'
+                                : 'text-slate-900'
                           }`}
                         >
                           {thread.name}
                         </p>
                         {thread.inactive ? (
-                          <span className="rounded-full bg-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-500">
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                              isBlackTheme
+                                ? 'border border-white/10 bg-white/5 text-slate-300'
+                                : 'bg-slate-200 text-slate-500'
+                            }`}
+                          >
                             inactive
                           </span>
                         ) : thread.time ? (
-                          <span className="text-xs font-medium text-slate-400">{thread.time}</span>
+                          <span className={`text-xs font-medium ${isBlackTheme ? 'text-slate-300' : 'text-slate-400'}`}>
+                            {thread.time}
+                          </span>
                         ) : null}
                       </div>
                       {thread.preview ? (
-                        <p className="mt-1 truncate text-sm text-slate-500">{thread.preview}</p>
+                        <p className={`mt-1 truncate text-sm ${isBlackTheme ? 'text-slate-300' : 'text-slate-500'}`}>
+                          {thread.preview}
+                        </p>
                       ) : (
-                        <p className="mt-1 text-sm text-slate-300"> </p>
+                        <p className={`mt-1 text-sm ${isBlackTheme ? 'text-slate-500' : 'text-slate-300'}`}> </p>
                       )}
                     </button>
                   </div>

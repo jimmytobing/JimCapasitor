@@ -2,14 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+  --app-black: #050816;
+  --app-black-soft: rgba(8, 15, 30, 0.92);
+  --app-black-card: rgba(15, 23, 42, 0.58);
+  --app-black-card-strong: rgba(8, 15, 30, 0.74);
+  --app-border: rgba(255, 255, 255, 0.16);
+  --app-border-soft: rgba(148, 163, 184, 0.24);
+  --app-text: #f8fafc;
+  --app-text-soft: #cbd5e1;
+  --app-text-muted: #94a3b8;
+  --app-shadow:
+    0 24px 80px rgba(2, 6, 23, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --app-shadow-soft: 0 12px 30px rgba(2, 6, 23, 0.2);
+}
+
 html,
 body {
   margin: 0;
   min-height: 100%;
-  background:
-    radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 35%),
-    linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
-  color: #0f172a;
+  background: var(--app-black);
+  color: var(--app-text);
   font-family:
     'Avenir Next',
     'Segoe UI',
@@ -43,4 +58,194 @@ body {
 
 .install-float {
   animation: install-float 2.8s ease-in-out infinite;
+}
+
+.app-black-theme {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(34, 211, 238, 0.12), transparent 28%),
+    radial-gradient(circle at bottom, rgba(249, 115, 22, 0.12), transparent 34%),
+    linear-gradient(180deg, #050816 0%, #10162f 48%, #050816 100%);
+  color: var(--app-text);
+}
+
+.app-black-theme [class*='bg-[#edf2f7]'],
+.app-black-theme [class*='bg-gray-100'] {
+  background: transparent !important;
+}
+
+.app-black-theme [class*='bg-white'],
+.app-black-theme [class*='bg-slate-50'],
+.app-black-theme [class*='bg-slate-100'],
+.app-black-theme [class*='bg-slate-200'],
+.app-black-theme [class*='bg-gray-200'],
+.app-black-theme [class*='bg-gray-300'],
+.app-black-theme [class*='bg-blue-50'],
+.app-black-theme [class*='bg-amber-50'],
+.app-black-theme [class*='bg-amber-100'],
+.app-black-theme [class*='bg-emerald-100'],
+.app-black-theme [class*='bg-green-100'],
+.app-black-theme [class*='bg-violet-50'],
+.app-black-theme [class*='bg-rose-50'] {
+  background: var(--app-black-card-strong) !important;
+  border-color: var(--app-border-soft) !important;
+  color: var(--app-text) !important;
+  box-shadow: var(--app-shadow-soft) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.app-black-theme [class*='bg-slate-900'],
+.app-black-theme [class*='bg-gray-900'],
+.app-black-theme [class*='bg-black'] {
+  background: var(--app-black-soft) !important;
+}
+
+.app-black-theme [class*='rounded-3xl'],
+.app-black-theme [class*='rounded-2xl'],
+.app-black-theme [class*='rounded-xl'] {
+  position: relative;
+}
+
+.app-black-theme [class*='rounded-3xl'][class*='bg-'],
+.app-black-theme [class*='rounded-2xl'][class*='bg-'],
+.app-black-theme [class*='rounded-xl'][class*='bg-'] {
+  overflow: hidden;
+}
+
+.app-black-theme .bottom-sticky-nav-shell {
+  overflow: visible !important;
+}
+
+.app-black-theme [class*='text-slate-950'],
+.app-black-theme [class*='text-slate-900'],
+.app-black-theme [class*='text-slate-800'],
+.app-black-theme [class*='text-slate-700'],
+.app-black-theme [class*='text-slate-600'],
+.app-black-theme [class*='text-slate-500'],
+.app-black-theme [class*='text-slate-400'],
+.app-black-theme [class*='text-slate-300'],
+.app-black-theme [class*='text-gray-900'],
+.app-black-theme [class*='text-gray-700'],
+.app-black-theme [class*='text-gray-600'],
+.app-black-theme [class*='text-gray-500'],
+.app-black-theme [class*='text-gray-400'] {
+  color: var(--app-text-soft) !important;
+}
+
+.app-black-theme [class*='text-white'] {
+  color: var(--app-text) !important;
+}
+
+.app-black-theme [class*='ring-slate-100'],
+.app-black-theme [class*='ring-slate-200'],
+.app-black-theme [class*='ring-slate-300'],
+.app-black-theme [class*='border-slate-200'],
+.app-black-theme [class*='border-slate-300'],
+.app-black-theme [class*='border-blue-200'],
+.app-black-theme [class*='border-emerald-200'] {
+  border-color: var(--app-border) !important;
+  --tw-ring-color: var(--app-border) !important;
+}
+
+.app-black-theme [class*='shadow-sm'],
+.app-black-theme [class*='shadow-md'],
+.app-black-theme [class*='shadow-lg'],
+.app-black-theme [class*='shadow-xl'],
+.app-black-theme [class*='shadow-inner'] {
+  box-shadow: var(--app-shadow) !important;
+}
+
+.app-black-theme [class*='bg-white/20'],
+.app-black-theme [class*='bg-white/10'],
+.app-black-theme [class*='bg-white/8'],
+.app-black-theme [class*='bg-white/5'] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] [class*='rounded-3xl'][class*='bg-'],
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] [class*='rounded-2xl'][class*='bg-'],
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] [class*='rounded-xl'][class*='bg-'],
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] button[class*='rounded-3xl'][class*='bg-'],
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] button[class*='rounded-2xl'][class*='bg-'],
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] button[class*='rounded-xl'][class*='bg-'],
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] [class*='rounded-3xl'][class*='bg-'],
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] [class*='rounded-2xl'][class*='bg-'],
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] [class*='rounded-xl'][class*='bg-'],
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] button[class*='rounded-3xl'][class*='bg-'],
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] button[class*='rounded-2xl'][class*='bg-'],
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] button[class*='rounded-xl'][class*='bg-'],
+.app-black-theme [class*='rounded-xl'][class*='bg-'] [class*='rounded-3xl'][class*='bg-'],
+.app-black-theme [class*='rounded-xl'][class*='bg-'] [class*='rounded-2xl'][class*='bg-'],
+.app-black-theme [class*='rounded-xl'][class*='bg-'] [class*='rounded-xl'][class*='bg-'],
+.app-black-theme [class*='rounded-xl'][class*='bg-'] button[class*='rounded-3xl'][class*='bg-'],
+.app-black-theme [class*='rounded-xl'][class*='bg-'] button[class*='rounded-2xl'][class*='bg-'],
+.app-black-theme [class*='rounded-xl'][class*='bg-'] button[class*='rounded-xl'][class*='bg-'] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    var(--app-black-card) !important;
+  border: 1px solid var(--app-border) !important;
+  box-shadow: var(--app-shadow) !important;
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+}
+
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] [class*='rounded-3xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] [class*='rounded-2xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] [class*='rounded-xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] button[class*='rounded-3xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] button[class*='rounded-2xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-3xl'][class*='bg-'] button[class*='rounded-xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] [class*='rounded-3xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] [class*='rounded-2xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] [class*='rounded-xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] button[class*='rounded-3xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] button[class*='rounded-2xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-2xl'][class*='bg-'] button[class*='rounded-xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-xl'][class*='bg-'] [class*='rounded-3xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-xl'][class*='bg-'] [class*='rounded-2xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-xl'][class*='bg-'] [class*='rounded-xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-xl'][class*='bg-'] button[class*='rounded-3xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-xl'][class*='bg-'] button[class*='rounded-2xl'][class*='bg-']::before,
+.app-black-theme [class*='rounded-xl'][class*='bg-'] button[class*='rounded-xl'][class*='bg-']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 32%);
+  pointer-events: none;
+}
+
+.app-black-theme [class*='rounded-full'][class*='bg-'] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    var(--app-black-card-strong) !important;
+  border: 1px solid var(--app-border-soft) !important;
+  box-shadow:
+    0 16px 40px rgba(2, 6, 23, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+}
+
+.app-black-theme input,
+.app-black-theme textarea,
+.app-black-theme select {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    rgba(8, 15, 30, 0.72) !important;
+  color: var(--app-text) !important;
+  border-color: var(--app-border) !important;
+  box-shadow:
+    0 16px 36px rgba(2, 6, 23, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
+}
+
+.app-black-theme input::placeholder,
+.app-black-theme textarea::placeholder {
+  color: var(--app-text-muted);
 }

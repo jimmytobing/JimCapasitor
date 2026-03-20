@@ -28,7 +28,10 @@ export default function HomeTopStickyNav({
           <button
             type="button"
             className="relative mr-3 inline-flex items-center text-gray-300 hover:text-white"
-            onClick={() => notify('Menu tapped')}
+            onClick={() => {
+              notify('Buka settings')
+              navigate('/settings')
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +107,7 @@ export default function HomeTopStickyNav({
           <div className="relative w-full">
             <input
               type="text"
-              className="w-full rounded-xl border-0 bg-white/90 p-3 shadow"
+              className="w-full rounded-xl border-0 bg-white p-3 shadow"
               placeholder={searchPlaceholder}
             />
             <div className="absolute right-0 top-0 p-4 pr-3 text-gray-400">
