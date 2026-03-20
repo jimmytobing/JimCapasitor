@@ -490,6 +490,7 @@ export default function ActivityDetailPage({ showToast }) {
 
   const { activity, group, entry } = match
   const detailActionOptions = predefinedActionOptionsByCategory[group.category] || []
+  const missingNeeds = (entry.needs || []).filter((need) => need.status === 'belum ada')
 
   return (
     <div className="h-screen bg-[#edf2f7] overflow-y-auto hide-scrollbar">
@@ -562,41 +563,42 @@ export default function ActivityDetailPage({ showToast }) {
             {entry.needs && (
               <div className="rounded-3xl bg-white p-4 shadow-sm">
                 <h2 className="text-base font-semibold text-slate-900">Kebutuhan</h2>
-                <div className="mt-3 space-y-3">
-                  {entry.needs.map((need) => (
-                    <div
-                      key={need.label}
-                      className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"
-                    >
-                      <span className="text-sm font-medium text-slate-800">{need.label}</span>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                          statusClassByLabel[need.status] || 'bg-slate-200 text-slate-700'
-                        }`}
+                <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <div className="grid grid-cols-[1fr_120px] gap-3 border-b border-slate-200 bg-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    <span>Nama Barang</span>
+                    <span>Status</span>
+                  </div>
+                  <div className="space-y-0">
+                    {entry.needs.map((need) => (
+                      <div
+                        key={need.label}
+                        className="grid grid-cols-[1fr_120px] gap-3 border-b border-slate-100 px-4 py-3 last:border-b-0"
                       >
-                        {need.status}
-                      </span>
-                    </div>
-                  ))}
+                        <span className="text-sm font-medium text-slate-800">{need.label}</span>
+                        <span
+                          className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                            statusClassByLabel[need.status] || 'bg-slate-200 text-slate-700'
+                          }`}
+                        >
+                          {need.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {entry.options && (
-              <div className="rounded-3xl bg-white p-4 shadow-sm">
-                <h2 className="text-base font-semibold text-slate-900">Pilihan</h2>
-                <div className="mt-3 grid gap-3">
-                  {entry.options.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      className="rounded-2xl bg-slate-50 px-4 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                      onClick={() => notify(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
+                {missingNeeds.length > 0 && (
+                  <button
+                    type="button"
+                    className="mt-3 w-full rounded-2xl bg-amber-300 px-4 py-3 text-sm font-semibold text-slate-900"
+                    onClick={() =>
+                      notify(
+                        `Nitip ke HypeZone untuk ${missingNeeds.map((need) => need.label).join(', ')}`
+                      )
+                    }
+                  >
+                    Nitip ke HypeZone
+                  </button>
+                )}
               </div>
             )}
 
