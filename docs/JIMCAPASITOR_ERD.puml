@@ -1,0 +1,547 @@
+@startuml
+!define p(s) ~*<color:red>s</color>
+
+hide circle
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+left to right direction
+
+class User<<Contact>>{
+    p(id)
+    username
+    display_name
+    email
+    password_hash
+    auth_provider
+    google_sub
+    age
+    gender
+    bio
+    avatar_initial
+    avatar_tone
+    avatar_image_url
+    is_active
+    created_at
+    updated_at
+}
+
+class UserHobby<<Profile>>{
+    p(id)
+    user_id
+    hobby_name
+    created_at
+}
+
+class AuthSession<<Auth>>{
+    p(id)
+    user_id
+    provider
+    access_token
+    refresh_token
+    expires_at
+    login_type
+    created_at
+}
+
+class AppInstallation<<Platform>>{
+    p(id)
+    user_id
+    platform
+    install_source
+    is_standalone
+    installed_at
+    last_opened_at
+}
+
+class AppSetting<<Preferences>>{
+    p(id)
+    user_id
+    setting_key
+    setting_value
+    updated_at
+}
+
+class Friendship<<Social Graph>>{
+    p(id)
+    user_id
+    friend_user_id
+    status
+    closeness_level
+    created_at
+    updated_at
+}
+
+class Circle<<Account>>{
+    p(id)
+    slug
+    title
+    emoji
+    accent_style
+    privacy_type
+    owner_user_id
+    created_at
+}
+
+class CircleMember<<Social Group>>{
+    p(id)
+    circle_id
+    user_id
+    role
+    is_active_member
+    joined_at
+}
+
+class UserPresence<<Presence>>{
+    p(id)
+    user_id
+    online_status
+    custom_status
+    activity_label
+    last_seen_at
+    updated_at
+}
+
+class UserLocationPing<<Location>>{
+    p(id)
+    user_id
+    latitude
+    longitude
+    place_label
+    area_label
+    distance_km
+    recorded_at
+}
+
+class DailyMood<<Daily Checkin>>{
+    p(id)
+    user_id
+    mood_date
+    mood_code
+    mood_label
+    emoji
+    created_at
+}
+
+class MoodResponse<<Daily Checkin>>{
+    p(id)
+    mood_id
+    sender_user_id
+    response_type
+    message
+    created_at
+}
+
+class ChatThread<<Chat>>{
+    p(id)
+    thread_type
+    title
+    created_by
+    circle_id
+    created_at
+    updated_at
+}
+
+class ChatThreadMember<<Chat>>{
+    p(id)
+    thread_id
+    user_id
+    member_role
+    is_muted
+    is_archived
+    joined_at
+}
+
+class ChatMessage<<Chat>>{
+    p(id)
+    thread_id
+    sender_user_id
+    message_type
+    message_text
+    attachment_url
+    sent_at
+    read_at
+}
+
+class ActivityType<<Activity Master>>{
+    p(id)
+    code
+    title
+    short_label
+    emoji
+    accent_style
+    description
+}
+
+class ActivityCategory<<Activity Master>>{
+    p(id)
+    activity_type_id
+    category_name
+    is_system
+    created_at
+}
+
+class Activity<<Activity>>{
+    p(id)
+    activity_type_id
+    activity_category_id
+    creator_user_id
+    circle_id
+    title
+    description
+    activity_status
+    start_at
+    time_label
+    location_label
+    cta_label
+    created_at
+    updated_at
+}
+
+class ActivityParticipant<<Activity>>{
+    p(id)
+    activity_id
+    user_id
+    participant_role
+    join_status
+    joined_at
+}
+
+class ActivityNeed<<Activity>>{
+    p(id)
+    activity_id
+    need_name
+    is_ready
+    status_label
+    supplied_by_user_id
+    updated_at
+}
+
+class ActivityOption<<Activity>>{
+    p(id)
+    activity_id
+    option_label
+    option_type
+    is_default
+    created_at
+}
+
+class FriendQuiz<<Friend Quiz>>{
+    p(id)
+    owner_user_id
+    circle_id
+    title
+    quiz_status
+    created_at
+}
+
+class FriendQuizQuestion<<Friend Quiz>>{
+    p(id)
+    quiz_id
+    question_text
+    description
+    point_reward
+    sort_order
+    created_at
+}
+
+class FriendQuizOption<<Friend Quiz>>{
+    p(id)
+    question_id
+    option_label
+    is_correct
+    sort_order
+}
+
+class FriendQuizAnswer<<Friend Quiz>>{
+    p(id)
+    question_id
+    respondent_user_id
+    selected_option_id
+    is_correct
+    points_earned
+    answered_at
+}
+
+class MiniChallenge<<Mini Challenge>>{
+    p(id)
+    circle_id
+    creator_user_id
+    challenge_type
+    title
+    description
+    challenge_status
+    created_at
+}
+
+class MiniChallengeParticipant<<Mini Challenge>>{
+    p(id)
+    challenge_id
+    user_id
+    participant_status
+    score
+    joined_at
+}
+
+class Poll<<Poll>>{
+    p(id)
+    challenge_id
+    activity_id
+    title
+    poll_status
+    created_at
+}
+
+class PollOption<<Poll>>{
+    p(id)
+    poll_id
+    option_label
+    target_user_id
+    vote_count_cached
+}
+
+class PollVote<<Poll>>{
+    p(id)
+    poll_option_id
+    voter_user_id
+    voted_at
+}
+
+class MemoryBoard<<Memory>>{
+    p(id)
+    owner_user_id
+    board_type
+    title
+    description
+    created_at
+}
+
+class MemoryEntry<<Memory>>{
+    p(id)
+    board_id
+    author_user_id
+    entry_type
+    title
+    content
+    note
+    memory_at
+    created_at
+}
+
+class MemoryParticipant<<Memory>>{
+    p(id)
+    memory_entry_id
+    user_id
+    role_label
+}
+
+class MemoryMedia<<Memory>>{
+    p(id)
+    memory_entry_id
+    media_type
+    media_url
+    emoji_art
+    caption
+    taken_at
+}
+
+class FriendshipTimeline<<Timeline>>{
+    p(id)
+    owner_user_id
+    friend_user_id
+    title
+    detail
+    event_date
+    created_at
+}
+
+class InsideJokeBoard<<Inside Joke>>{
+    p(id)
+    circle_id
+    board_type
+    title
+    description
+    created_at
+}
+
+class InsideJokeItem<<Inside Joke>>{
+    p(id)
+    board_id
+    sender_user_id
+    item_type
+    title
+    caption
+    media_url
+    emoji_art
+    sent_at
+    saved_count
+}
+
+class FriendStatSnapshot<<Analytics>>{
+    p(id)
+    owner_user_id
+    friend_user_id
+    period_type
+    period_start
+    period_end
+    chat_count
+    meet_count
+    play_count
+    challenge_count
+    friendship_level
+    generated_at
+}
+
+class SmartSuggestion<<Suggestion>>{
+    p(id)
+    user_id
+    suggestion_type
+    title
+    prompt
+    detail
+    action_label
+    status
+    generated_at
+}
+
+class SmartSuggestionTarget<<Suggestion>>{
+    p(id)
+    suggestion_id
+    target_user_id
+    target_circle_id
+}
+
+class WalletAccount<<Wallet>>{
+    p(id)
+    user_id
+    wallet_type
+    balance_amount
+    currency_code
+    updated_at
+}
+
+class WalletTransaction<<Wallet>>{
+    p(id)
+    wallet_account_id
+    transaction_type
+    amount
+    title
+    description
+    status
+    transaction_at
+}
+
+class GroupPurchase<<Home Commerce>>{
+    p(id)
+    creator_user_id
+    title
+    description
+    location_label
+    unit_price
+    unit_name
+    rating
+    cover_image_url
+    status
+    created_at
+}
+
+class GroupPurchaseMember<<Home Commerce>>{
+    p(id)
+    group_purchase_id
+    user_id
+    quantity
+    contribution_amount
+    member_status
+    joined_at
+}
+
+class CommunityRecommendation<<Home Commerce>>{
+    p(id)
+    author_user_id
+    title
+    category_tag
+    rating
+    cover_image_url
+    description
+    created_at
+}
+
+User --|{ UserHobby:user_id
+User --|{ AuthSession:user_id
+User --|{ AppInstallation:user_id
+User --|{ AppSetting:user_id
+User --|{ Friendship:user_id
+User --|{ Friendship:friend_user_id
+User --|{ Circle:owner_user_id
+Circle --|{ CircleMember:circle_id
+User --|{ CircleMember:user_id
+User --|| UserPresence:user_id
+User --|{ UserLocationPing:user_id
+User --|{ DailyMood:user_id
+DailyMood --|{ MoodResponse:mood_id
+User --|{ MoodResponse:sender_user_id
+
+Circle --o{ ChatThread:circle_id
+User --|{ ChatThread:created_by
+ChatThread --|{ ChatThreadMember:thread_id
+User --|{ ChatThreadMember:user_id
+ChatThread --|{ ChatMessage:thread_id
+User --|{ ChatMessage:sender_user_id
+
+ActivityType --|{ ActivityCategory:activity_type_id
+ActivityType --|{ Activity:activity_type_id
+ActivityCategory --|{ Activity:activity_category_id
+User --|{ Activity:creator_user_id
+Circle --o{ Activity:circle_id
+Activity --|{ ActivityParticipant:activity_id
+User --|{ ActivityParticipant:user_id
+Activity --|{ ActivityNeed:activity_id
+User --o{ ActivityNeed:supplied_by_user_id
+Activity --|{ ActivityOption:activity_id
+
+User --|{ FriendQuiz:owner_user_id
+Circle --o{ FriendQuiz:circle_id
+FriendQuiz --|{ FriendQuizQuestion:quiz_id
+FriendQuizQuestion --|{ FriendQuizOption:question_id
+FriendQuizQuestion --|{ FriendQuizAnswer:question_id
+FriendQuizOption --|{ FriendQuizAnswer:selected_option_id
+User --|{ FriendQuizAnswer:respondent_user_id
+
+Circle --o{ MiniChallenge:circle_id
+User --|{ MiniChallenge:creator_user_id
+MiniChallenge --|{ MiniChallengeParticipant:challenge_id
+User --|{ MiniChallengeParticipant:user_id
+MiniChallenge --o| Poll:challenge_id
+Activity --o| Poll:activity_id
+Poll --|{ PollOption:poll_id
+User --o{ PollOption:target_user_id
+PollOption --|{ PollVote:poll_option_id
+User --|{ PollVote:voter_user_id
+
+User --|{ MemoryBoard:owner_user_id
+MemoryBoard --|{ MemoryEntry:board_id
+User --|{ MemoryEntry:author_user_id
+MemoryEntry --|{ MemoryParticipant:memory_entry_id
+User --|{ MemoryParticipant:user_id
+MemoryEntry --|{ MemoryMedia:memory_entry_id
+User --|{ FriendshipTimeline:owner_user_id
+User --|{ FriendshipTimeline:friend_user_id
+
+Circle --|{ InsideJokeBoard:circle_id
+InsideJokeBoard --|{ InsideJokeItem:board_id
+User --|{ InsideJokeItem:sender_user_id
+
+User --|{ FriendStatSnapshot:owner_user_id
+User --|{ FriendStatSnapshot:friend_user_id
+User --|{ SmartSuggestion:user_id
+SmartSuggestion --|{ SmartSuggestionTarget:suggestion_id
+User --o{ SmartSuggestionTarget:target_user_id
+Circle --o{ SmartSuggestionTarget:target_circle_id
+
+User --|| WalletAccount:user_id
+WalletAccount --|{ WalletTransaction:wallet_account_id
+User --|{ GroupPurchase:creator_user_id
+GroupPurchase --|{ GroupPurchaseMember:group_purchase_id
+User --|{ GroupPurchaseMember:user_id
+User --|{ CommunityRecommendation:author_user_id
+
+@enduml
