@@ -259,7 +259,7 @@ export default function Home({ showToast }) {
               {groupPurchaseCards.map((card) => (
                 <button
                   key={card.title}
-                  className={`relative my-2 h-64 min-w-[70%] snap-start cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md ${glowButtonClass}`}
+                  className={`relative my-2 min-h-[21rem] min-w-[78%] snap-start cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md ${glowButtonClass}`}
                   style={{
                     backgroundImage: `url('${getAssetUrl(card.image)}')`,
                   }}
@@ -268,7 +268,7 @@ export default function Home({ showToast }) {
                   <div
                     className={`absolute inset-0 z-0 bg-gradient-to-t ${card.gradient} opacity-75`}
                   />
-                  <div className="relative flex h-64 w-full flex-row items-end">
+                  <div className="relative flex min-h-[21rem] w-full flex-row items-end">
                     <div className="absolute right-0 top-0 m-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -285,7 +285,7 @@ export default function Home({ showToast }) {
                         />
                       </svg>
                     </div>
-                    <div className="z-10 flex w-full flex-col rounded-lg p-6 text-left">
+                    <div className="z-10 flex w-full flex-col justify-between rounded-lg p-5 text-left sm:p-6">
                       <span className="mb-3 inline-flex w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                         HypeZone Nitip
                       </span>
@@ -319,8 +319,8 @@ export default function Home({ showToast }) {
                           </h2>
                         </div>
                       </div>
-                      <p className="pt-3 text-sm text-gray-100">{card.description}</p>
-                      <div className="flex items-center justify-between gap-3 pt-4 text-sm text-gray-100">
+                      <p className="pt-3 text-sm leading-6 text-gray-100">{card.description}</p>
+                      <div className="flex items-center justify-between gap-3 pt-5 text-sm text-gray-100">
                         <div className="flex items-center whitespace-nowrap">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
