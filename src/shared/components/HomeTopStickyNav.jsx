@@ -4,8 +4,8 @@ const getAssetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, 
 
 export default function HomeTopStickyNav({
   onAction,
-  title = 'Loremipsum Title',
-  subtitle = 'Massive Dynamic',
+  title = 'HypeZone',
+  subtitle = 'Bekasi',
   backgroundImage = getAssetUrl('/resources/images/top-bg.jpg'),
   avatarImage = getAssetUrl('/resources/images/avatar.jpg'),
   showSearch = true,
