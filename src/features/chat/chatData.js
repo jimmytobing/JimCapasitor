@@ -1,4 +1,8 @@
-export const currentUser = {
+import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
+
+const person = (profile) => buildAvatarProfile(profile)
+
+export const currentUser = person({
   id: 'me',
   name: 'Gracia',
   age: 12,
@@ -6,10 +10,10 @@ export const currentUser = {
   hobby: ['menyanyi', 'dance'],
   avatar: 'G',
   avatarTone: 'from-pink-400 to-rose-500',
-}
+})
 
 export const chatThreads = [
-  {
+  person({
     id: 'bayu',
     name: 'Bayu',
     gender: 'pria',
@@ -31,8 +35,8 @@ export const chatThreads = [
       { id: 10, from: 'me', text: 'Gas. Nanti kalau Joshua telat kita troll dulu.', time: '20:22' },
       { id: 11, from: 'Bayu', text: 'Deal. Aku standby jam 9 kurang.', time: '21:14' },
     ],
-  },
-  {
+  }),
+  person({
     id: 'angga',
     name: 'Angga',
     gender: 'pria',
@@ -54,8 +58,8 @@ export const chatThreads = [
       { id: 10, from: 'me', text: 'Coba aku chat dia nanti.', time: '19:05' },
       { id: 11, from: 'Angga', text: 'Sip. Besok fix ya, jangan buyar lagi.', time: '19:42' },
     ],
-  },
-  {
+  }),
+  person({
     id: 'vina',
     name: 'Vina',
     gender: 'wanita',
@@ -77,8 +81,8 @@ export const chatThreads = [
       { id: 10, from: 'me', text: 'Besok pasti masih dibahas lagi.', time: '15:50' },
       { id: 11, from: 'Vina', text: 'Jelas. Itu material bercandaan seminggu.', time: '16:08' },
     ],
-  },
-  {
+  }),
+  person({
     id: 'joshua',
     name: 'Joshua',
     gender: 'pria',
@@ -89,8 +93,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['best-friend', 'game-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'fikri',
     name: 'Fikri',
     gender: 'pria',
@@ -101,8 +105,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['game-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'nanda',
     name: 'Nanda',
     gender: 'wanita',
@@ -113,8 +117,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'ryan',
     name: 'Ryan',
     gender: 'pria',
@@ -125,8 +129,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['best-friend', 'secret-circle'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'graciella',
     name: 'Graciella',
     gender: 'wanita',
@@ -137,8 +141,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['game-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'dina',
     name: 'Dina',
     gender: 'wanita',
@@ -149,8 +153,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['secret-circle'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'caca',
     name: 'Caca',
     gender: 'wanita',
@@ -161,8 +165,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'rafi',
     name: 'Rafi',
     gender: 'pria',
@@ -173,8 +177,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'dion',
     name: 'Dion',
     gender: 'pria',
@@ -185,8 +189,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'fitri',
     name: 'Fitri',
     gender: 'wanita',
@@ -197,8 +201,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'lola',
     name: 'Lola',
     gender: 'wanita',
@@ -209,8 +213,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'zaki',
     name: 'Zaki',
     gender: 'pria',
@@ -221,8 +225,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'putri',
     name: 'Putri',
     gender: 'wanita',
@@ -233,8 +237,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'yusuf',
     name: 'Yusuf',
     gender: 'pria',
@@ -245,8 +249,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'kevin',
     name: 'Kevin',
     gender: 'pria',
@@ -257,8 +261,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['game-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'salma',
     name: 'Salma',
     gender: 'wanita',
@@ -269,8 +273,8 @@ export const chatThreads = [
     inactive: false,
     circles: ['game-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'bimo-best',
     name: 'Bimo',
     gender: 'pria',
@@ -281,8 +285,8 @@ export const chatThreads = [
     inactive: true,
     circles: ['best-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'tara-best',
     name: 'Tara',
     gender: 'wanita',
@@ -293,8 +297,8 @@ export const chatThreads = [
     inactive: true,
     circles: ['best-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'mira-school',
     name: 'Mira',
     gender: 'wanita',
@@ -305,8 +309,8 @@ export const chatThreads = [
     inactive: true,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'tono-school',
     name: 'Tono',
     gender: 'pria',
@@ -317,8 +321,8 @@ export const chatThreads = [
     inactive: true,
     circles: ['school-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'raka-game',
     name: 'Raka',
     gender: 'pria',
@@ -329,8 +333,8 @@ export const chatThreads = [
     inactive: true,
     circles: ['game-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'nisa-game',
     name: 'Nisa',
     gender: 'wanita',
@@ -341,8 +345,8 @@ export const chatThreads = [
     inactive: true,
     circles: ['game-friend'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'leo-secret',
     name: 'Leo',
     gender: 'pria',
@@ -353,8 +357,8 @@ export const chatThreads = [
     inactive: true,
     circles: ['secret-circle'],
     messages: [],
-  },
-  {
+  }),
+  person({
     id: 'maya-secret',
     name: 'Maya',
     gender: 'wanita',
@@ -365,7 +369,7 @@ export const chatThreads = [
     inactive: true,
     circles: ['secret-circle'],
     messages: [],
-  },
+  }),
 ]
 
 export const circleTitles = {

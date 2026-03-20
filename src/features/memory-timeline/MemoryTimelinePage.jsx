@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { chatThreads } from '../chat/chatData.js'
 
 function buildProfile(friend) {
@@ -131,10 +132,13 @@ export default function MemoryTimelinePage() {
             {'< Back'}
           </button>
           <div className="mt-3 flex items-center gap-3">
-            <div
-              className={`flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${friend.avatarTone} text-base font-semibold text-white shadow-sm`}
-            >
-              {friend.avatar}
+            <div className="h-14 w-14 overflow-hidden rounded-full shadow-sm">
+              <UserAvatar
+                name={friend.name}
+                image={friend.avatarImage}
+                initial={friend.avatar}
+                tone={friend.avatarTone}
+              />
             </div>
             <div>
               <h1 className="text-2xl font-semibold">{friend.name}</h1>

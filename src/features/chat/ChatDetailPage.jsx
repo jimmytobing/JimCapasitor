@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { chatThreads, circleTitles } from './chatData.js'
 
 export default function ChatDetailPage({ themeMode = 'default' }) {
@@ -59,10 +60,15 @@ export default function ChatDetailPage({ themeMode = 'default' }) {
             <div className="mt-3 flex items-center gap-3">
               <button
                 type="button"
-                className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${thread.avatarTone} text-sm font-semibold text-white`}
+                className="h-12 w-12 overflow-hidden rounded-full"
                 onClick={() => navigate(`/memory-timeline/${thread.id}`)}
               >
-                {thread.avatar}
+                <UserAvatar
+                  name={thread.name}
+                  image={thread.avatarImage}
+                  initial={thread.avatar}
+                  tone={thread.avatarTone}
+                />
               </button>
               <div>
                 <h1 className="text-xl font-semibold">{thread.name}</h1>
@@ -100,10 +106,15 @@ export default function ChatDetailPage({ themeMode = 'default' }) {
                   {!isMe && (
                     <button
                       type="button"
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${thread.avatarTone} text-xs font-semibold text-white shadow-sm`}
+                      className="h-9 w-9 shrink-0 overflow-hidden rounded-full shadow-sm"
                       onClick={() => navigate(`/memory-timeline/${thread.id}`)}
                     >
-                      {thread.avatar}
+                      <UserAvatar
+                        name={thread.name}
+                        image={thread.avatarImage}
+                        initial={thread.avatar}
+                        tone={thread.avatarTone}
+                      />
                     </button>
                   )}
                   <div

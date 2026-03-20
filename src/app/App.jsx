@@ -8,8 +8,9 @@ export default function App() {
   const [toast, setToast] = useState({ visible: false, message: '' })
   const timerRef = useRef(null)
   const [themeMode, setThemeMode] = useState(() => {
-    if (typeof window === 'undefined') return 'black'
-    return window.localStorage.getItem(APP_THEME_STORAGE_KEY) || 'black'
+    if (typeof window === 'undefined') return 'default'
+    const savedTheme = window.localStorage.getItem(APP_THEME_STORAGE_KEY)
+    return savedTheme === 'black' || savedTheme === 'default' ? savedTheme : 'default'
   })
 
   const showToast = (message) => {

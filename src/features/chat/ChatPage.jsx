@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { chatThreads, circleTitles } from './chatData.js'
 
 export default function ChatPage({ themeMode = 'default' }) {
@@ -85,10 +86,15 @@ export default function ChatPage({ themeMode = 'default' }) {
                   >
                     <button
                       type="button"
-                      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${thread.avatarTone} text-base font-semibold text-white shadow-sm`}
+                      className="h-14 w-14 shrink-0 overflow-hidden rounded-full shadow-sm"
                       onClick={() => navigate(`/memory-timeline/${thread.id}`)}
                     >
-                      {thread.avatar}
+                      <UserAvatar
+                        name={thread.name}
+                        image={thread.avatarImage}
+                        initial={thread.avatar}
+                        tone={thread.avatarTone}
+                      />
                     </button>
                     <button
                       type="button"

@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
+import { getAvatarProfileByName } from '../../shared/data/avatarDirectory.js'
 
 const feedItems = [
   {
@@ -14,24 +16,21 @@ const feedItems = [
         gender: 'pria',
         detail: 'lagi aktif sekarang',
         handle: '@bayu',
-        avatar: 'B',
-        avatarTone: 'from-emerald-400 to-teal-500',
+        ...getAvatarProfileByName('Bayu'),
       },
       {
         name: 'Nanda',
         gender: 'wanita',
         detail: 'lagi aktif sekarang',
         handle: '@nanda',
-        avatar: 'N',
-        avatarTone: 'from-cyan-400 to-blue-500',
+        ...getAvatarProfileByName('Nanda'),
       },
       {
         name: 'Rafi',
         gender: 'pria',
         detail: 'lagi aktif sekarang',
         handle: '@rafi',
-        avatar: 'R',
-        avatarTone: 'from-lime-400 to-emerald-500',
+        ...getAvatarProfileByName('Rafi'),
       },
     ],
   },
@@ -47,8 +46,7 @@ const feedItems = [
         gender: 'pria',
         detail: 'ulang tahun hari ini',
         handle: '@angga',
-        avatar: 'A',
-        avatarTone: 'from-amber-400 to-orange-500',
+        ...getAvatarProfileByName('Angga'),
       },
     ],
   },
@@ -62,15 +60,15 @@ const feedItems = [
       {
         name: 'Mobile Legend',
         players: [
-          { name: 'Joshua', gender: 'pria', handle: '@joshua', avatar: 'J', avatarTone: 'from-violet-400 to-fuchsia-500' },
-          { name: 'Fikri', gender: 'pria', handle: '@fikri', avatar: 'F', avatarTone: 'from-indigo-400 to-violet-500' },
+          { name: 'Joshua', gender: 'pria', handle: '@joshua', ...getAvatarProfileByName('Joshua') },
+          { name: 'Fikri', gender: 'pria', handle: '@fikri', ...getAvatarProfileByName('Fikri') },
         ],
       },
       {
         name: 'Roblox',
         players: [
-          { name: 'Vina', gender: 'wanita', handle: '@vina', avatar: 'V', avatarTone: 'from-pink-400 to-rose-500' },
-          { name: 'Graciella', gender: 'wanita', handle: '@graciella', avatar: 'G', avatarTone: 'from-cyan-400 to-blue-500' },
+          { name: 'Vina', gender: 'wanita', handle: '@vina', ...getAvatarProfileByName('Vina') },
+          { name: 'Graciella', gender: 'wanita', handle: '@graciella', ...getAvatarProfileByName('Graciella') },
         ],
       },
     ],
@@ -87,8 +85,7 @@ const feedItems = [
         gender: 'wanita',
         detail: 'lagi sedih dan butuh teman cerita',
         handle: '@dina',
-        avatar: 'D',
-        avatarTone: 'from-sky-400 to-blue-500',
+        ...getAvatarProfileByName('Dina'),
       },
     ],
   },
@@ -165,12 +162,17 @@ export default function TodayFriendsPage({ showToast }) {
                                       >
                                         <button
                                           type="button"
-                                          className={`flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${player.avatarTone} text-[11px] font-semibold text-white`}
+                                          className="h-6 w-6 overflow-hidden rounded-full"
                                           onClick={() =>
                                             navigate(`/memory-timeline/${player.name.toLowerCase()}`)
                                           }
                                         >
-                                          {player.avatar}
+                                          <UserAvatar
+                                            name={player.name}
+                                            image={player.avatarImage}
+                                            initial={player.avatar}
+                                            tone={player.avatarTone}
+                                          />
                                         </button>
                                         <button
                                           type="button"
@@ -195,12 +197,17 @@ export default function TodayFriendsPage({ showToast }) {
                                 >
                                   <button
                                     type="button"
-                                    className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${person.avatarTone} text-base font-semibold text-white shadow-sm`}
+                                    className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl shadow-sm"
                                     onClick={() =>
                                       navigate(`/memory-timeline/${person.name.toLowerCase()}`)
                                     }
                                   >
-                                    {person.avatar}
+                                    <UserAvatar
+                                      name={person.name}
+                                      image={person.avatarImage}
+                                      initial={person.avatar}
+                                      tone={person.avatarTone}
+                                    />
                                     <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
                                   </button>
                                   <button

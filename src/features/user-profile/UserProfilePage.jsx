@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { currentUser } from '../chat/chatData.js'
 
 const profileTimeline = [
@@ -45,10 +46,15 @@ export default function UserProfilePage({ showToast }) {
           <div className="mt-3 flex items-center gap-3">
             <button
               type="button"
-              className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${currentUser.avatarTone} text-lg font-semibold text-white shadow-sm`}
+              className="h-16 w-16 overflow-hidden rounded-full shadow-sm"
               onClick={() => notify('Change image')}
             >
-              {currentUser.avatar}
+              <UserAvatar
+                name={currentUser.name}
+                image={currentUser.avatarImage}
+                initial={currentUser.avatar}
+                tone={currentUser.avatarTone}
+              />
             </button>
             <div>
               <h1 className="text-2xl font-semibold">{currentUser.name}</h1>

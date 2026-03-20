@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom'
+import { getAvatarProfileByName } from '../data/avatarDirectory.js'
 
-const getAssetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`
+const defaultAvatarImage = getAvatarProfileByName('me')?.avatarImage ?? null
 
 export default function HomeTopStickyNav({
   onAction,
   title = 'HypeZone',
   subtitle = 'Bekasi',
-  avatarImage = getAssetUrl('/resources/images/avatar.jpg'),
+  avatarImage = defaultAvatarImage,
   showSearch = true,
   searchPlaceholder = 'Search something...',
   themeMode = 'default',
@@ -71,9 +72,10 @@ export default function HomeTopStickyNav({
                   <img
                     className={`h-8 w-8 rounded-xl shadow ${
                       isBlackTheme ? 'border border-yellow-300' : 'border border-slate-200'
-                    }`}
+                    } object-cover`}
                     src={avatarImage}
                     alt="User avatar"
+                    referrerPolicy="no-referrer"
                   />
                 </button>
               </div>

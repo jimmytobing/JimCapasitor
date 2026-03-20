@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
+import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
 import { currentUser } from '../chat/chatData.js'
 
 const challengeItems = [
@@ -27,16 +29,17 @@ const challengeItems = [
 ]
 
 const pollOptions = [
-  {
+  buildAvatarProfile({
     name: currentUser.name,
     gender: currentUser.gender,
     votes: 32,
     avatar: currentUser.avatar,
     avatarTone: currentUser.avatarTone,
-  },
-  { name: 'Bayu', gender: 'pria', votes: 21, avatar: 'B', avatarTone: 'from-sky-400 to-blue-500' },
-  { name: 'Angga', gender: 'pria', votes: 27, avatar: 'A', avatarTone: 'from-pink-400 to-rose-500' },
-  { name: 'Ryan', gender: 'pria', votes: 14, avatar: 'R', avatarTone: 'from-violet-400 to-fuchsia-500' },
+    avatarImage: currentUser.avatarImage,
+  }),
+  buildAvatarProfile({ name: 'Bayu', gender: 'pria', votes: 21 }),
+  buildAvatarProfile({ name: 'Angga', gender: 'pria', votes: 27 }),
+  buildAvatarProfile({ name: 'Ryan', gender: 'pria', votes: 14 }),
 ]
 
 export default function MiniChallengePage({ showToast }) {
@@ -124,14 +127,19 @@ export default function MiniChallengePage({ showToast }) {
                           <div className="flex min-w-0 items-center gap-3">
                             <button
                               type="button"
-                              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${option.avatarTone} text-xs font-semibold text-white`}
+                              className="h-8 w-8 shrink-0 overflow-hidden rounded-full"
                               onClick={() => {
                                 if (option.name && option.name !== currentUser.name) {
                                   navigate(`/memory-timeline/${option.name.toLowerCase()}`)
                                 }
                               }}
                             >
-                              {option.avatar}
+                              <UserAvatar
+                                name={option.name}
+                                image={option.avatarImage}
+                                initial={option.avatar}
+                                tone={option.avatarTone}
+                              />
                             </button>
                             <button
                               type="button"

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { chatThreads, circleTitles } from '../chat/chatData.js'
 
 const podiumStyles = {
@@ -9,25 +10,11 @@ const podiumStyles = {
   2: 'bg-gradient-to-r from-orange-100 via-amber-50 to-orange-200 ring-orange-300',
 }
 
-const avatarTones = [
-  'from-orange-400 to-amber-500',
-  'from-sky-400 to-cyan-500',
-  'from-pink-400 to-rose-500',
-  'from-violet-400 to-purple-500',
-  'from-emerald-400 to-teal-500',
-  'from-fuchsia-400 to-pink-500',
-]
-
 export default function FriendRankingPage({ showToast }) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const circleId = searchParams.get('circle') || 'best-friend'
   const notify = typeof showToast === 'function' ? showToast : () => {}
-
-  const getAvatarTone = (name, index) => {
-    const total = name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
-    return avatarTones[(total + index) % avatarTones.length]
-  }
 
   const data = useMemo(() => {
     const activeCircleId = circleTitles[circleId] ? circleId : 'best-friend'
@@ -109,12 +96,15 @@ export default function FriendRankingPage({ showToast }) {
                         </p>
                         <button
                           type="button"
-                          className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${
-                            friend.avatarTone ?? getAvatarTone(friend.name, index)
-                          } text-sm font-semibold text-white shadow-sm`}
+                          className="h-11 w-11 overflow-hidden rounded-full shadow-sm"
                           onClick={() => navigate(`/memory-timeline/${friend.id}`)}
                         >
-                          {friend.avatar ?? friend.name.slice(0, 1)}
+                          <UserAvatar
+                            name={friend.name}
+                            image={friend.avatarImage}
+                            initial={friend.avatar ?? friend.name.slice(0, 1)}
+                            tone={friend.avatarTone}
+                          />
                         </button>
                         <button
                           type="button"

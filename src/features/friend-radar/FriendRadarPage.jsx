@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
+import { getAvatarProfileByName } from '../../shared/data/avatarDirectory.js'
 
 const nearbyFriends = [
   {
@@ -7,24 +9,21 @@ const nearbyFriends = [
     gender: 'pria',
     place: '0.4 km dari kamu',
     area: 'Lagi di cafe Sudirman',
-    avatar: 'J',
-    tone: 'from-orange-400 to-amber-500',
+    ...getAvatarProfileByName('Joshua'),
   },
   {
     name: 'Bayu',
     gender: 'pria',
     place: '0.9 km dari kamu',
     area: 'Dekat kampus barat',
-    avatar: 'B',
-    tone: 'from-sky-400 to-blue-500',
+    ...getAvatarProfileByName('Bayu'),
   },
   {
     name: 'Angga',
     gender: 'pria',
     place: '1.3 km dari kamu',
     area: 'Main di taman kota',
-    avatar: 'A',
-    tone: 'from-pink-400 to-rose-500',
+    ...getAvatarProfileByName('Angga'),
   },
 ]
 
@@ -34,24 +33,21 @@ const onlineFriends = [
     gender: 'pria',
     activity: 'Online 2 menit lalu',
     status: 'Sedang buka chat',
-    avatar: 'R',
-    tone: 'from-violet-400 to-fuchsia-500',
+    ...getAvatarProfileByName('Ryan'),
   },
   {
     name: 'Vina',
     gender: 'wanita',
     activity: 'Online sekarang',
     status: 'Baru update story',
-    avatar: 'V',
-    tone: 'from-emerald-400 to-teal-500',
+    ...getAvatarProfileByName('Vina'),
   },
   {
     name: 'Graciella',
     gender: 'wanita',
     activity: 'Online 5 menit lalu',
     status: 'Lagi cek circle',
-    avatar: 'G',
-    tone: 'from-cyan-400 to-blue-500',
+    ...getAvatarProfileByName('Graciella'),
   },
 ]
 
@@ -98,10 +94,15 @@ export default function FriendRadarPage({ showToast }) {
                       >
                         <button
                           type="button"
-                          className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${friend.tone} text-sm font-semibold text-white`}
+                          className="h-11 w-11 overflow-hidden rounded-full"
                           onClick={() => navigate(`/memory-timeline/${friend.name.toLowerCase()}`)}
                         >
-                          {friend.avatar}
+                          <UserAvatar
+                            name={friend.name}
+                            image={friend.avatarImage}
+                            initial={friend.avatar}
+                            tone={friend.avatarTone}
+                          />
                         </button>
                         <button
                           type="button"
@@ -140,10 +141,15 @@ export default function FriendRadarPage({ showToast }) {
                   >
                     <button
                       type="button"
-                      className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${friend.tone} text-base font-semibold text-white shadow-sm`}
+                      className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl shadow-sm"
                       onClick={() => navigate(`/memory-timeline/${friend.name.toLowerCase()}`)}
                     >
-                      {friend.avatar}
+                      <UserAvatar
+                        name={friend.name}
+                        image={friend.avatarImage}
+                        initial={friend.avatar}
+                        tone={friend.avatarTone}
+                      />
                       <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
                     </button>
                     <button
