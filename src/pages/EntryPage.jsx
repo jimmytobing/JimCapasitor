@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const AUTH_STORAGE_KEY = 'wpa_google_auth'
+const isLocalDevelopment =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
 function isStandalone() {
   if (typeof window === 'undefined') return false
 
@@ -14,7 +19,14 @@ export default function EntryPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    navigate(isStandalone() ? '/home' : '/install', { replace: true })
+    if (isLocalDevelopment) {
+      navigate('/home', { replace: true })
+      return
+    }
+
+    const hasSession = Boolean(window.localStorage.getItem(AUTH_STORAGE_KEY))
+    const nextPath = !isStandalone() ? '/install' : hasSession ? '/home' : '/login'
+    navigate(nextPath, { replace: true })
   }, [navigate])
 
   return (

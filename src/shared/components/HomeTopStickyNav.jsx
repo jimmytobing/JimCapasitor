@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 
+const getAssetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`
+
 export default function HomeTopStickyNav({
   onAction,
   title = 'Loremipsum Title',
   subtitle = 'Massive Dynamic',
-  backgroundImage = "/resources/images/top-bg.jpg",
-  avatarImage = "/resources/images/avatar.jpg",
+  backgroundImage = getAssetUrl('/resources/images/top-bg.jpg'),
+  avatarImage = getAssetUrl('/resources/images/avatar.jpg'),
   showSearch = true,
   searchPlaceholder = 'Search something...',
 }) {

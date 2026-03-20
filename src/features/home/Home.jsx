@@ -3,6 +3,8 @@ import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import HomeTopStickyNav from '../../shared/components/HomeTopStickyNav.jsx'
 import { getRandomBadges } from '../../shared/utils/badges.js'
 
+const getAssetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`
+
 export default function Home({ showToast }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const navigate = useNavigate()
@@ -148,7 +150,7 @@ export default function Home({ showToast }) {
               <button
                 className={`relative my-2 h-64 min-w-[70%] snap-start cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md ${glowButtonClass}`}
                 style={{
-                  backgroundImage: "url('/resources/images/hotel-1.jpg')",
+                  backgroundImage: `url('${getAssetUrl('/resources/images/hotel-1.jpg')}')`,
                 }}
                 onClick={() => notify('Dubai hotel')}
               >
@@ -225,7 +227,7 @@ export default function Home({ showToast }) {
               <button
                 className={`relative my-2 h-64 min-w-[70%] snap-start cursor-pointer overflow-hidden rounded-3xl bg-white bg-cover object-cover object-center shadow-md ${glowButtonClass}`}
                 style={{
-                  backgroundImage: "url('/resources/images/hotel-2.jpg')",
+                  backgroundImage: `url('${getAssetUrl('/resources/images/hotel-2.jpg')}')`,
                 }}
                 onClick={() => notify('India hotel')}
               >
@@ -304,7 +306,7 @@ export default function Home({ showToast }) {
             <div className="grid grid-cols-1">
               <div className="flex rounded-2xl bg-white p-2 shadow-md">
                 <img
-                  src="/resources/images/suggested-1.jpg"
+                  src={getAssetUrl('/resources/images/suggested-1.jpg')}
                   alt="Just a flower"
                   className="h-16 w-16 rounded-xl object-cover"
                 />

@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+const AUTH_STORAGE_KEY = 'wpa_google_auth'
 
 function isStandalone() {
   if (typeof window === 'undefined') return false
@@ -10,6 +13,7 @@ function isStandalone() {
 }
 
 export default function InstallPage() {
+  const navigate = useNavigate()
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [status, setStatus] = useState('')
 
@@ -29,14 +33,15 @@ export default function InstallPage() {
     window.addEventListener('appinstalled', handleAppInstalled)
 
     if (isStandalone()) {
-      setStatus('The app is already running in installed mode.')
+      const hasSession = Boolean(window.localStorage.getItem(AUTH_STORAGE_KEY))
+      navigate(hasSession ? '/home' : '/login', { replace: true })
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
-  }, [])
+  }, [navigate])
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return

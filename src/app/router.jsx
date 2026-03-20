@@ -27,7 +27,7 @@ export default function AppRoutes({ showToast }) {
         v7_relativeSplatPath: true,
       }}
     >
-      <Route path="/" element={<Home showToast={showToast} />} />
+      <Route path="/home" element={<Home showToast={showToast} />} />
       <Route path="/inside-joke" element={<InsideJokePage />} />
       <Route path="/daily" element={<DailyPage showToast={showToast} />} />
       <Route path="/today-friends" element={<TodayFriendsPage showToast={showToast} />} />
