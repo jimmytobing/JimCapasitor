@@ -1,40 +1,12 @@
-import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { currentUser } from '../chat/chatData.js'
-
-const profileTimeline = [
-  {
-    date: '8 Jun',
-    year: '2026',
-    title: 'Mulai bikin Friend Quiz',
-    detail: 'Gracia mulai menambahkan pertanyaan tentang dirinya supaya teman-teman bisa ikut main dan dapat point.',
-  },
-  {
-    date: '18 Mar',
-    year: '2026',
-    title: 'Punya inside joke favorit',
-    detail: 'Momen receh di chat mulai terasa spesial dan akhirnya jadi bagian dari memory board.',
-  },
-  {
-    date: '4 Feb',
-    year: '2025',
-    title: 'Lebih aktif di circle',
-    detail: 'Mulai sering chat, ikut challenge, dan makin dekat dengan beberapa teman inti.',
-  },
-  {
-    date: '12 Jan',
-    year: '2024',
-    title: 'Mulai membangun circle pertemanan',
-    detail: 'Dari obrolan kecil sampai hangout bareng, ini jadi awal timeline persahabatan Gracia.',
-  },
-]
+import { profileTimeline } from './profileTimeline.js'
+import { useUserProfileData } from './useUserProfileData.js'
 
 export default function UserProfilePage({ showToast }) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
-
-  const timeline = useMemo(() => profileTimeline, [])
+  const { username, isLoading, error, profile, profileDetails } = useUserProfileData()
 
   return (
     <div className="min-h-screen bg-[#edf2f7]">
@@ -50,19 +22,19 @@ export default function UserProfilePage({ showToast }) {
               onClick={() => notify('Change image')}
             >
               <UserAvatar
-                name={currentUser.name}
-                image={currentUser.avatarImage}
-                initial={currentUser.avatar}
-                tone={currentUser.avatarTone}
+                name={profile.name}
+                image={profile.avatarImage}
+                initial={profile.avatar}
+                tone={profile.avatarTone}
               />
             </button>
             <div>
-              <h1 className="text-2xl font-semibold">{currentUser.name}</h1>
-              <p className="mt-1 text-sm text-white/90">User Profile</p>
+              <h1 className="text-2xl font-semibold">{profile.name}</h1>
+              <p className="mt-1 text-sm text-white/90">{profile.subtitle}</p>
             </div>
           </div>
           <p className="mt-4 max-w-[24rem] text-sm leading-6 text-white/90">
-            Detail persona user yang sedang login, lengkap dengan data profile dan timeline pribadi.
+            {profile.description}
           </p>
         </div>
 
@@ -73,37 +45,36 @@ export default function UserProfilePage({ showToast }) {
                 Profile
               </p>
               <span className="rounded-full bg-pink-50 px-3 py-1 text-xs font-semibold text-pink-700">
-                Active user
+                {username || 'No session'}
               </span>
             </div>
 
+            {isLoading ? (
+              <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+                Mengambil Contact dari Salesforce...
+              </div>
+            ) : null}
+
+            {error ? (
+              <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                {error}
+              </div>
+            ) : null}
+
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-slate-50 px-3 py-3 ring-1 ring-slate-200">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Nama
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-900">{currentUser.name}</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 px-3 py-3 ring-1 ring-slate-200">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Usia
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-900">{currentUser.age} tahun</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 px-3 py-3 ring-1 ring-slate-200">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Gender
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-900">Wanita</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 px-3 py-3 ring-1 ring-slate-200">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Hobi
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-900">
-                  {currentUser.hobby.join(', ')}
-                </p>
-              </div>
+              {profileDetails.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-2xl bg-slate-50 px-3 py-3 ring-1 ring-slate-200"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 break-words text-sm font-medium text-slate-900">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
             </div>
 
             <div className="mt-4">
@@ -126,13 +97,13 @@ export default function UserProfilePage({ showToast }) {
                 </p>
               </div>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                {timeline.length} moments
+                {profileTimeline.length} moments
               </span>
             </div>
 
             <div className="mt-5 space-y-4">
-              {timeline.map((item, index) => {
-                const previousYear = index > 0 ? timeline[index - 1].year : null
+              {profileTimeline.map((item, index) => {
+                const previousYear = index > 0 ? profileTimeline[index - 1].year : null
                 const showYearDivider = index === 0 || previousYear !== item.year
 
                 return (
@@ -154,7 +125,7 @@ export default function UserProfilePage({ showToast }) {
                             {item.date}
                           </p>
                         </div>
-                        {index !== timeline.length - 1 && (
+                        {index !== profileTimeline.length - 1 && (
                           <span className="mt-2 h-full w-px bg-slate-200" />
                         )}
                       </div>

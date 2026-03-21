@@ -3,8 +3,8 @@ import EntryPage from './pages/EntryPage.jsx'
 import InstallPage from './pages/InstallPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import LegacyApp from './app/App.jsx'
+import { AUTH_STORAGE_KEY } from './shared/auth/session.js'
 
-const AUTH_STORAGE_KEY = 'wpa_google_auth'
 const isLocalDevelopment =
   typeof window !== 'undefined' &&
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
