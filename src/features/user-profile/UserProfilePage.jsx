@@ -6,7 +6,17 @@ import { useUserProfileData } from './useUserProfileData.js'
 export default function UserProfilePage({ showToast }) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const { username, isLoading, error, profile, profileDetails } = useUserProfileData()
+  const { cards, error, loadingMessage } = useUserProfileData()
+  const profile = cards.find((item) => item.type === 'profile') ?? {
+    title: 'User Profile',
+    subtitle: 'User Profile',
+    description: 'Detail profile user.',
+    username: '',
+    avatar: '?',
+    avatarTone: 'from-slate-300 to-slate-500',
+    avatarImage: null,
+  }
+  const profileDetails = cards.filter((item) => item.type === 'detail')
 
   return (
     <div className="min-h-screen bg-[#edf2f7]">
@@ -22,14 +32,14 @@ export default function UserProfilePage({ showToast }) {
               onClick={() => notify('Change image')}
             >
               <UserAvatar
-                name={profile.name}
+                name={profile.title}
                 image={profile.avatarImage}
                 initial={profile.avatar}
                 tone={profile.avatarTone}
               />
             </button>
             <div>
-              <h1 className="text-2xl font-semibold">{profile.name}</h1>
+              <h1 className="text-2xl font-semibold">{profile.title}</h1>
               <p className="mt-1 text-sm text-white/90">{profile.subtitle}</p>
             </div>
           </div>
@@ -45,13 +55,13 @@ export default function UserProfilePage({ showToast }) {
                 Profile
               </p>
               <span className="rounded-full bg-pink-50 px-3 py-1 text-xs font-semibold text-pink-700">
-                {username || 'No session'}
+                {profile.username || 'No session'}
               </span>
             </div>
 
-            {isLoading ? (
+            {loadingMessage ? (
               <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-                Mengambil Contact dari Salesforce...
+                {loadingMessage}
               </div>
             ) : null}
 

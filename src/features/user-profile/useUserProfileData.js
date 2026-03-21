@@ -1,138 +1,111 @@
-import { useEffect, useMemo, useState } from 'react'
-import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
+import { useEffect, useState } from 'react'
 import { getStoredUsername } from '../../shared/auth/session.js'
 import { escapeSoqlValue, getRecord } from '../../shared/services/salesforce.js'
-import { currentUser } from '../chat/chatData.js'
+import { buildCardsFromRecord } from '../../shared/utils/cards.js'
+import { calculateAge, formatBirthdate } from '../../shared/utils/date.js'
 
-function formatBirthdate(value) {
-  if (!value) return '-'
+function normalizePhotoUrl(photoUrl) {
+  if (!photoUrl) return null
+  if (/^https?:\/\//i.test(photoUrl)) return photoUrl
 
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-
-  return new Intl.DateTimeFormat('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(date)
-}
-
-function calculateAge(birthdate) {
-  if (!birthdate) return null
-
-  const date = new Date(birthdate)
-  if (Number.isNaN(date.getTime())) return null
-
-  const today = new Date()
-  let age = today.getFullYear() - date.getFullYear()
-  const monthDiff = today.getMonth() - date.getMonth()
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
-    age -= 1
-  }
-
-  return age >= 0 ? age : null
-}
-
-function buildProfileDetails(contact, fallbackUsername) {
-  const age = calculateAge(contact?.Birthdate)
-
-  return [
-    { label: 'Nama', value: contact?.Name || currentUser.name },
-    { label: 'Username', value: contact?.App_User_ID__c || fallbackUsername || '-' },
-    { label: 'Email', value: contact?.Email || '-' },
-    { label: 'Phone', value: contact?.Phone || contact?.MobilePhone || '-' },
-    { label: 'Gender', value: contact?.GenderIdentity || currentUser.gender || '-' },
-    {
-      label: 'Usia',
-      value: age != null ? `${age} tahun` : currentUser.age ? `${currentUser.age} tahun` : '-',
-    },
-    { label: 'Birthdate', value: formatBirthdate(contact?.Birthdate) },
-    { label: 'Source', value: contact ? 'Salesforce Contact' : 'Local fallback' },
-  ]
-}
-
-async function fetchUserContact(username) {
-  const safeUsername = escapeSoqlValue(username)
-  return getRecord(
-    `SELECT FIELDS(ALL) FROM Contact WHERE App_User_ID__c = '${safeUsername}' LIMIT 200`
-  )
+  return `https://sfcapacitor-dev-ed.develop.my.salesforce.com/${photoUrl.replace(/^\/+/, '')}`
 }
 
 export function useUserProfileData() {
-  const [username, setUsername] = useState('')
-  const [contact, setContact] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [cards, setCards] = useState([])
   const [error, setError] = useState('')
-
-  const profile = useMemo(() => {
-    const displayName = contact?.Name || currentUser.name
-    const baseProfile = buildAvatarProfile({
-      ...currentUser,
-      id: contact?.App_User_ID__c || username || currentUser.id,
-      name: displayName,
-      gender: contact?.GenderIdentity || currentUser.gender,
-    })
-
-    return {
-      ...baseProfile,
-      subtitle: contact ? 'Profile dari Salesforce Contact' : 'User Profile',
-      description: contact
-        ? 'Data profile diambil dari Contact Salesforce berdasarkan username yang tersimpan saat login.'
-        : 'Detail persona user yang sedang login, lengkap dengan data profile dan timeline pribadi.',
-    }
-  }, [contact, username])
-
-  const profileDetails = useMemo(() => buildProfileDetails(contact, username), [contact, username])
+  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
 
   useEffect(() => {
-    const storedUsername = getStoredUsername()
-    setUsername(storedUsername)
-
-    if (!storedUsername) {
-      setError('Username login belum ditemukan di session.')
-      setIsLoading(false)
-      return
-    }
-
-    let isMounted = true
-
-    const loadContact = async () => {
-      setIsLoading(true)
-      setError('')
+    void (async () => {
+      setLoadingMessage('Loading Salesforce...')
 
       try {
-        const firstContact = await fetchUserContact(storedUsername)
+        const username = getStoredUsername()
 
-        if (!isMounted) return
-
-        setContact(firstContact)
-
-        if (!firstContact) {
-          setError(`Contact dengan App_User_ID__c = '${storedUsername}' tidak ditemukan.`)
+        if (!username) {
+          setError('Username login belum ditemukan di session.')
+          setCards([])
+          return
         }
-      } catch (fetchError) {
-        if (!isMounted) return
-        setError(fetchError instanceof Error ? fetchError.message : 'Gagal mengambil profile user.')
+
+        const safeUsername = escapeSoqlValue(username)
+        const record = await getRecord(
+          `SELECT FIELDS(ALL) FROM Contact WHERE App_User_ID__c = '${safeUsername}' LIMIT 1`
+        )
+
+        const displayName = record?.Name || 'User Profile'
+        const age = calculateAge(record?.Birthdate)
+
+        const nextCards = buildCardsFromRecord(record, {
+          profileCard: {
+            type: 'profile',
+            title: displayName,
+            subtitle: record ? record?.Hobby__c : 'User Profile',
+            description: record
+              ? record?.Description 
+              : 'Detail persona user yang sedang login, lengkap dengan data profile dan timeline pribadi.',
+            username: record?.App_User_ID__c || username || '',
+            avatar: displayName.slice(0, 1)?.toUpperCase() || '?',
+            avatarTone: 'from-slate-300 to-slate-500',
+            avatarImage: normalizePhotoUrl(record?.PhotoUrl),
+          },
+          fields: [
+            {
+              label: 'Nama',
+              getValue: () => displayName,
+            },
+            {
+              label: 'Username',
+              getValue: () => record?.App_User_ID__c || username || '-',
+            },
+            {
+              label: 'Email',
+              key: 'Email',
+            },
+            {
+              label: 'Phone',
+              keys: ['Phone', 'MobilePhone'],
+            },
+            {
+              label: 'Gender',
+              key: 'GenderIdentity',
+            },
+            {
+              label: 'Usia',
+              getValue: () => (age != null ? `${age} tahun` : '-'),
+            },
+            {
+              label: 'Birthdate',
+              getValue: () => formatBirthdate(record?.Birthdate),
+            },
+            {
+              label: 'Source',
+              getValue: () => (record ? 'Salesforce Contact' : 'Local fallback'),
+            },
+          ],
+        })
+
+        if (!record) {
+          setError(`Contact dengan App_User_ID__c = '${username}' tidak ditemukan.`)
+          setCards(nextCards)
+          return
+        }
+
+        setError('')
+        setCards(nextCards)
+      } catch (err) {
+        setError(err.message || 'Gagal mengambil data.')
+        setCards([])
       } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
+        setLoadingMessage('')
       }
-    }
-
-    loadContact()
-
-    return () => {
-      isMounted = false
-    }
+    })()
   }, [])
 
   return {
-    username,
-    isLoading,
+    cards,
     error,
-    profile,
-    profileDetails,
+    loadingMessage,
   }
 }
