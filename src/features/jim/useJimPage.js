@@ -1,48 +1,68 @@
 import { useEffect, useState } from 'react'
+import { querySalesforceSoql } from '../../shared/services/salesforce.js'
 
-const data = [
-  {
-    title: 'Hello',
-    avatarInitial: 'H',
-    content:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-  },
-  {
-    title: 'jimmy',
-    avatarInitial: 'J',
-    content:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-  },
-]
+function escapeSoqlValue(value) {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+}
+
+async function getRecords(strSOQL) {
+  try {
+    const result = await querySalesforceSoql(strSOQL)
+    const records = Array.isArray(result?.records) ? result.records : []
+
+    if (records.length === 0) {
+      return {
+        records: [],
+        error: 'Data tidak ditemukan.',
+      }
+    }
+
+    return {
+      records,
+      error: '',
+    }
+  } catch (err) {
+    return {
+      records: [],
+      error: err.message || 'Gagal mengambil data.',
+    }
+  }
+}
 
 export function useJimPage() {
+  const [cards, setCards] = useState([])
   const [error, setError] = useState('')
-  const [loadingMessage, setLoadingMessage] = useState('Loading... 0 detik')
+  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
 
   useEffect(() => {
-    let seconds = 0
+    void (async () => {
+      setLoadingMessage('Loading Salesforce...')
+      const safeId = escapeSoqlValue('001dL00001yiqmDQAQ')
+      const accountResult = await getRecords(
+        `SELECT FIELDS(ALL) FROM Account WHERE BillingStreet <> '${safeId}' LIMIT 200`
+      )
 
-    const interval = window.setInterval(() => {
-      seconds += 1
-      setLoadingMessage(`Loading... ${seconds} detik`)
-    }, 1000)
+      if (accountResult.error) {
+        setError(accountResult.error)
+        setCards([])
+      } else {
+        setError('')
+        setCards(
+          accountResult.records.map((account, index) => ({
+            title: account?.Name || `Account tanpa Nama - ${index + 1}`,
+            avatarInitial: account?.Name?.slice(0, 1)?.toUpperCase() || '?',
+            content: account?.BillingStreet || '-',
+          }))
+        )
+      }
 
-    const timer = window.setTimeout(() => {
-      window.clearInterval(interval)
       setLoadingMessage('')
-      setError('Simulasi error dari useJimPage.')
-    }, 10000)
-
-    return () => {
-      window.clearInterval(interval)
-      window.clearTimeout(timer)
-    }
+    })()
   }, [])
 
   return {
-    cards: data,
+    cards,
     error,
     loadingMessage,
-    setError,
   }
 }

@@ -1,3 +1,4 @@
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { useJimPage } from './useJimPage.js'
 
 export default function JimPage() {
@@ -24,8 +25,12 @@ export default function JimPage() {
             className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
-                {item.avatarInitial}
+              <div className="h-10 w-10 overflow-hidden rounded-full">
+                <UserAvatar
+                  name={item.title}
+                  initial={item.avatarInitial}
+                  tone="from-slate-700 to-slate-900"
+                />
               </div>
               <h2 className="text-xl font-semibold text-slate-900">{item.title}</h2>
             </div>
