@@ -1,9 +1,34 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AUTH_STORAGE_KEY } from '../shared/auth/session.js'
+import { ensureContactFromGoogleProfile } from '../shared/services/salesforce.js'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const GOOGLE_SCRIPT_SRC = 'https://accounts.google.com/gsi/client'
+
+function deriveGoogleUsername(profile) {
+  const email = typeof profile?.email === 'string' ? profile.email.trim() : ''
+  if (email) return email
+
+  const name = typeof profile?.name === 'string' ? profile.name.trim() : ''
+  if (name) return name
+
+  return ''
+}
+
+async function fetchGoogleProfile(accessToken) {
+  const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Google profile could not be loaded.')
+  }
+
+  return response.json()
+}
 
 function loadGoogleScript() {
   return new Promise((resolve, reject) => {
@@ -33,8 +58,6 @@ function loadGoogleScript() {
 export function useLoginPage() {
   const navigate = useNavigate()
   const tokenClientRef = useRef(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [status, setStatus] = useState('Continue with Google to access the installed app.')
   const [isReady, setIsReady] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -67,17 +90,55 @@ export function useLoginPage() {
         tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
           client_id: GOOGLE_CLIENT_ID,
           scope: 'openid email profile',
-          callback: (response) => {
+          callback: async (response) => {
             if (response.error) {
               setStatus('Google sign-in did not complete. Please try again.')
               setIsLoading(false)
               return
             }
 
-            window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(response))
-            setStatus('Login successful. Redirecting now.')
-            setIsLoading(false)
-            navigate('/home', { replace: true })
+            try {
+              const profile = await fetchGoogleProfile(response.access_token)
+              const session = {
+                type: 'google',
+                accessToken: response.access_token,
+                expiresIn: response.expires_in,
+                scope: response.scope,
+                tokenType: response.token_type,
+                email: profile?.email || '',
+                name: profile?.name || '',
+                givenName: profile?.given_name || '',
+                familyName: profile?.family_name || '',
+                avatarUrl: profile?.picture || '',
+                locale: profile?.locale || '',
+                emailVerified: Boolean(profile?.email_verified),
+                googleId: profile?.sub || '',
+                username: deriveGoogleUsername(profile),
+              }
+
+              window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session))
+              try {
+                const syncResult = await ensureContactFromGoogleProfile(session)
+                const syncLabel = syncResult.created
+                  ? 'Contact baru dibuat'
+                  : syncResult.updated
+                    ? 'Contact berhasil disinkronkan'
+                    : 'Contact sudah ada'
+                setStatus(`${syncLabel} untuk ${session.username || 'Google user'}. Redirecting now.`)
+              } catch (contactError) {
+                console.error('Failed to sync Contact from Google login.', contactError)
+                setStatus(
+                  `Login berhasil sebagai ${session.username || 'Google user'}, tapi sinkronisasi Contact gagal.`
+                )
+              }
+
+              navigate('/home', { replace: true })
+            } catch (error) {
+              window.localStorage.removeItem(AUTH_STORAGE_KEY)
+              setStatus(error.message || 'Google profile could not be loaded.')
+            } finally {
+              setIsLoading(false)
+            }
           },
         })
 
@@ -107,30 +168,10 @@ export function useLoginPage() {
     tokenClientRef.current.requestAccessToken()
   }
 
-  const handleFakeLogin = (event) => {
-    event.preventDefault()
-
-    window.localStorage.setItem(
-      AUTH_STORAGE_KEY,
-      JSON.stringify({
-        type: 'password',
-        username: username || 'guest',
-      })
-    )
-
-    setStatus('Login successful. Redirecting now.')
-    navigate('/home', { replace: true })
-  }
-
   return {
-    username,
-    setUsername,
-    password,
-    setPassword,
     status,
     isReady,
     isLoading,
     handleGoogleLogin,
-    handleFakeLogin,
   }
 }

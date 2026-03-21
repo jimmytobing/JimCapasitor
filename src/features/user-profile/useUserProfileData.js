@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getStoredUsername } from '../../shared/auth/session.js'
-import { escapeSoqlValue, getRecord } from '../../shared/services/salesforce.js'
+import { getAuthSession, getStoredUsername } from '../../shared/auth/session.js'
+import { findContactByIdentity } from '../../shared/services/salesforce.js'
 import { buildCardsFromRecord } from '../../shared/utils/cards.js'
 import { calculateAge, formatBirthdate } from '../../shared/utils/date.js'
 
@@ -21,18 +21,17 @@ export function useUserProfileData() {
       setLoadingMessage('Loading Salesforce...')
 
       try {
+        const session = getAuthSession()
         const username = getStoredUsername()
+        const email = typeof session?.email === 'string' ? session.email.trim() : ''
 
-        if (!username) {
+        if (!username && !email) {
           setError('Username login belum ditemukan di session.')
           setCards([])
           return
         }
 
-        const safeUsername = escapeSoqlValue(username)
-        const record = await getRecord(
-          `SELECT FIELDS(ALL) FROM Contact WHERE App_User_ID__c = '${safeUsername}' LIMIT 1`
-        )
+        const record = await findContactByIdentity({ username, email })
 
         const displayName = record?.Name || 'User Profile'
         const age = calculateAge(record?.Birthdate)
@@ -45,10 +44,10 @@ export function useUserProfileData() {
             description: record
               ? record?.Description 
               : 'Detail persona user yang sedang login, lengkap dengan data profile dan timeline pribadi.',
-            username: record?.App_User_ID__c || username || '',
+            username: record?.App_User_ID__c || username || email || '',
             avatar: displayName.slice(0, 1)?.toUpperCase() || '?',
             avatarTone: 'from-slate-300 to-slate-500',
-            avatarImage: normalizePhotoUrl(record?.PhotoUrl),
+            avatarImage: normalizePhotoUrl(record?.Photo__c),
           },
           fields: [
             {
@@ -57,11 +56,11 @@ export function useUserProfileData() {
             },
             {
               label: 'Username',
-              getValue: () => record?.App_User_ID__c || username || '-',
+              getValue: () => record?.App_User_ID__c || username || email || '-',
             },
             {
               label: 'Email',
-              key: 'Email',
+              getValue: () => record?.Email || email || '-',
             },
             {
               label: 'Phone',
@@ -87,7 +86,9 @@ export function useUserProfileData() {
         })
 
         if (!record) {
-          setError(`Contact dengan App_User_ID__c = '${username}' tidak ditemukan.`)
+          setError(
+            `Contact untuk session login '${username || email}' tidak ditemukan di App_User_ID__c maupun Email.`
+          )
           setCards(nextCards)
           return
         }

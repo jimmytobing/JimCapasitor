@@ -2,15 +2,10 @@ import { useLoginPage } from './useLoginPage.js'
 
 export default function LoginPage() {
   const {
-    username,
-    setUsername,
-    password,
-    setPassword,
     status,
     isReady,
     isLoading,
     handleGoogleLogin,
-    handleFakeLogin,
   } = useLoginPage()
 
   return (
@@ -27,7 +22,7 @@ export default function LoginPage() {
               HypeZone Mode
             </span>
             <span className="rounded-full bg-white/30 px-3 py-1 text-xs font-semibold text-slate-950">
-              Fake Auth
+              Google Auth
             </span>
           </div>
 
@@ -39,8 +34,8 @@ export default function LoginPage() {
               Back to your zone.
             </h1>
             <p className="mt-4 text-sm leading-6 text-slate-950/75">
-              Masuk dulu buat lanjut ke app. Sekarang masih fake auth, jadi username dan password
-              bebas untuk testing.
+              Masuk dulu buat lanjut ke app. Username session sekarang diambil langsung dari akun
+              Google yang dipakai saat login.
             </p>
           </div>
         </div>
@@ -56,61 +51,17 @@ export default function LoginPage() {
                   Sign In
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Pakai fake credential dulu untuk test flow masuk ke Home tanpa backend auth.
+                  Lanjutkan dengan Google, lalu app akan menyimpan username dari profil Google ke
+                  session lokal.
                 </p>
               </div>
-            </div>
-
-            <form onSubmit={handleFakeLogin} className="mt-5 space-y-4">
-              <div className="space-y-2 text-left">
-                <label htmlFor="username" className="block text-sm font-medium text-slate-300">
-                  Username
-                </label>
-                <input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                  placeholder="Enter your username"
-                  className="w-full rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/60 focus:bg-white/10"
-                />
-              </div>
-
-              <div className="space-y-2 text-left">
-                <label htmlFor="password" className="block text-sm font-medium text-slate-300">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/60 focus:bg-white/10"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full rounded-[1.4rem] bg-gradient-to-r from-cyan-400 via-sky-500 to-fuchsia-500 px-5 py-4 text-base font-black uppercase tracking-[0.2em] text-slate-950 shadow-[0_18px_40px_rgba(59,130,246,0.35)] transition active:scale-[0.98]"
-              >
-                Login Now
-              </button>
-            </form>
-
-            <div className="my-4 flex items-center gap-3">
-              <div className="h-px flex-1 bg-white/10" />
-              <span className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500">
-                or
-              </span>
-              <div className="h-px flex-1 bg-white/10" />
             </div>
 
             <button
               type="button"
               onClick={handleGoogleLogin}
               disabled={!isReady || isLoading}
-              className="flex w-full items-center justify-center gap-3 rounded-[1.2rem] border border-white/10 bg-white/5 px-5 py-4 text-base font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]"
+              className="mt-5 flex w-full items-center justify-center gap-3 rounded-[1.2rem] border border-white/10 bg-white/5 px-5 py-4 text-base font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]"
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-sm font-bold text-[#4285F4]">
                 G
@@ -119,7 +70,8 @@ export default function LoginPage() {
             </button>
 
             <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-300">
-              Untuk test ulang login page, buka URL dengan <span className="font-semibold text-cyan-300">?resetAuth=1</span>
+              Untuk test ulang login page, buka URL dengan{' '}
+              <span className="font-semibold text-cyan-300">?resetAuth=1</span>
             </div>
 
             {status ? (
