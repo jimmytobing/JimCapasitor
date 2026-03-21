@@ -4,8 +4,8 @@ export {
 } from './salesforce/client.js'
 export {
   fetchSampleAccounts,
-  querySalesforce,
+  querySalesforceSoql,
   querySalesforceGraphQL,
-} from './salesforce/graphql.js'
+} from './salesforce/querySalesforce.js'
 export { fetchAccountsWithContacts, fetchAccountContactsByName } from './salesforce/account.js'
 export { fetchAccountsContactsAndFeedItems } from './salesforce/accountContactFeed.js'

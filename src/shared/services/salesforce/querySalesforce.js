@@ -1,6 +1,6 @@
 import { sendSalesforceRequest } from './client.js'
 
-export async function querySalesforce(soql) {
+export async function querySalesforceSoql(soql) {
   return sendSalesforceRequest('query', {
     params: { q: soql },
   })
@@ -25,7 +25,7 @@ export async function querySalesforceGraphQL(query, variables = {}) {
 export async function fetchSampleAccounts(limit = 5) {
   const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(limit, 1), 20) : 5
 
-  return querySalesforce(
+  return querySalesforceSoql(
     `SELECT Id, Name, Type, Industry FROM Account ORDER BY LastModifiedDate DESC LIMIT ${safeLimit}`
   )
 }

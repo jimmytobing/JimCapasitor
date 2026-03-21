@@ -1,4 +1,4 @@
-import { querySalesforceGraphQL } from './graphql.js'
+import { querySalesforceGraphQL } from './querySalesforce.js'
 import { ACCOUNT_CONTACT_FEED_ITEMS_QUERY } from './queries/accountContactFeedItems.js'
 
 function mapAccount(node) {
