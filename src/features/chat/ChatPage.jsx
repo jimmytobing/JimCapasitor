@@ -25,8 +25,9 @@ export default function ChatPage({ themeMode = 'default' }) {
 
   useEffect(() => {
     let isCancelled = false
+    const accountName = circleId && circleTitles[circleId] ? circleTitles[circleId] : ''
 
-    if (circleId !== 'school-friend') {
+    if (!accountName) {
       setSalesforceState({
         isLoading: false,
         error: '',
@@ -35,7 +36,7 @@ export default function ChatPage({ themeMode = 'default' }) {
       return undefined
     }
 
-    const loadSchoolFriendThreads = async () => {
+    const loadCircleThreads = async () => {
       setSalesforceState({
         isLoading: true,
         error: '',
@@ -43,10 +44,10 @@ export default function ChatPage({ themeMode = 'default' }) {
       })
 
       try {
-        const account = await fetchAccountContactsByName('School Friend')
+        const account = await fetchAccountContactsByName(accountName)
 
         if (!account) {
-          throw new Error('Account School Friend tidak ditemukan di Salesforce.')
+          throw new Error(`Account ${accountName} tidak ditemukan di Salesforce.`)
         }
 
         const threads = account.contacts.map((contact, index) => {
@@ -78,13 +79,13 @@ export default function ChatPage({ themeMode = 'default' }) {
 
         setSalesforceState({
           isLoading: false,
-          error: error.message || 'Gagal memuat chat school friend dari Salesforce.',
+          error: error.message || `Gagal memuat chat ${accountName} dari Salesforce.`,
           threads: [],
         })
       }
     }
 
-    loadSchoolFriendThreads()
+    loadCircleThreads()
 
     return () => {
       isCancelled = true
@@ -92,7 +93,7 @@ export default function ChatPage({ themeMode = 'default' }) {
   }, [circleId])
 
   const visibleThreads =
-    circleId === 'school-friend' && salesforceState.threads.length > 0
+    circleId && circleTitles[circleId] && salesforceState.threads.length > 0
       ? salesforceState.threads
       : localThreads
 
@@ -133,10 +134,8 @@ export default function ChatPage({ themeMode = 'default' }) {
                     Chat list
                   </h2>
                   <p className={`mt-1 text-sm ${isBlackTheme ? 'text-slate-300' : 'text-slate-500'}`}>
-                    {circleId === 'school-friend'
-                      ? 'Teman-teman school friend dari Salesforce GraphQL.'
-                      : circleId && circleTitles[circleId]
-                        ? `Teman-teman di ${circleTitles[circleId]}.`
+                    {circleId && circleTitles[circleId]
+                      ? `Teman-teman di ${circleTitles[circleId]} dari Salesforce GraphQL.`
                       : 'Pilih salah satu untuk masuk ke tampilan chat masing-masing.'}
                   </p>
                 </div>
@@ -152,7 +151,7 @@ export default function ChatPage({ themeMode = 'default' }) {
               </div>
 
               <div className="mt-4 space-y-3">
-                {circleId === 'school-friend' && salesforceState.isLoading ? (
+                {circleId && circleTitles[circleId] && salesforceState.isLoading ? (
                   <div
                     className={`rounded-2xl p-4 text-sm ${
                       isBlackTheme
@@ -160,11 +159,11 @@ export default function ChatPage({ themeMode = 'default' }) {
                         : 'border border-sky-100 bg-sky-50 text-sky-700'
                     }`}
                   >
-                    Mengambil daftar contact School Friend dari Salesforce...
+                    {`Mengambil daftar contact ${circleTitles[circleId]} dari Salesforce...`}
                   </div>
                 ) : null}
 
-                {circleId === 'school-friend' && salesforceState.error ? (
+                {circleId && circleTitles[circleId] && salesforceState.error ? (
                   <div
                     className={`rounded-2xl p-4 text-sm ${
                       isBlackTheme
@@ -267,6 +266,8 @@ export default function ChatPage({ themeMode = 'default' }) {
                   </div>
                 ))}
               </div>
+
+              
             </div>
           </div>
         </section>

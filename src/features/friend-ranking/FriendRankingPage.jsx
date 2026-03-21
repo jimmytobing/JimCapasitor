@@ -137,7 +137,7 @@ export default function FriendRankingPage({ showToast }) {
     return () => {
       isCancelled = true
     }
-  }, [activeCircleId, notify])
+  }, [activeCircleId])
 
   const data =
     activeCircleId === 'school-friend' && salesforceState.friends.length > 0
