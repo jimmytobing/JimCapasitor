@@ -26,14 +26,16 @@ npm run android
 
 ## Salesforce API From Capacitor
 
-Metode paling sederhana di project ini memakai `CapacitorHttp` dengan bearer token Salesforce yang sudah kamu punya.
+Metode paling sederhana di project ini memakai `CapacitorHttp` dan meminta access token Salesforce otomatis lewat client credentials flow.
 
 1. Copy `.env.example` jadi `.env`
 2. Isi:
 
 ```bash
+VITE_SALESFORCE_AUTH_URL=https://your-domain.my.salesforce.com
 VITE_SALESFORCE_INSTANCE_URL=https://your-domain.my.salesforce.com
-VITE_SALESFORCE_ACCESS_TOKEN=YOUR_SALESFORCE_ACCESS_TOKEN
+VITE_SALESFORCE_CLIENT_ID=YOUR_CONNECTED_APP_CONSUMER_KEY
+VITE_SALESFORCE_CLIENT_SECRET=YOUR_CONNECTED_APP_CONSUMER_SECRET
 VITE_SALESFORCE_API_VERSION=v61.0
 ```
 

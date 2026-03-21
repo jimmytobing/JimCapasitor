@@ -1,5 +1,5 @@
 export {
-  getSalesforceConfigSummary,
+  getSalesforceConnectionSummary,
   testSalesforceConnection,
 } from './salesforce/client.js'
 export {

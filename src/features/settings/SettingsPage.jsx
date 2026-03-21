@@ -86,7 +86,7 @@ export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
                 <div>
                   <h2 className="text-base font-semibold text-slate-900">Salesforce API</h2>
                   <p className="mt-1 text-sm text-slate-500">
-                    Tes koneksi paling simpel dari app Capacitor memakai bearer token.
+                    App akan minta access token Salesforce otomatis lewat client credentials flow.
                   </p>
                 </div>
                 <span
@@ -108,10 +108,16 @@ export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
                   Platform: <span className="font-semibold">{salesforceConfig.platform}</span>
                 </p>
                 <p className="mt-1 break-all text-sm text-slate-700">
+                  Auth URL: {salesforceConfig.authUrl || 'Belum diisi'}
+                </p>
+                <p className="mt-1 break-all text-sm text-slate-700">
                   Instance: {salesforceConfig.instanceUrl || 'Belum diisi'}
                 </p>
                 <p className="mt-1 text-sm text-slate-700">
                   API Version: {salesforceConfig.apiVersion}
+                </p>
+                <p className="mt-1 text-sm text-slate-700">
+                  Cached Token: {salesforceConfig.hasCachedToken ? 'Ada' : 'Belum ada'}
                 </p>
               </div>
 
@@ -126,7 +132,7 @@ export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
 
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 {salesforceStatus ||
-                  'Isi `.env` lalu tekan tombol di atas untuk ambil limits API dan contoh data Account.'}
+                  'Isi kredensial client credentials di `.env`, lalu tekan tombol di atas untuk ambil token, limits API, dan contoh data Account.'}
               </p>
 
               {salesforceAccounts.length > 0 ? (
