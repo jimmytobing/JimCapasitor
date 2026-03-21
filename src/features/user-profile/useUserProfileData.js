@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
 import { getStoredUsername } from '../../shared/auth/session.js'
-import { querySalesforceSoql } from '../../shared/services/salesforce.js'
+import { escapeSoqlValue, getRecord } from '../../shared/services/salesforce.js'
 import { currentUser } from '../chat/chatData.js'
-
-function escapeSoqlValue(value) {
-  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
-}
 
 function formatBirthdate(value) {
   if (!value) return '-'
@@ -58,11 +54,9 @@ function buildProfileDetails(contact, fallbackUsername) {
 
 async function fetchUserContact(username) {
   const safeUsername = escapeSoqlValue(username)
-  const result = await querySalesforceSoql(
+  return getRecord(
     `SELECT FIELDS(ALL) FROM Contact WHERE App_User_ID__c = '${safeUsername}' LIMIT 200`
   )
-
-  return Array.isArray(result?.records) ? result.records[0] ?? null : null
 }
 
 export function useUserProfileData() {

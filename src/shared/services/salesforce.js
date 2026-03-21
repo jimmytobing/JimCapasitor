@@ -3,7 +3,12 @@ export {
   testSalesforceConnection,
 } from './salesforce/client.js'
 export {
+  escapeSoqlValue,
   fetchSampleAccounts,
+  getRecord,
+  getRecordG,
+  getRecords,
+  getRecordsG,
   querySalesforceSoql,
   querySalesforceGraphQL,
 } from './salesforce/querySalesforce.js'
