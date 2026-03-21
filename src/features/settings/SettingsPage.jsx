@@ -1,47 +1,17 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  fetchSampleAccounts,
-  getSalesforceConfigSummary,
-  testSalesforceConnection,
-} from '../../shared/services/salesforce.js'
+import { useSettingsPage } from './useSettingsPage.js'
 
 export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const [isCheckingSalesforce, setIsCheckingSalesforce] = useState(false)
-  const [salesforceStatus, setSalesforceStatus] = useState('')
-  const [salesforceAccounts, setSalesforceAccounts] = useState([])
-  const salesforceConfig = getSalesforceConfigSummary()
-
-  const handleThemeChange = (nextTheme) => {
-    if (typeof setThemeMode !== 'function') return
-    setThemeMode(nextTheme)
-    notify(nextTheme === 'black' ? 'Black theme aktif' : 'Theme default aktif')
-  }
-
-  const handleSalesforceTest = async () => {
-    setIsCheckingSalesforce(true)
-    setSalesforceStatus('')
-
-    try {
-      const limits = await testSalesforceConnection()
-      const accounts = await fetchSampleAccounts(5)
-      const totalApi = limits?.DailyApiRequests
-      const remainingApi = totalApi?.Remaining ?? '-'
-      const maxApi = totalApi?.Max ?? '-'
-
-      setSalesforceAccounts(accounts?.records || [])
-      setSalesforceStatus(`Terhubung. Sisa Daily API ${remainingApi}/${maxApi}.`)
-      notify('Koneksi Salesforce berhasil')
-    } catch (error) {
-      setSalesforceAccounts([])
-      setSalesforceStatus(error.message || 'Koneksi Salesforce gagal.')
-      notify('Koneksi Salesforce gagal')
-    } finally {
-      setIsCheckingSalesforce(false)
-    }
-  }
+  const {
+    isCheckingSalesforce,
+    salesforceStatus,
+    salesforceAccounts,
+    salesforceConfig,
+    handleThemeChange,
+    handleSalesforceTest,
+  } = useSettingsPage({ notify, setThemeMode })
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">

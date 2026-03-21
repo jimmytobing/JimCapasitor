@@ -1,151 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { fetchAccountContactsByName } from '../../shared/services/salesforce.js'
-import { chatThreads, circleTitles } from '../chat/chatData.js'
-
-const podiumStyles = {
-  0: 'bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-200 ring-yellow-300',
-  1: 'bg-gradient-to-r from-[#eef2f7] via-[#d8dee8] to-[#c4ccd8] ring-[#aab4c3]',
-  2: 'bg-gradient-to-r from-orange-100 via-amber-50 to-orange-200 ring-orange-300',
-}
+import { circleTitles } from '../chat/chatData.js'
+import { podiumStyles } from './friendRankingData.js'
+import { useFriendRankingData } from './useFriendRankingData.js'
 
 export default function FriendRankingPage({ showToast }) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const circleId = searchParams.get('circle') || 'best-friend'
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const [salesforceState, setSalesforceState] = useState({
-    isLoading: false,
-    error: '',
-    title: '',
-    friends: [],
-  })
-
   const activeCircleId = circleTitles[circleId] ? circleId : 'best-friend'
-
-  const localData = useMemo(() => {
-    const friends = chatThreads
-      .filter((thread) => thread.circles?.includes(activeCircleId))
-      .map((thread, index) => {
-        const nameScore = thread.name
-          .split('')
-          .reduce((sum, char) => sum + char.charCodeAt(0), 0)
-        const messageCount = thread.messages.length
-        const chat = messageCount > 0 ? messageCount * 18 + (nameScore % 40) : 8 + (nameScore % 18)
-        const challenge = Math.max(1, Math.round(chat / 12) + (index % 3))
-        const hangout = Math.max(1, Math.round(challenge / 2) + (nameScore % 3))
-        const level = Math.max(2, Math.round(chat / 18) + challenge + hangout)
-
-        return {
-          ...thread,
-          chat,
-          challenge,
-          hangout,
-          level,
-        }
-      })
-      .sort((left, right) => {
-        if (right.level !== left.level) return right.level - left.level
-        if (right.chat !== left.chat) return right.chat - left.chat
-        return left.name.localeCompare(right.name)
-      })
-
-    return {
-      title: `${circleTitles[activeCircleId]} Ranking`,
-      friends,
-    }
-  }, [activeCircleId])
-
-  useEffect(() => {
-    let isCancelled = false
-
-    if (activeCircleId !== 'school-friend') {
-      setSalesforceState({
-        isLoading: false,
-        error: '',
-        title: '',
-        friends: [],
-      })
-      return undefined
-    }
-
-    const loadSchoolFriends = async () => {
-      setSalesforceState((current) => ({
-        ...current,
-        isLoading: true,
-        error: '',
-      }))
-
-      try {
-        const account = await fetchAccountContactsByName('School Friend')
-
-        if (!account) {
-          throw new Error('Account School Friend tidak ditemukan di Salesforce.')
-        }
-
-        const friends = account.contacts
-          .map((contact, index) => {
-            const displayName = contact.name || `Contact ${index + 1}`
-            const seed = displayName.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
-            const chat = 24 + (seed % 80)
-            const challenge = 3 + (seed % 9)
-            const hangout = 2 + ((seed + index) % 7)
-            const level = Math.max(3, Math.round(chat / 14) + challenge + hangout)
-
-            return {
-              id: contact.id,
-              name: displayName,
-              avatar: displayName.slice(0, 1),
-              chat,
-              challenge,
-              hangout,
-              level,
-            }
-          })
-          .sort((left, right) => {
-            if (right.level !== left.level) return right.level - left.level
-            if (right.chat !== left.chat) return right.chat - left.chat
-            return left.name.localeCompare(right.name)
-          })
-
-        if (isCancelled) return
-
-        setSalesforceState({
-          isLoading: false,
-          error: '',
-          title: `${account.name} Ranking`,
-          friends,
-        })
-        notify(`Salesforce memuat ${friends.length} school friends`)
-      } catch (error) {
-        if (isCancelled) return
-
-        setSalesforceState({
-          isLoading: false,
-          error: error.message || 'Gagal memuat school friends dari Salesforce.',
-          title: '',
-          friends: [],
-        })
-        notify('Gagal mengambil ranking dari Salesforce')
-      }
-    }
-
-    loadSchoolFriends()
-
-    return () => {
-      isCancelled = true
-    }
-  }, [activeCircleId])
-
-  const data =
-    activeCircleId === 'school-friend' && salesforceState.friends.length > 0
-      ? {
-          title: salesforceState.title,
-          friends: salesforceState.friends,
-        }
-      : localData
+  const { salesforceState, data } = useFriendRankingData(activeCircleId, notify)
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">

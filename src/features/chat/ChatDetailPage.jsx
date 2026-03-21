@@ -1,20 +1,15 @@
-import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { chatThreads, circleTitles } from './chatData.js'
+import { circleTitles } from './chatData.js'
+import { useChatDetailData } from './useChatDetailData.js'
 
 export default function ChatDetailPage({ themeMode = 'default' }) {
   const navigate = useNavigate()
   const { threadId } = useParams()
   const [searchParams] = useSearchParams()
-  const [draft, setDraft] = useState('')
   const circleId = searchParams.get('circle')
   const isBlackTheme = themeMode === 'black'
-
-  const thread = useMemo(
-    () => chatThreads.find((item) => item.id === threadId) ?? null,
-    [threadId]
-  )
+  const { draft, setDraft, thread } = useChatDetailData(threadId)
 
   if (!thread) {
     return (

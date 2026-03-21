@@ -1,46 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
-
-const circles = [
-  {
-    id: 'best-friend',
-    title: 'Best Friend',
-    emoji: '💛',
-    members: '4 member aktif',
-    accent: 'from-amber-400 to-orange-500',
-    chatCount: '4 chats',
-  },
-  {
-    id: 'school-friend',
-    title: 'School Friend',
-    emoji: '🎒',
-    members: '12 member aktif',
-    accent: 'from-sky-400 to-blue-500',
-    chatCount: '4 chats',
-  },
-  {
-    id: 'game-friend',
-    title: 'Game Friend',
-    emoji: '🎮',
-    members: '6 member aktif',
-    accent: 'from-violet-400 to-fuchsia-500',
-    chatCount: '4 chats',
-  },
-  {
-    id: 'secret-circle',
-    title: 'Secret Circle',
-    emoji: '🔒',
-    members: '3 member aktif',
-    accent: 'from-slate-700 to-slate-900',
-    chatCount: '3 chats',
-  },
-]
-
-const actions = [
-  { id: 'chat', label: 'Chat', emoji: '💬' },
-  { id: 'challenge', label: 'Friend Quiz', emoji: '🏆' },
-  { id: 'ranking', label: 'Ranking', emoji: '📊' },
-]
+import { circleActions, circles } from './circleData.js'
 
 export default function CirclePage({ showToast }) {
   const navigate = useNavigate()
@@ -96,7 +56,7 @@ export default function CirclePage({ showToast }) {
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 p-3">
-                      {actions.map((action) => (
+                      {circleActions.map((action) => (
                         <button
                           key={`${circle.id}-${action.id}`}
                           className="rounded-2xl bg-white px-3 py-3 text-center shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"

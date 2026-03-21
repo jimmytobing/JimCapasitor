@@ -1,32 +1,7 @@
-import { useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
-import { circleTitles, currentUser } from '../chat/chatData.js'
-
-const quizQuestions = [
-  {
-    id: 'favorite-food',
-    question: `${currentUser.name} paling suka makan apa?`,
-    description: 'Pilih jawaban yang paling benar. Teman yang menjawab benar akan dapat point.',
-    options: [
-      { id: 'bakso', label: 'Bakso', isCorrect: false },
-      { id: 'seblak', label: 'Seblak', isCorrect: false },
-      { id: 'sushi', label: 'Sushi', isCorrect: true },
-      { id: 'mie-ayam', label: 'Mie ayam', isCorrect: false },
-    ],
-  },
-  {
-    id: 'favorite-hobby',
-    question: `${currentUser.name} paling suka ngapain waktu senggang?`,
-    description: 'Teman yang paling kenal kamu harusnya bisa jawab ini dengan cepat.',
-    options: [
-      { id: 'tidur', label: 'Tidur terus', isCorrect: false },
-      { id: 'menyanyi-dance', label: 'Menyanyi dan dance', isCorrect: true },
-      { id: 'renang', label: 'Renang', isCorrect: false },
-      { id: 'masak', label: 'Masak', isCorrect: false },
-    ],
-  },
-]
+import { currentUser } from '../chat/chatData.js'
+import { getCircleTitle, quizQuestions } from './friendQuizData.js'
 
 export default function FriendQuizPage({ showToast }) {
   const navigate = useNavigate()
@@ -34,10 +9,7 @@ export default function FriendQuizPage({ showToast }) {
   const circleId = searchParams.get('circle') || 'best-friend'
   const notify = typeof showToast === 'function' ? showToast : () => {}
 
-  const circleTitle = useMemo(
-    () => circleTitles[circleId] ?? circleTitles['best-friend'],
-    [circleId]
-  )
+  const circleTitle = getCircleTitle(circleId)
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">

@@ -6,38 +6,8 @@ import {
   findActivityEntry,
   predefinedActionOptionsByCategory,
 } from './activityData.js'
-
-const circleOptions = [
-  {
-    id: 'best-friend',
-    title: 'Best Friend',
-    emoji: '💛',
-    members: ['Jimmy', 'Bayu', 'Angga', 'Vina'],
-  },
-  {
-    id: 'school-friend',
-    title: 'School Friend',
-    emoji: '🎒',
-    members: ['Jimmy', 'Bayu', 'Angga', 'Vina', 'Joshua', 'Ryan'],
-  },
-  {
-    id: 'game-friend',
-    title: 'Game Friend',
-    emoji: '🎮',
-    members: ['Joshua', 'Bayu', 'Ryan', 'Jimmy'],
-  },
-  {
-    id: 'secret-circle',
-    title: 'Secret Circle',
-    emoji: '🔒',
-    members: ['Jimmy', 'Vina', 'Nadia'],
-  },
-]
-
-const statusClassByLabel = {
-  'belum ada': 'bg-rose-100 text-rose-700',
-  'sudah ada': 'bg-emerald-100 text-emerald-700',
-}
+import { circleOptions, statusClassByLabel } from './activityDetailData.js'
+import { useActivityDraft } from './useActivityDraft.js'
 
 export function ActivityTypePage({ showToast }) {
   const navigate = useNavigate()
@@ -184,50 +154,15 @@ export default function ActivityDetailPage({ showToast }) {
   const isNewRecord = entryId === 'new' || location.pathname.endsWith('/new')
   const query = new URLSearchParams(location.search)
   const selectedCategory = query.get('category') || ''
-  const [draftForm, setDraftForm] = useState({
-    title: '',
-    description: '',
-    category: selectedCategory,
-    time: '',
-    location: '',
-    circleId: 'school-friend',
-    participants: [],
-    needs: [{ name: '', ready: false }],
-  })
-
-  const updateDraftField = (field) => (event) => {
-    setDraftForm((current) => ({
-      ...current,
-      [field]: event.target.value,
-    }))
-  }
-  const selectedCircle =
-    circleOptions.find((circle) => circle.id === draftForm.circleId) || circleOptions[0]
-
-  const toggleParticipant = (member) => {
-    setDraftForm((current) => ({
-      ...current,
-      participants: current.participants.includes(member)
-        ? current.participants.filter((item) => item !== member)
-        : [...current.participants, member],
-    }))
-  }
-
-  const updateNeedRow = (index, field, value) => {
-    setDraftForm((current) => ({
-      ...current,
-      needs: current.needs.map((need, needIndex) =>
-        needIndex === index ? { ...need, [field]: value } : need
-      ),
-    }))
-  }
-
-  const addNeedRow = () => {
-    setDraftForm((current) => ({
-      ...current,
-      needs: [...current.needs, { name: '', ready: false }],
-    }))
-  }
+  const {
+    draftForm,
+    selectedCircle,
+    updateDraftField,
+    toggleParticipant,
+    updateNeedRow,
+    addNeedRow,
+    selectCircle,
+  } = useActivityDraft(selectedCategory)
   const match = isNewRecord ? null : findActivityEntry(activityId, entryId)
 
   if (isNewRecord) {
@@ -349,15 +284,7 @@ export default function ActivityDetailPage({ showToast }) {
                                 ? 'border-sky-500 bg-sky-50 text-sky-900'
                                 : 'border-slate-200 bg-white text-slate-700'
                             }`}
-                            onClick={() =>
-                              setDraftForm((current) => ({
-                                ...current,
-                                circleId: circle.id,
-                                participants: current.participants.filter((member) =>
-                                  circle.members.includes(member)
-                                ),
-                              }))
-                            }
+                            onClick={() => selectCircle(circle)}
                           >
                             <span className="font-semibold">
                               {circle.emoji} {circle.title}
