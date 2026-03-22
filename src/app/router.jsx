@@ -15,6 +15,8 @@ import NewFriendQuizPage from '../features/friend-quiz/NewFriendQuizPage.jsx'
 import MemoryTimelinePage from '../features/memory-timeline/MemoryTimelinePage.jsx'
 import UserProfilePage from '../features/user-profile/UserProfilePage.jsx'
 import EditUserProfilePage from '../features/user-profile/EditUserProfilePage.jsx'
+import JimPage from '../features/jim/JimPage.jsx'
+import EditJimPage from '../features/jim/EditJimPage.jsx'
 import ActivityPage from '../features/activity/ActivityPage.jsx'
 import ActivityDetailPage, { ActivityTypePage } from '../features/activity/ActivityDetailPage.jsx'
 import EditActivityCategoryPage from '../features/activity/EditActivityCategoryPage.jsx'
@@ -47,6 +49,8 @@ export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
       <Route path="/friend-quiz/new" element={<NewFriendQuizPage showToast={showToast} />} />
       <Route path="/friend-ranking" element={<FriendRankingPage showToast={showToast} />} />
       <Route path="/memory-timeline/:friendId" element={<MemoryTimelinePage />} />
+      <Route path="/jim" element={<JimPage />} />
+      <Route path="/jim/edit" element={<EditJimPage showToast={showToast} />} />
       <Route path="/user-profile" element={<UserProfilePage showToast={showToast} />} />
       <Route path="/user-profile/edit" element={<EditUserProfilePage showToast={showToast} />} />
       <Route path="/activity" element={<ActivityPage showToast={showToast} />} />
