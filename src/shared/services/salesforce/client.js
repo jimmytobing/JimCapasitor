@@ -6,6 +6,8 @@ import {
   salesforceAuthConfig,
 } from './auth.js'
 
+let pendingConnectionCheck = null
+
 function ensureSalesforceConfig() {
   if (
     !salesforceAuthConfig.authUrl ||
@@ -122,7 +124,7 @@ async function executeSalesforceRequest(pathname, options = {}, session) {
 }
 
 export async function sendSalesforceRequest(pathname, options = {}) {
-  const session = await getSalesforceAccessSession()
+  const session = await ensureSalesforceConnection()
 
   try {
     return await executeSalesforceRequest(pathname, options, session)
@@ -146,4 +148,14 @@ export async function getSalesforceConnectionSummary() {
 
 export async function testSalesforceConnection() {
   return sendSalesforceRequest('limits')
+}
+
+export async function ensureSalesforceConnection() {
+  if (!pendingConnectionCheck) {
+    pendingConnectionCheck = getSalesforceAccessSession().finally(() => {
+      pendingConnectionCheck = null
+    })
+  }
+
+  return pendingConnectionCheck
 }
