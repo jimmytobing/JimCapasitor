@@ -2,10 +2,24 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const GITHUB_DEPLOYMENT_URL = 'https://jimmytobing.github.io/JimCapasitor/'
+
+function githubDeploymentLinkPlugin() {
+  return {
+    name: 'github-deployment-link',
+    configureServer(server) {
+      server.httpServer?.once('listening', () => {
+        console.log(`  ➜  GitHub:  ${GITHUB_DEPLOYMENT_URL}`)
+      })
+    },
+  }
+}
+
 export default defineConfig({
   base: '/JimCapasitor/',
   plugins: [
     react(),
+    githubDeploymentLinkPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
