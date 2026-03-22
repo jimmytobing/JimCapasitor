@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 function createInitialForm(record) {
   return {
+    id: record?.id || '',
     title: record?.title || '',
     content: record?.content || '',
   }
@@ -19,7 +20,7 @@ export function useEditJimPage(showToast) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const record = location.state?.record
-  const [formState, setFormState] = useState(() => createInitialForm(record))
+  const [formState, setFormState] = useState(createInitialForm())
   const [loadingMessage, setLoadingMessage] = useState('load data')
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -29,9 +30,11 @@ export function useEditJimPage(showToast) {
 
     void (async () => {
       setLoadingMessage('load data')
-      await wait(1000)
 
+      await wait(1000)
       if (!isMounted) return
+
+      setFormState(createInitialForm(record))
 
       if (record) {
         setLoadingMessage('data exsist')

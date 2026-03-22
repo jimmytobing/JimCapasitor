@@ -46,6 +46,7 @@ export default function JimPage() {
               <h2 className="text-xl font-semibold text-slate-900">{item.title}</h2>
             </div>
             <p className="mt-3 text-base leading-7 text-slate-700">{item.content}</p>
+            <p className="mt-3 text-xs leading-3 text-red-400">{item.id}</p>
           </section>
         ))}
       </div>

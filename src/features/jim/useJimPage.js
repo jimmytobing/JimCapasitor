@@ -12,7 +12,7 @@ export function useJimPage() {
       try {
         const safeId = escapeSoqlValue('001dL00001yiqmDQAQ')
         const records = await getRecords(
-          `SELECT FIELDS(ALL) FROM Account WHERE BillingStreet <> '${safeId}' LIMIT 200`
+          `SELECT FIELDS(ALL) FROM Account WHERE BillingStreet <> '${safeId}' LIMIT 5`
         )
 
         if (records.length === 0) {
@@ -24,7 +24,7 @@ export function useJimPage() {
         setError('')
         setCards(
           records.map((account, index) => ({
-            id: account?.Id || `account-${index + 1}`,
+            id: account?.Id || `Aco-${index + 1}`,
             title: account?.Name || `Account tanpa Nama - ${index + 1}`,
             avatarInitial: account?.Name?.slice(0, 1)?.toUpperCase() || '?',
             content: account?.BillingStreet || '-',
