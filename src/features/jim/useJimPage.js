@@ -24,6 +24,7 @@ export function useJimPage() {
         setError('')
         setCards(
           records.map((account, index) => ({
+            id: account?.Id || `account-${index + 1}`,
             title: account?.Name || `Account tanpa Nama - ${index + 1}`,
             avatarInitial: account?.Name?.slice(0, 1)?.toUpperCase() || '?',
             content: account?.BillingStreet || '-',

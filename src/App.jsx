@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import EditJimPage from './features/jim/EditJimPage.jsx'
 import JimPage from './features/jim/JimPage.jsx'
 import EntryPage from './pages/EntryPage.jsx'
 import InstallPage from './pages/InstallPage.jsx'
@@ -29,6 +30,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<EntryPage />} />
       <Route path="/jim" element={<JimPage />} />
+      <Route path="/jim/edit" element={<EditJimPage />} />
       <Route path="/install" element={<InstallPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/*" element={<ProtectedApp />} />

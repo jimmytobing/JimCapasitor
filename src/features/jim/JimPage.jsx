@@ -1,8 +1,18 @@
+import { useNavigate } from 'react-router-dom'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { useJimPage } from './useJimPage.js'
 
 export default function JimPage() {
+  const navigate = useNavigate()
   const { cards, error, loadingMessage } = useJimPage()
+
+  function handleCardClick(item) {
+    navigate('/jim/edit', {
+      state: {
+        record: item,
+      },
+    })
+  }
 
   return (
     <main className="min-h-screen bg-slate-100 p-6">
@@ -21,8 +31,9 @@ export default function JimPage() {
       <div className="mx-auto flex max-w-md flex-col gap-4">
         {cards.map((item) => (
           <section
-            key={item.title}
-            className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+            key={item.id}
+            className="cursor-pointer rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+            onClick={() => handleCardClick(item)}
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 overflow-hidden rounded-full">
