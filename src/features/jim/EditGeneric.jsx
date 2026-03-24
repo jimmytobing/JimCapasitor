@@ -3,48 +3,36 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { createFormChangeHandler } from '../../shared/utils/forms.js'
 import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/salesforce.js'
 
-function createEmptyRecord(fields) {
-  return Object.fromEntries(fields.map((field) => [field, '']))
+function mapLocationRecord(record) {
+  return {
+    Id: record?.Id || record?.id || '',
+  }
 }
 
-function mapLocationRecord(record, fields) {
-  const baseRecord = createEmptyRecord(fields)
-
-  return fields.reduce((current, field) => {
-    if (field === 'Id') {
-      return {
-        ...current,
-        Id: record?.Id || record?.id || '',
-      }
+function mapRecordToForm(record) {
+  return Object.entries(record || {}).reduce((current, [field, value]) => {
+    if (field === 'attributes') {
+      return current
     }
 
     return {
       ...current,
-      [field]: record?.[field] || '',
+      [field]: value || '',
     }
-  }, baseRecord)
+  }, {})
 }
 
-function mapRecordToForm(record, fields) {
-  return fields.reduce((current, field) => {
+function buildPayload(formState) {
+  return Object.entries(formState || {}).reduce((current, [field, value]) => {
+    if (field === 'Id' || field === 'attributes') {
+      return current
+    }
+
     return {
       ...current,
-      [field]: record?.[field] || '',
+      [field]: typeof value === 'string' ? value.trim() : value || '',
     }
-  }, createEmptyRecord(fields))
-}
-
-function buildPayload(formState, fields) {
-  return fields
-    .filter((field) => field !== 'Id')
-    .reduce((current, field) => {
-      const value = formState?.[field]
-
-      return {
-        ...current,
-        [field]: typeof value === 'string' ? value.trim() : value || '',
-      }
-    }, {})
+  }, {})
 }
 
 function wait(ms) {
@@ -56,17 +44,16 @@ function wait(ms) {
 export default function EditGeneric({
   showToast,
   objectName,
-  fields,
+  buildSoql,
   redirectPath,
   requiredFields = [],
 }) {
   const location = useLocation()
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const recordPass = mapLocationRecord(location.state?.record, fields)
+  const recordPass = mapLocationRecord(location.state?.record)
   const recordPassId = typeof recordPass?.Id === 'string' ? recordPass.Id.trim() : ''
-  const fieldsKey = fields.join(',')
-  const [formState, setFormState] = useState(() => createEmptyRecord(fields))
+  const [formState, setFormState] = useState(() => mapLocationRecord(location.state?.record))
   const [loadingMessage, setLoadingMessage] = useState('load data')
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -91,7 +78,7 @@ export default function EditGeneric({
         }
 
         const safeId = escapeSoqlValue(recordPassId)
-        const query = `SELECT ${fields.join(', ')} FROM ${objectName} WHERE Id = '${safeId}' LIMIT 1`
+        const query = buildSoql(safeId)
         const record = await getRecord(query)
 
         if (!isMounted) return
@@ -102,7 +89,7 @@ export default function EditGeneric({
           return
         }
 
-        setFormState(mapRecordToForm(record, fields))
+        setFormState(mapRecordToForm(record))
       } catch (err) {
         if (!isMounted) return
         setLoadingMessage('')
@@ -118,14 +105,14 @@ export default function EditGeneric({
     return () => {
       isMounted = false
     }
-  }, [fieldsKey, objectName, recordPassId])
+  }, [buildSoql, objectName, recordPassId])
 
   async function handleSubmit(event) {
     event.preventDefault()
     setLoadingMessage('')
     setError('')
 
-    const payload = buildPayload(formState, fields)
+    const payload = buildPayload(formState)
 
     if (!recordPassId) {
       setError('Id tidak di pass.')
