@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/salesforce.js'
-import { createFormChangeHandler } from '../../shared/utils/forms.js'
 
+export function createEmptyCard() {
+  return {
+    Id: '',
+    Title: '',
+    Content: '',
+  }
+}
 
 function mapRecordToCard(record) {
   const card = {
@@ -22,8 +28,10 @@ function mapRecordPass(record) {
 }
 
 function mapCardtoRecord(card) {
+  const trimmedName = typeof card?.Title === 'string' ? card.Title.trim() : ''
+
   const record = {
-    Name: card?.Title || '',
+    Name: trimmedName,
     BillingStreet: card?.Content || '',
   }
   return record
@@ -35,12 +43,11 @@ function wait(ms) {
   })
 }
 
-export function useEditJimPage(showToast) {
+export function useEditJimPage(showToast, card, setCard) {
   const location = useLocation()
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const recordPass = mapRecordPass(location.state?.record)
-  const [card, setCard] = useState(mapRecordToCard(null))
   const [loadingMessage, setLoadingMessage] = useState('load data')
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -90,22 +97,20 @@ export function useEditJimPage(showToast) {
     }
   }, [recordPass])
 
-  const handleChange = createFormChangeHandler(setCard)
-
   async function handleSubmit(event) {
     event.preventDefault()
     setLoadingMessage('')
     setError('')
 
     const recordId = typeof recordPass?.Id === 'string' ? recordPass.Id.trim() : ''
-    const trimmedName = typeof card?.Title === 'string' ? card.Title.trim() : ''
+    const payload = mapCardtoRecord(card)
 
     if (!recordId) {
       setError('Id tidak di pass.')
       return
     }
 
-    if (!trimmedName) {
+    if (!payload.Name) {
       setError('Nama wajib diisi agar Name tetap valid di Salesforce.')
       return
     }
@@ -113,10 +118,7 @@ export function useEditJimPage(showToast) {
     try {
       setIsSaving(true)
       const safeId = escapeSoqlValue(recordId)
-      await updateRecord('Account', safeId, {
-        ...mapCardtoRecord(card),
-        Name: trimmedName,
-      })
+      await updateRecord('Account', safeId, payload)
       await wait(1000)
       notify('data updated')
       navigate('/jim')
@@ -130,8 +132,6 @@ export function useEditJimPage(showToast) {
   return {
     error,
     loadingMessage,
-    card,
-    handleChange,
     handleSubmit,
     isSaving,
   }

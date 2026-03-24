@@ -1,16 +1,18 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useEditJimPage } from './useEditJimPage.js'
+import { createFormChangeHandler } from '../../shared/utils/forms.js'
+import { createEmptyCard, useEditJimPage } from './useEditJimPage.js'
 
 export default function EditJimPage({ showToast }) {
   const navigate = useNavigate()
+  const [card, setCard] = useState(createEmptyCard)
+  const handleChange = createFormChangeHandler(setCard)
   const {
     error,
     loadingMessage,
-    card,
-    handleChange,
     handleSubmit,
     isSaving,
-  } = useEditJimPage(showToast)
+  } = useEditJimPage(showToast, card, setCard)
 
   return (
     <div className="min-h-screen bg-slate-100">
