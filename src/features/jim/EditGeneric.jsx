@@ -43,50 +43,59 @@ export default function EditGeneric({
 }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const normalizedRecordId = typeof recordId === 'string' ? recordId.trim() : ''
-  const [formState, setFormState] = useState(() => ({ Id: normalizedRecordId }))
-  const [loadingMessage, setLoadingMessage] = useState('load data')
+  //---
+  const [formState, setFormState] = useState({})
+  const [message, setMessage] = useState('load data')
   const [error, setError] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
+  const [loadingInProgress, setLoadingInProgress] = useState(true)
+  const [savingInProgress, setSavingInProgress] = useState(false)
+  //---
   const handleChange = createFormChangeHandler(setFormState)
   const editableFields = Object.entries(formState).filter(([name]) => name !== 'Id')
+  const canShowSaveButton = !loadingInProgress && editableFields.length > 0
 
   useEffect(() => {
     let isMounted = true
 
     void (async () => {
-      setLoadingMessage('load data')
+      setLoadingInProgress(true)
+      setMessage('load data')
       setError('')
 
-      await wait(1000)
-      if (!isMounted) return
+      //await wait(1000)
+      //if (!isMounted) return
 
       try {
         if (!normalizedRecordId) {
-          setLoadingMessage('')
+          setLoadingInProgress(false)
+          setMessage('')
           setError('Id tidak di pass.')
           return
         }
 
         const record = await getRecord(soql)
-
         if (!isMounted) return
 
         if (!record) {
-          setLoadingMessage('')
+          setLoadingInProgress(false)
+          setMessage('')
           setError('Data tidak ditemukan.')
           return
+        }else{
+          setFormState(mapRecordToForm(record))
         }
 
-        setFormState(mapRecordToForm(record))
       } catch (err) {
         if (!isMounted) return
-        setLoadingMessage('')
+        setLoadingInProgress(false)
+        setMessage('')
         setError(err.message || 'Gagal mengambil data.')
         return
       }
 
       if (!isMounted) return
-      setLoadingMessage('')
+      setLoadingInProgress(false)
+      setMessage('')
       setError('')
     })()
 
@@ -97,7 +106,7 @@ export default function EditGeneric({
 
   async function handleSubmit(event) {
     event.preventDefault()
-    setLoadingMessage('')
+    setMessage('')
     setError('')
 
     const payload = buildPayload(formState)
@@ -115,7 +124,7 @@ export default function EditGeneric({
     }
 
     try {
-      setIsSaving(true)
+      setSavingInProgress(true)
       const safeId = escapeSoqlValue(normalizedRecordId)
       await updateRecord(objectName, safeId, payload)
       await wait(1000)
@@ -123,7 +132,7 @@ export default function EditGeneric({
     } catch (err) {
       setError(err.message || 'Gagal menyimpan perubahan.')
     } finally {
-      setIsSaving(false)
+      setSavingInProgress(false)
     }
   }
 
@@ -135,9 +144,9 @@ export default function EditGeneric({
             className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100"
             onSubmit={(event) => void handleSubmit(event)}
           >
-            {loadingMessage ? (
+            {message ? (
               <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-                {loadingMessage}
+                {message}
               </div>
             ) : null}
 
@@ -159,18 +168,20 @@ export default function EditGeneric({
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none"
                     value={value}
                     onChange={handleChange}
-                    disabled={Boolean(loadingMessage) || isSaving}
+                    disabled={loadingInProgress || savingInProgress}
                   />
                 </div>
               ))}
 
-              <button
-                type="submit"
-                className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white"
-                disabled={Boolean(loadingMessage) || isSaving}
-              >
-                {isSaving ? 'Saving...' : 'Save changes'}
-              </button>
+              {canShowSaveButton ? (
+                <button
+                  type="submit"
+                  className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white"
+                  disabled={loadingInProgress || savingInProgress}
+                >
+                  {savingInProgress ? 'Saving...' : 'Save changes'}
+                </button>
+              ) : null}
             </div>
           </form>
         </div>
