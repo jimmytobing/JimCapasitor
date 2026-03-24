@@ -12,6 +12,7 @@ export {
   getRecordsG,
   querySalesforceSoql,
   querySalesforceGraphQL,
+  updateRecord,
 } from './salesforce/querySalesforce.js'
 export { 
   fetchAccountsWithContacts, 

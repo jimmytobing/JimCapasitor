@@ -1,8 +1,16 @@
 import { useEditJimPage } from './useEditJimPage.js'
 
 export default function EditJimPage({ showToast }) {
-  const { error, formState, handleChange, handleSubmit, isSaving, loadingMessage, navigate, record } =
-    useEditJimPage(showToast)
+  const {
+    error,
+    formState,
+    handleChange,
+    handleSubmit,
+    isSaving,
+    loadingMessage,
+    navigate,
+    recordPass,
+  } = useEditJimPage(showToast)
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -15,7 +23,7 @@ export default function EditJimPage({ showToast }) {
             className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100"
             onSubmit={(event) => void handleSubmit(event)}
           >
-            {!record ? (
+            {!recordPass ? (
               <div className="mb-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
                 Data record belum dibawa dari halaman Jim. Kembali lalu pilih card untuk mulai edit.
               </div>

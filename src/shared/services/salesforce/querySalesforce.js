@@ -20,6 +20,15 @@ export async function getRecord(soql) {
   return records[0] ?? null
 }
 
+export async function updateRecord(sfObject,id, payload) {
+  await sendSalesforceRequest(`sobjects/${sfObject}/${id}`, {
+    method: 'PATCH',
+    data: payload,
+  })
+
+  return id
+}
+
 function extractGraphQLRecords(data) {
   const queryResult = data?.uiapi?.query
 
