@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAuthSession, getStoredUsername } from '../../shared/auth/session.js'
 import { findContactByIdentity, updateContact } from '../../shared/services/salesforce.js'
+import { createFormChangeHandler } from '../../shared/utils/forms.js'
 
 function splitName(fullName) {
   const normalizedName = typeof fullName === 'string' ? fullName.trim() : ''
@@ -111,13 +112,7 @@ export default function EditUserProfilePage({ showToast }) {
     }
   }, [])
 
-  function handleChange(event) {
-    const { name, value } = event.target
-    setFormState((current) => ({
-      ...current,
-      [name]: value,
-    }))
-  }
+  const handleChange = createFormChangeHandler(setFormState)
 
   async function handleSubmit(event) {
     event.preventDefault()

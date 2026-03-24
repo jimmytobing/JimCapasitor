@@ -1,15 +1,15 @@
+import { useNavigate } from 'react-router-dom'
 import { useEditJimPage } from './useEditJimPage.js'
 
 export default function EditJimPage({ showToast }) {
+  const navigate = useNavigate()
   const {
     error,
-    formState,
+    loadingMessage,
+    card,
     handleChange,
     handleSubmit,
     isSaving,
-    loadingMessage,
-    navigate,
-    recordPass,
   } = useEditJimPage(showToast)
 
   return (
@@ -23,12 +23,6 @@ export default function EditJimPage({ showToast }) {
             className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100"
             onSubmit={(event) => void handleSubmit(event)}
           >
-            {!recordPass ? (
-              <div className="mb-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                Data record belum dibawa dari halaman Jim. Kembali lalu pilih card untuk mulai edit.
-              </div>
-            ) : null}
-                        
             {loadingMessage ? (
               <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-700">
                 {loadingMessage}
@@ -48,9 +42,9 @@ export default function EditJimPage({ showToast }) {
                 </label>
                 <input
                   id="title"
-                  name="title"
+                  name="Title"
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none"
-                  value={formState.title}
+                  value={card.Title}
                   onChange={handleChange}
                   disabled={Boolean(loadingMessage) || isSaving}
                 />
@@ -62,10 +56,10 @@ export default function EditJimPage({ showToast }) {
                 </label>
                 <textarea
                   id="content"
-                  name="content"
+                  name="Content"
                   rows="6"
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none"
-                  value={formState.content}
+                  value={card.Content}
                   onChange={handleChange}
                   disabled={Boolean(loadingMessage) || isSaving}
                 />
