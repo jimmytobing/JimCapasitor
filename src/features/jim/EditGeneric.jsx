@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { createFormChangeHandler } from '../../shared/utils/forms.js'
 import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/salesforce.js'
-
-function mapLocationRecord(record) {
-  return {
-    Id: record?.Id || record?.id || '',
-  }
-}
 
 function mapRecordToForm(record) {
   return Object.entries(record || {}).reduce((current, [field, value]) => {
@@ -44,16 +38,15 @@ function wait(ms) {
 export default function EditGeneric({
   showToast,
   objectName,
-  buildSoql,
+  recordId,
+  soql,
   redirectPath,
   requiredFields = [],
 }) {
-  const location = useLocation()
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const recordPass = mapLocationRecord(location.state?.record)
-  const recordPassId = typeof recordPass?.Id === 'string' ? recordPass.Id.trim() : ''
-  const [formState, setFormState] = useState(() => mapLocationRecord(location.state?.record))
+  const normalizedRecordId = typeof recordId === 'string' ? recordId.trim() : ''
+  const [formState, setFormState] = useState(() => ({ Id: normalizedRecordId }))
   const [loadingMessage, setLoadingMessage] = useState('load data')
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -71,15 +64,13 @@ export default function EditGeneric({
       if (!isMounted) return
 
       try {
-        if (!recordPassId) {
+        if (!normalizedRecordId) {
           setLoadingMessage('')
           setError('Id tidak di pass.')
           return
         }
 
-        const safeId = escapeSoqlValue(recordPassId)
-        const query = buildSoql(safeId)
-        const record = await getRecord(query)
+        const record = await getRecord(soql)
 
         if (!isMounted) return
 
@@ -105,7 +96,7 @@ export default function EditGeneric({
     return () => {
       isMounted = false
     }
-  }, [buildSoql, objectName, recordPassId])
+  }, [normalizedRecordId, soql])
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -114,7 +105,7 @@ export default function EditGeneric({
 
     const payload = buildPayload(formState)
 
-    if (!recordPassId) {
+    if (!normalizedRecordId) {
       setError('Id tidak di pass.')
       return
     }
@@ -128,7 +119,7 @@ export default function EditGeneric({
 
     try {
       setIsSaving(true)
-      const safeId = escapeSoqlValue(recordPassId)
+      const safeId = escapeSoqlValue(normalizedRecordId)
       await updateRecord(objectName, safeId, payload)
       await wait(1000)
       notify('data updated')
