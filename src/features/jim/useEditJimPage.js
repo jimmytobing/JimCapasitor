@@ -5,34 +5,34 @@ import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/
 export function createEmptyCard() {
   return {
     Id: '',
-    Title: '',
-    Content: '',
+    Name: '',
+    BillingStreet: '',
   }
 }
 
 function mapRecordToCard(record) {
   const card = {
-    Id: record?.id || record?.Id || '',
-    Title: record?.title || record?.Name || '',
-    Content: record?.content || record?.BillingStreet || '',
+    Id: record?.Id || '',
+    Name: record?.Name || '',
+    BillingStreet: record?.BillingStreet || '',
   }
   return card
 }
 
 function mapRecordPass(record) {
   return {
-    Id: record?.id || record?.Id || '',
-    Title: record?.title || record?.Title || '',
-    Content: record?.content || record?.Content || '',
+    Id: record?.Id || record?.id || '',
+    Name: record?.Name || record?.title || record?.Title || '',
+    BillingStreet: record?.BillingStreet || record?.content || record?.Content || '',
   }
 }
 
 function mapCardtoRecord(card) {
-  const trimmedName = typeof card?.Title === 'string' ? card.Title.trim() : ''
+  const trimmedName = typeof card?.Name === 'string' ? card.Name.trim() : ''
 
   const record = {
     Name: trimmedName,
-    BillingStreet: card?.Content || '',
+    BillingStreet: card?.BillingStreet || '',
   }
   return record
 }
