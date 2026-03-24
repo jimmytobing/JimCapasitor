@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { createFormChangeHandler } from '../../shared/utils/forms.js'
 import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/salesforce.js'
 
@@ -40,10 +39,8 @@ export default function EditGeneric({
   objectName,
   recordId,
   soql,
-  redirectPath,
   requiredFields = [],
 }) {
-  const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const normalizedRecordId = typeof recordId === 'string' ? recordId.trim() : ''
   const [formState, setFormState] = useState(() => ({ Id: normalizedRecordId }))
@@ -123,7 +120,6 @@ export default function EditGeneric({
       await updateRecord(objectName, safeId, payload)
       await wait(1000)
       notify('data updated')
-      navigate(redirectPath)
     } catch (err) {
       setError(err.message || 'Gagal menyimpan perubahan.')
     } finally {
@@ -135,9 +131,6 @@ export default function EditGeneric({
     <div className="min-h-screen bg-slate-100">
       <section className="bg-white shadow-none">
         <div className="space-y-4 p-3 pb-8">
-          <button className="bg-black" onClick={() => navigate(redirectPath)}>
-            {'< Back'}
-          </button>
           <form
             className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100"
             onSubmit={(event) => void handleSubmit(event)}

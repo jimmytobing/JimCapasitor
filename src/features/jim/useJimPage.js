@@ -12,7 +12,7 @@ export function useJimPage() {
       try {
         const safeId = escapeSoqlValue('001dL00001yiqmDQAQ')
         const records = await getRecords(
-          `SELECT FIELDS(ALL) FROM Account WHERE BillingStreet <> '${safeId}' LIMIT 5`
+          `SELECT Id, Name, BillingStreet FROM Account WHERE BillingStreet <> '${safeId}' LIMIT 5`
         )
 
         if (records.length === 0) {
