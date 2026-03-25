@@ -43,6 +43,15 @@ export default function VinaPage({ showToast }) {
                 <code> /services/data/&lt;apiVersion&gt;/ui-api/record-ui/:id</code>. Render detail dibentuk dari
                 metadata layout Salesforce, bukan hardcode field per object.
               </p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm"
+                  onClick={() => navigate('/vina/new')}
+                >
+                  Add New Account
+                </button>
+              </div>
             </section>
 
             {loadingMessage ? (

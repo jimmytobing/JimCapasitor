@@ -4,6 +4,8 @@ export {
   testSalesforceConnection,
 } from './salesforce/client.js'
 export {
+  createUiRecord,
+  fetchCreateDefaults,
   deleteUiRecord,
   fetchPicklistValues,
   fetchRecentItems,

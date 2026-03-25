@@ -98,6 +98,11 @@ function VinaRecordItem({
   objectApiName,
   recordTypeId,
 }) {
+  const visibleValues =
+    mode === 'View' && item.linkId
+      ? item.values.filter((component) => !component.fieldInfo?.reference)
+      : item.values
+
   return (
     <div className="rounded-2xl bg-slate-50 p-4">
       {!item.customLinkUrl ? (
@@ -111,11 +116,11 @@ function VinaRecordItem({
         </div>
       ) : null}
 
-      {!item.linkId && item.values.length === 0 ? (
+      {!item.linkId && visibleValues.length === 0 ? (
         <p className="mt-2 text-sm text-slate-500">-</p>
       ) : null}
 
-      {item.values.map((component) => (
+      {visibleValues.map((component) => (
         <VinaFieldValue
           key={component.field}
           component={component}

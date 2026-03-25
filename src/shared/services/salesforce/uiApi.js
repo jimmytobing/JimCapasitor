@@ -33,6 +33,24 @@ export async function fetchPicklistValues(objectApiName, recordTypeId, fieldApiN
   )
 }
 
+export async function fetchCreateDefaults(objectApiName, options = {}) {
+  return sendSalesforceRequest(`ui-api/record-defaults/create/${objectApiName}`, {
+    params: {
+      formFactor: options.formFactor || 'Small',
+      recordTypeId: options.recordTypeId,
+    },
+    headers: createUiApiHeaders(),
+  })
+}
+
+export async function createUiRecord(payload) {
+  return sendSalesforceRequest('ui-api/records', {
+    method: 'POST',
+    data: payload,
+    headers: createUiApiHeaders(),
+  })
+}
+
 export async function updateUiRecord(recordId, payload) {
   return sendSalesforceRequest(`ui-api/records/${recordId}`, {
     method: 'PATCH',

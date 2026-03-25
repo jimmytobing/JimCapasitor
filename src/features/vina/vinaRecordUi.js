@@ -68,6 +68,7 @@ function normalizeFieldComponent(component, item, record, objectInfo, recordType
     displayValue: displayValue || '',
     editableForUpdate: Boolean(item?.editableForUpdate),
     editableForNew: Boolean(item?.editableForNew),
+    required: Boolean(item?.required),
     isNull: rawValue === null || rawValue === undefined || displayValue === '',
     picklistUrl: isPicklist
       ? `/ui-api/object-info/${objectInfo.apiName}/picklist-values/${recordTypeId}/${fieldApiName}`
@@ -223,6 +224,44 @@ export function mapRecordUiToLayoutModel(recordId, recordView) {
   }
 }
 
+export function mapCreateDefaultsToLayoutModel(defaults, objectApiName) {
+  const objectInfo = defaults?.objectInfo || defaults?.objectInfos?.[objectApiName]
+  const record = defaults?.record
+  const layout = defaults?.layout
+
+  if (!objectInfo || !record || !layout) {
+    throw new Error('Create defaults Salesforce tidak lengkap.')
+  }
+
+  const recordTypeId =
+    record?.recordTypeInfo?.recordTypeId ||
+    layout?.recordTypeId ||
+    objectInfo?.defaultRecordTypeId ||
+    '012000000000000AAA'
+
+  const layoutType = layout?.layoutType || 'Full'
+  const modeType = layout?.mode || 'Create'
+  const sections = (layout?.sections || []).map((section) =>
+    mapLayoutSection(section, record, objectInfo, recordTypeId)
+  )
+  const layouts = {
+    [layoutType]: {
+      [modeType]: sections,
+    },
+  }
+
+  return {
+    recordId: '',
+    apiName: objectInfo.apiName || objectApiName,
+    title: `New ${objectInfo.label || objectApiName}`,
+    objectInfo,
+    recordTypeId,
+    layouts,
+    editValues: buildEditValues(layouts),
+    rawRecord: record,
+  }
+}
+
 export function buildRecordUpdatePayload(editValues) {
   const fields = {}
 
@@ -233,4 +272,23 @@ export function buildRecordUpdatePayload(editValues) {
   })
 
   return { fields }
+}
+
+export function buildCreateRecordPayload(apiName, editValues) {
+  const fields = {}
+
+  Object.entries(editValues || {}).forEach(([fieldName, value]) => {
+    const currentValue = value?.current
+
+    if (currentValue === null || currentValue === undefined || currentValue === '') {
+      return
+    }
+
+    fields[fieldName] = currentValue
+  })
+
+  return {
+    apiName,
+    fields,
+  }
 }
