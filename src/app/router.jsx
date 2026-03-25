@@ -23,6 +23,8 @@ import EditActivityCategoryPage from '../features/activity/EditActivityCategoryP
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
 import SettingsPage from '../features/settings/SettingsPage.jsx'
+import VinaPage from '../features/vina/VinaPage.jsx'
+import VinaRecordPage from '../features/vina/VinaRecordPage.jsx'
 
 export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
   return (
@@ -69,6 +71,8 @@ export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
       />
       <Route path="/chat" element={<ChatPage themeMode={themeMode} />} />
       <Route path="/chat/:threadId" element={<ChatDetailPage themeMode={themeMode} />} />
+      <Route path="/vina" element={<VinaPage showToast={showToast} />} />
+      <Route path="/vina/:recordId" element={<VinaRecordPage showToast={showToast} />} />
       <Route
         path="/settings"
         element={

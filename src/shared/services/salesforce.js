@@ -4,6 +4,13 @@ export {
   testSalesforceConnection,
 } from './salesforce/client.js'
 export {
+  deleteUiRecord,
+  fetchPicklistValues,
+  fetchRecentItems,
+  fetchRecordUi,
+  updateUiRecord,
+} from './salesforce/uiApi.js'
+export {
   escapeSoqlValue,
   fetchSampleAccounts,
   getRecord,

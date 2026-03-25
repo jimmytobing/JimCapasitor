@@ -7,7 +7,7 @@ export default function EditJimPage({ showToast }) {
   const navigate = useNavigate()
   const recordId = location.state?.record?.Id || location.state?.record?.id || ''
   const safeId = escapeSoqlValue(recordId.trim())
-  const soql = `SELECT Id, Name, BillingStreet,BillingCity,BillingCountry, ShippingStreet FROM Account WHERE Id = '${safeId}' LIMIT 1`
+  const soql = `SELECT FIELDS(ALL) FROM Account WHERE Id = '${safeId}' LIMIT 1`
 
   return (
     <div className="min-h-screen bg-slate-100">
