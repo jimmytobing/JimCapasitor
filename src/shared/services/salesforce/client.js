@@ -35,6 +35,22 @@ function buildSalesforceUrl(instanceUrl, pathname, searchParams = {}) {
 }
 
 function readSalesforceError(payload) {
+  const outputErrors = payload?.output?.errors
+  if (Array.isArray(outputErrors) && outputErrors.length > 0) {
+    return outputErrors[0]?.message || 'Request Salesforce gagal.'
+  }
+
+  const fieldErrors = payload?.output?.fieldErrors
+  if (fieldErrors && typeof fieldErrors === 'object') {
+    const firstFieldError = Object.values(fieldErrors)
+      .flat()
+      .find((item) => item?.message)
+
+    if (firstFieldError?.message) {
+      return firstFieldError.message
+    }
+  }
+
   if (Array.isArray(payload) && payload.length > 0) {
     return payload[0]?.message || 'Request Salesforce gagal.'
   }

@@ -3,7 +3,7 @@ import {
   deleteUiRecord,
   fetchPicklistValues,
   fetchRecordUi,
-  updateUiRecord,
+  updateRecord,
 } from '../../shared/services/salesforce.js'
 import { buildRecordUpdatePayload, mapRecordUiToLayoutModel } from './vinaRecordUi.js'
 
@@ -104,7 +104,7 @@ export function useVinaRecordPage(recordId, showToast) {
     try {
       setIsSaving(true)
       setError('')
-      await updateUiRecord(recordId, payload)
+      await updateRecord(recordView?.apiName || 'Account', recordId, payload.fields)
       const refreshed = await fetchRecordUi(recordId)
       const model = mapRecordUiToLayoutModel(recordId, refreshed)
       setRecordView(model)
