@@ -1,141 +1,8 @@
-import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import PageShell from '../../shared/components/PageShell.jsx'
+import HzRecordItem from '../../shared/components/HzRecordItem.jsx'
 import { useVinaRecordPage } from './useVinaRecordPage.js'
-
-function formatComponentValue(component) {
-  if (component.displayValue !== null && component.displayValue !== undefined && component.displayValue !== '') {
-    return component.displayValue
-  }
-
-  if (component.value !== null && component.value !== undefined && component.value !== '') {
-    return String(component.value)
-  }
-
-  return '-'
-}
-
-function VinaFieldValue({
-  component,
-  editValue,
-  mode,
-  onChange,
-  onEnsurePicklist,
-  picklist,
-  objectApiName,
-  recordTypeId,
-}) {
-  useEffect(() => {
-    if (
-      mode === 'Edit' &&
-      component.picklistUrl &&
-      component.editableForUpdate &&
-      !picklist?.values?.length
-    ) {
-      void onEnsurePicklist(
-        component.picklistUrl,
-        objectApiName,
-        recordTypeId,
-        component.field
-      )
-    }
-  }, [
-    component.editableForUpdate,
-    component.field,
-    component.picklistUrl,
-    mode,
-    objectApiName,
-    onEnsurePicklist,
-    picklist?.values?.length,
-    recordTypeId,
-  ])
-
-  if (mode === 'Edit' && component.editableForUpdate) {
-    if (component.picklistUrl) {
-      const selectedValue = editValue?.current ?? ''
-
-      return (
-        <select
-          className="mt-2 w-full rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-orange-400"
-          value={selectedValue}
-          onChange={(event) => onChange(component.field, event.target.value)}
-        >
-          <option value="">Pilih {component.label}</option>
-          {(picklist?.values || []).map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      )
-    }
-
-    return (
-      <input
-        type="text"
-        className="mt-2 w-full rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-orange-400"
-        value={editValue?.current ?? ''}
-        onChange={(event) => onChange(component.field, event.target.value)}
-      />
-    )
-  }
-
-  return (
-    <p className="mt-2 text-sm leading-6 text-slate-700">
-      {formatComponentValue(component)}
-    </p>
-  )
-}
-
-function VinaRecordItem({
-  item,
-  mode,
-  editValues,
-  picklists,
-  onChange,
-  onEnsurePicklist,
-  objectApiName,
-  recordTypeId,
-}) {
-  const visibleValues =
-    mode === 'View' && item.linkId
-      ? item.values.filter((component) => !component.fieldInfo?.reference)
-      : item.values
-
-  return (
-    <div className="rounded-2xl bg-slate-50 p-4">
-      {!item.customLinkUrl ? (
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{item.label}</p>
-      ) : null}
-
-      {item.linkId && mode === 'View' ? (
-        <div className="mt-2 rounded-2xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
-          <p className="font-semibold text-slate-900">{item.linkText || item.linkId}</p>
-          <p className="mt-1 text-xs text-slate-500">{item.linkId}</p>
-        </div>
-      ) : null}
-
-      {!item.linkId && visibleValues.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-500">-</p>
-      ) : null}
-
-      {visibleValues.map((component) => (
-        <VinaFieldValue
-          key={component.field}
-          component={component}
-          editValue={editValues?.[component.field]}
-          mode={mode}
-          onChange={onChange}
-          onEnsurePicklist={onEnsurePicklist}
-          picklist={picklists?.[component.picklistUrl]}
-          objectApiName={objectApiName}
-          recordTypeId={recordTypeId}
-        />
-      ))}
-    </div>
-  )
-}
 
 export default function VinaRecordPage({ showToast }) {
   const navigate = useNavigate()
@@ -286,16 +153,32 @@ export default function VinaRecordPage({ showToast }) {
                   {section.rows.map((row, rowIndex) => (
                     <div key={`${sectionIndex}-${rowIndex}`} className="grid gap-3">
                       {row.items.map((item, itemIndex) => (
-                        <VinaRecordItem
+                        <HzRecordItem
                           key={`${sectionIndex}-${rowIndex}-${itemIndex}`}
                           item={item}
-                          mode={mode}
+                          components={
+                            mode === 'View' && item.linkId
+                              ? item.values.filter((component) => !component.fieldInfo?.reference)
+                              : item.values
+                          }
                           editValues={editValues}
                           picklists={picklists}
                           onChange={updateFieldValue}
                           onEnsurePicklist={ensurePicklist}
                           objectApiName={recordView?.apiName}
                           recordTypeId={recordView?.recordTypeId}
+                          canEditComponent={(component) =>
+                            mode === 'Edit' && component.editableForUpdate
+                          }
+                          tone="orange"
+                          referenceCard={
+                            item.linkId && mode === 'View' ? (
+                              <div className="mt-2 rounded-2xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
+                                <p className="font-semibold text-slate-900">{item.linkText || item.linkId}</p>
+                                <p className="mt-1 text-xs text-slate-500">{item.linkId}</p>
+                              </div>
+                            ) : null
+                          }
                         />
                       ))}
                     </div>
