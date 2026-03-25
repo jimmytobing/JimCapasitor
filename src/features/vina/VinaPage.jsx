@@ -19,18 +19,18 @@ export default function VinaPage({ showToast }) {
             <div className="mt-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/75">
-                  Vina UI API
+                  Vina Account Query
                 </p>
-                <h1 className="mt-2 text-3xl font-semibold">Recent Salesforce Records</h1>
+                <h1 className="mt-2 text-3xl font-semibold">Salesforce Accounts</h1>
                 <p className="mt-3 max-w-[24rem] text-sm leading-6 text-white/90">
-                  Halaman ini meniru pola dari sample React Native: recent list dulu, lalu klik
-                  untuk buka detail record dan layout dinamis.
+                  List awal sekarang memakai query Account agar lebih stabil untuk flow
+                  client_credentials, lalu detailnya tetap dibuka lewat UI API dan layout dinamis.
                 </p>
               </div>
               <div className="rounded-3xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/70">Source</p>
                 <p className="mt-1 text-lg font-semibold">{cards.length}</p>
-                <p className="text-xs text-white/80">recent item</p>
+                <p className="text-xs text-white/80">account row</p>
               </div>
             </div>
           </div>
@@ -39,8 +39,8 @@ export default function VinaPage({ showToast }) {
             <section className="rounded-3xl bg-white p-4 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900">Pola yang dibawa ke JimCapacitor</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Endpoint list memakai <code>/services/data/&lt;apiVersion&gt;/recent</code>, lalu detail memakai
-                <code> /services/data/&lt;apiVersion&gt;/ui-api/record-ui/:id</code>. Render detail dibentuk dari
+                List memakai SOQL <code>SELECT Id, Name, BillingStreet FROM Account ...</code>, lalu
+                detail memakai <code>/services/data/&lt;apiVersion&gt;/ui-api/record-ui/:id</code>. Render detail dibentuk dari
                 metadata layout Salesforce, bukan hardcode field per object.
               </p>
               <div className="mt-4">

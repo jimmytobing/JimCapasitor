@@ -1,33 +1,41 @@
 import { useEffect, useState } from 'react'
-import { fetchRecentItems } from '../../shared/services/salesforce.js'
-import { mapRecentItemsToCards } from './vinaRecordUi.js'
+import { getRecords } from '../../shared/services/salesforce.js'
 
 export function useVinaPage() {
   const [cards, setCards] = useState([])
   const [error, setError] = useState('')
-  const [loadingMessage, setLoadingMessage] = useState('Mengambil recent items dari Salesforce...')
+  const [loadingMessage, setLoadingMessage] = useState('Mengambil Account dari Salesforce...')
 
   useEffect(() => {
     let isMounted = true
 
     void (async () => {
-      setLoadingMessage('Mengambil recent items dari Salesforce...')
+      setLoadingMessage('Mengambil Account dari Salesforce...')
       setError('')
 
       try {
-        const recentItems = await fetchRecentItems()
+        const records = await getRecords(
+          'SELECT Id, Name, BillingStreet FROM Account ORDER BY LastModifiedDate DESC LIMIT 5'
+        )
         if (!isMounted) return
 
-        const mappedCards = mapRecentItemsToCards(recentItems)
+        const mappedCards = records.map((account, index) => ({
+          id: account?.Id || `account-${index + 1}`,
+          title: account?.Name || `Account ${index + 1}`,
+          subtitle: 'Account',
+          meta: account?.BillingStreet || 'Tanpa alamat jalan',
+          objectType: 'Account',
+          raw: account,
+        }))
         setCards(mappedCards)
 
         if (mappedCards.length === 0) {
-          setError('Recent items kosong untuk integration user saat ini.')
+          setError('Data Account kosong untuk integration user saat ini.')
         }
       } catch (err) {
         if (!isMounted) return
         setCards([])
-        setError(err.message || 'Gagal mengambil recent items.')
+        setError(err.message || 'Gagal mengambil Account.')
       } finally {
         if (isMounted) {
           setLoadingMessage('')
