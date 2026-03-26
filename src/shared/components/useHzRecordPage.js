@@ -34,6 +34,51 @@ function collectMissingRequiredFields(editValues = {}) {
     .filter(Boolean)
 }
 
+function normalizeFieldMatchValue(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+}
+
+function extractFieldErrors(message, editValues = {}) {
+  if (!message) return {}
+
+  const entries = Object.entries(editValues || {})
+  if (entries.length === 0) return {}
+
+  const result = {}
+  const fieldMessageParts = String(message)
+    .split(/\n+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  fieldMessageParts.forEach((part) => {
+    const separatorIndex = part.indexOf(':')
+    if (separatorIndex <= 0) return
+
+    const rawFieldName = part.slice(0, separatorIndex).trim()
+    const fieldMessage = part.slice(separatorIndex + 1).trim() || part
+    const normalizedRawFieldName = normalizeFieldMatchValue(rawFieldName)
+
+    const matchedFieldEntry = entries.find(([fieldApiName, fieldValue]) => {
+      const candidates = [
+        fieldApiName,
+        fieldValue?.label,
+        fieldValue?.fieldInfo?.label,
+      ]
+
+      return candidates.some(
+        (candidate) => candidate && normalizeFieldMatchValue(candidate) === normalizedRawFieldName
+      )
+    })
+
+    if (!matchedFieldEntry) return
+    result[matchedFieldEntry[0]] = fieldMessage
+  })
+
+  return result
+}
+
 export function useHzRecordPage(objectApiName, recordId, showToast) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const isCreateMode = !recordId
@@ -42,6 +87,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
   const [editValues, setEditValues] = useState({})
   const [picklists, setPicklists] = useState({})
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [loadingMessage, setLoadingMessage] = useState(
     isCreateMode
       ? `Mengambil create defaults ${objectApiName}...`
@@ -60,6 +106,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
           : 'Mengambil detail record dari Salesforce...'
       )
       setError('')
+      setFieldErrors({})
 
       try {
         const response = isCreateMode
@@ -77,6 +124,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
         if (!isMounted) return
         setRecordView(null)
         setEditValues({})
+        setFieldErrors({})
         setError(
           err.message ||
             (isCreateMode
@@ -114,14 +162,29 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       }))
     } catch (err) {
       setError(err.message || 'Gagal mengambil picklist.')
+      setFieldErrors({})
     }
   }
 
   function updateFieldValue(fieldName, nextValue) {
+    setFieldErrors((current) => {
+      if (!current[fieldName]) return current
+
+      const nextErrors = { ...current }
+      delete nextErrors[fieldName]
+      return nextErrors
+    })
     setEditValues((current) => mergeEditValueState(current, fieldName, nextValue))
   }
 
   function updateLookupValue(fieldName, nextValue, displayValue = '') {
+    setFieldErrors((current) => {
+      if (!current[fieldName]) return current
+
+      const nextErrors = { ...current }
+      delete nextErrors[fieldName]
+      return nextErrors
+    })
     setEditValues((current) =>
       mergeEditValueState(current, fieldName, nextValue, {
         displayCurrent: displayValue,
@@ -150,6 +213,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
   function cancelEditMode() {
     if (!recordView) return
     setEditValues(recordView.editValues)
+    setFieldErrors({})
     setMode(isCreateMode ? 'Create' : 'View')
   }
 
@@ -169,6 +233,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     try {
       setIsSaving(true)
       setError('')
+      setFieldErrors({})
       await updateRecord(recordView?.apiName || 'Account', recordId, payload.fields)
       const refreshed = await fetchRecordUi(recordId)
       const model = mapRecordUiToLayoutModel(recordId, refreshed)
@@ -178,7 +243,9 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       notify('Perubahan record berhasil disimpan.')
       return true
     } catch (err) {
-      setError(err.message || 'Gagal menyimpan record.')
+      const nextError = err.message || 'Gagal menyimpan record.'
+      setError(nextError)
+      setFieldErrors(extractFieldErrors(nextError, editValues))
       return false
     } finally {
       setIsSaving(false)
@@ -193,12 +260,14 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     const missingRequiredFields = collectMissingRequiredFields(editValues)
     if (missingRequiredFields.length > 0) {
       setError(`Field wajib belum diisi: ${missingRequiredFields.join(', ')}`)
+      setFieldErrors({})
       return null
     }
 
     try {
       setIsSaving(true)
       setError('')
+      setFieldErrors({})
 
       const payload = buildCreateRecordPayload(objectApiName, editValues)
       const result = await createUiRecord(payload)
@@ -211,7 +280,9 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       notify(`${objectApiName} berhasil dibuat.`)
       return createdRecordId
     } catch (err) {
-      setError(err.message || `Gagal membuat ${objectApiName}.`)
+      const nextError = err.message || `Gagal membuat ${objectApiName}.`
+      setError(nextError)
+      setFieldErrors(extractFieldErrors(nextError, editValues))
       return null
     } finally {
       setIsSaving(false)
@@ -226,11 +297,13 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     try {
       setIsDeleting(true)
       setError('')
+      setFieldErrors({})
       await deleteUiRecord(recordId)
       notify('Record berhasil dihapus.')
       return true
     } catch (err) {
       setError(err.message || 'Gagal menghapus record.')
+      setFieldErrors({})
       return false
     } finally {
       setIsDeleting(false)
@@ -243,6 +316,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     editValues,
     ensurePicklist,
     error,
+    fieldErrors,
     isCreateMode,
     isDeleting,
     isSaving,

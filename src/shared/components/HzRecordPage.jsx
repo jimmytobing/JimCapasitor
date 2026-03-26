@@ -18,6 +18,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
     editValues,
     ensurePicklist,
     error,
+    fieldErrors,
     isCreateMode,
     isDeleting,
     isSaving,
@@ -149,6 +150,16 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
     )
   }
 
+  function renderErrorSection() {
+    if (!error) return null
+
+    return (
+      <section className="rounded-3xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700 shadow-sm">
+        {error}
+      </section>
+    )
+  }
+
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
       <div className="min-h-screen pb-28">
@@ -204,12 +215,6 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
               </section>
             ) : null}
 
-            {error ? (
-              <section className="rounded-3xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700 shadow-sm">
-                {error}
-              </section>
-            ) : null}
-
             {recordView && !isCreateMode ? (
               <section className="rounded-3xl bg-white p-4 shadow-sm">
                 <div className="flex flex-wrap gap-2">
@@ -217,7 +222,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                     {recordView.apiName}
                   </span>
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                    Record Id {recordView.recordId}
+                    Record Id : {recordView.recordId}
                   </span>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -246,6 +251,8 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                 <div className="flex flex-wrap justify-end gap-2">{renderActionButtons()}</div>
               </div>
             </section>
+
+            {renderErrorSection()}
 
 
 
@@ -282,6 +289,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                           }}
                           editContext={{
                             values: editValues,
+                            fieldErrors,
                             onChange: updateFieldValue,
                             onLookupChange: updateLookupValue,
                             canEditComponent: (component) =>
@@ -320,6 +328,8 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                 </div>
               </section>
             ))}
+
+            {renderErrorSection()}
 
             <section
               className={`rounded-3xl border p-4 shadow-sm ${

@@ -9,6 +9,7 @@ export default function HzRecordItem({
 }) {
   const {
     values: editValues,
+    fieldErrors,
     onChange,
     canEditComponent,
     onLookupChange,
@@ -52,7 +53,9 @@ export default function HzRecordItem({
       {visibleComponents.map((component) => (
         <div key={component.field} className="mt-2">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700">{component.label}</span>
+            <span className={fieldErrors?.[component.field] ? 'text-sm font-medium text-rose-700' : 'text-sm font-medium text-slate-700'}>
+              {component.label}
+            </span>
             {showRequiredBadge && component.required ? (
               <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-600">
                 Required
@@ -71,6 +74,7 @@ export default function HzRecordItem({
             objectApiName={objectApiName}
             recordTypeId={recordTypeId}
             tone={tone}
+            fieldError={fieldErrors?.[component.field] || ''}
             placeholder={placeholderForComponent?.(component) || ''}
             readOnlyClassName={readOnlyClassName}
           />
