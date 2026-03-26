@@ -10,7 +10,7 @@ export default function VinaPage({ showToast }) {
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
-      <div className="min-h-screen pb-28">
+      <div className="min-h-screen pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
         <section className="overflow-hidden bg-white shadow-none">
           <div className="bg-gradient-to-br from-rose-600 via-orange-500 to-amber-400 px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
             <button className="text-sm font-medium text-white/80" onClick={() => navigate('/home')}>
@@ -19,18 +19,18 @@ export default function VinaPage({ showToast }) {
             <div className="mt-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/75">
-                  Vina Account Query
+                  Vina Account
                 </p>
-                <h1 className="mt-2 text-3xl font-semibold">Salesforce Accounts</h1>
+                <h1 className="mt-2 text-3xl font-semibold">Accounts</h1>
                 <p className="mt-3 max-w-[24rem] text-sm leading-6 text-white/90">
                   List awal sekarang memakai query Account agar lebih stabil untuk flow
                   client_credentials, lalu detailnya tetap dibuka lewat UI API dan layout dinamis.
                 </p>
               </div>
               <div className="rounded-3xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Source</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Account</p>
                 <p className="mt-1 text-lg font-semibold">{cards.length}</p>
-                <p className="text-xs text-white/80">account row</p>
+                <p className="text-xs text-white/80">items</p>
               </div>
             </div>
           </div>
