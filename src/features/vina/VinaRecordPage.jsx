@@ -22,9 +22,11 @@ export default function VinaRecordPage({ showToast }) {
     mode,
     picklists,
     recordView,
+    searchLookupOptions,
     enterEditMode,
     saveRecord,
     updateFieldValue,
+    updateLookupValue,
   } = useVinaRecordPage('Account', recordId, showToast)
 
   async function handleDelete() {
@@ -219,6 +221,7 @@ export default function VinaRecordPage({ showToast }) {
                           editContext={{
                             values: editValues,
                             onChange: updateFieldValue,
+                            onLookupChange: updateLookupValue,
                             canEditComponent: (component) =>
                               isCreateMode ? component.editableForNew : mode === 'Edit' && component.editableForUpdate,
                           }}
@@ -227,6 +230,9 @@ export default function VinaRecordPage({ showToast }) {
                             ensure: ensurePicklist,
                             objectApiName: recordView?.apiName || 'Account',
                             recordTypeId: recordView?.recordTypeId,
+                          }}
+                          lookupContext={{
+                            onSearch: searchLookupOptions,
                           }}
                           ui={{
                             tone: isCreateMode ? 'emerald' : 'orange',

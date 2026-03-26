@@ -5,6 +5,7 @@ import {
   fetchCreateDefaults,
   fetchPicklistValues,
   fetchRecordUi,
+  searchLookupRecords,
   updateRecord,
 } from '../../shared/services/salesforce.js'
 import {
@@ -14,12 +15,13 @@ import {
   mapRecordUiToLayoutModel,
 } from './vinaRecordUi.js'
 
-function mergeEditValueState(currentState, fieldName, nextValue) {
+function mergeEditValueState(currentState, fieldName, nextValue, extras = {}) {
   return {
     ...currentState,
     [fieldName]: {
       ...currentState[fieldName],
       current: nextValue,
+      ...extras,
     },
   }
 }
@@ -117,6 +119,27 @@ export function useVinaRecordPage(objectApiName, recordId, showToast) {
 
   function updateFieldValue(fieldName, nextValue) {
     setEditValues((current) => mergeEditValueState(current, fieldName, nextValue))
+  }
+
+  function updateLookupValue(fieldName, nextValue, displayValue = '') {
+    setEditValues((current) =>
+      mergeEditValueState(current, fieldName, nextValue, {
+        displayCurrent: displayValue,
+      })
+    )
+  }
+
+  async function searchLookupOptions(component, searchTerm) {
+    const targetObjectApiName =
+      component?.referenceTargetApiName || component?.referenceTargetApiNames?.[0] || ''
+
+    if (!targetObjectApiName) {
+      return []
+    }
+
+    return searchLookupRecords(targetObjectApiName, searchTerm, {
+      limit: 8,
+    })
   }
 
   function enterEditMode() {
@@ -227,10 +250,12 @@ export function useVinaRecordPage(objectApiName, recordId, showToast) {
     mode,
     picklists,
     recordView,
+    searchLookupOptions,
     setMode,
     enterEditMode,
     cancelEditMode,
     updateFieldValue,
+    updateLookupValue,
     saveRecord,
     deleteRecord,
   }

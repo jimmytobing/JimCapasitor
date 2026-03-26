@@ -1,5 +1,15 @@
 import { sendSalesforceRequest } from './client.js'
 
+const lookupObjectInfoCache = new Map()
+
+function sanitizeSoqlIdentifier(value, label = 'identifier') {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(String(value || ''))) {
+    throw new Error(`Salesforce ${label} tidak valid.`)
+  }
+
+  return String(value)
+}
+
 export function escapeSoqlValue(value) {
   return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 }
@@ -18,6 +28,49 @@ export async function getRecords(soql) {
 export async function getRecord(soql) {
   const records = await getRecords(soql)
   return records[0] ?? null
+}
+
+async function fetchLookupObjectInfo(objectApiName) {
+  const safeObjectApiName = sanitizeSoqlIdentifier(objectApiName, 'object api name')
+
+  if (!lookupObjectInfoCache.has(safeObjectApiName)) {
+    lookupObjectInfoCache.set(
+      safeObjectApiName,
+      sendSalesforceRequest(`ui-api/object-info/${safeObjectApiName}`)
+    )
+  }
+
+  return lookupObjectInfoCache.get(safeObjectApiName)
+}
+
+export async function searchLookupRecords(objectApiName, searchTerm = '', options = {}) {
+  const safeObjectApiName = sanitizeSoqlIdentifier(objectApiName, 'object api name')
+  const objectInfo = await fetchLookupObjectInfo(safeObjectApiName)
+  const nameFieldApiName = sanitizeSoqlIdentifier(
+    objectInfo?.nameFields?.[0] || 'Name',
+    'name field'
+  )
+  const safeLimit = Number.isFinite(options.limit) ? Math.min(Math.max(options.limit, 1), 10) : 8
+  const trimmedTerm = String(searchTerm || '').trim()
+  const whereClause = trimmedTerm
+    ? `WHERE ${nameFieldApiName} LIKE '%${escapeSoqlValue(trimmedTerm)}%'`
+    : `WHERE ${nameFieldApiName} != null`
+  const soql = [
+    `SELECT Id, ${nameFieldApiName}`,
+    `FROM ${safeObjectApiName}`,
+    whereClause,
+    `ORDER BY ${nameFieldApiName} ASC NULLS LAST`,
+    `LIMIT ${safeLimit}`,
+  ].join(' ')
+  const records = await getRecords(soql)
+
+  return records.map((record) => ({
+    id: record?.Id || '',
+    label: record?.[nameFieldApiName] || record?.Id || '',
+    subtitle: record?.Id || '',
+    objectApiName: safeObjectApiName,
+    nameFieldApiName,
+  }))
 }
 
 export async function updateRecord(sfObject,id, payload) {

@@ -4,12 +4,14 @@ export default function HzRecordItem({
   item,
   editContext,
   picklistContext,
+  lookupContext,
   ui,
 }) {
   const {
     values: editValues,
     onChange,
     canEditComponent,
+    onLookupChange,
   } = editContext || {}
   const {
     values: picklists,
@@ -17,6 +19,7 @@ export default function HzRecordItem({
     objectApiName,
     recordTypeId,
   } = picklistContext || {}
+  const { onSearch: onSearchLookup } = lookupContext || {}
   const {
     tone = 'orange',
     placeholderForComponent,
@@ -59,6 +62,8 @@ export default function HzRecordItem({
             canEdit={Boolean(canEditComponent?.(component))}
             picklist={picklists?.[component.picklistUrl]}
             onChange={onChange}
+            onLookupChange={onLookupChange}
+            onSearchLookup={onSearchLookup}
             onEnsurePicklist={onEnsurePicklist}
             objectApiName={objectApiName}
             recordTypeId={recordTypeId}

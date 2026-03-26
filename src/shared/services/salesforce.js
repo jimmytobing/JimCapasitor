@@ -21,6 +21,7 @@ export {
   getRecordsG,
   querySalesforceSoql,
   querySalesforceGraphQL,
+  searchLookupRecords,
   updateRecord,
 } from './salesforce/querySalesforce.js'
 export { 

@@ -37,6 +37,58 @@ function formatDateValue(rawValue, fieldInfo) {
   })
 }
 
+function dedupeReferenceTargets(referenceTargets = []) {
+  return referenceTargets.filter(
+    (referenceTarget, index) =>
+      referenceTarget?.apiName &&
+      referenceTargets.findIndex((item) => item?.apiName === referenceTarget.apiName) === index
+  )
+}
+
+function extractReferenceTargets(fieldInfo) {
+  const infoTargets = Array.isArray(fieldInfo?.referenceToInfos)
+    ? fieldInfo.referenceToInfos.map((referenceInfo) => ({
+        apiName:
+          referenceInfo?.apiName ||
+          referenceInfo?.objectApiName ||
+          referenceInfo?.referenceTo ||
+          '',
+        nameFields: Array.isArray(referenceInfo?.nameFields) ? referenceInfo.nameFields : [],
+      }))
+    : []
+  const legacyTargets = Array.isArray(fieldInfo?.referenceTo)
+    ? fieldInfo.referenceTo.map((apiName) => ({
+        apiName,
+        nameFields: [],
+      }))
+    : []
+
+  return dedupeReferenceTargets([...infoTargets, ...legacyTargets])
+}
+
+function readRelatedDisplayValue(relatedValue, fallbackDisplayValue = '') {
+  const relatedFields = relatedValue?.fields
+
+  if (!relatedFields || typeof relatedFields !== 'object') {
+    return fallbackDisplayValue || ''
+  }
+
+  if (relatedFields.Name?.displayValue || relatedFields.Name?.value) {
+    return relatedFields.Name.displayValue || String(relatedFields.Name.value)
+  }
+
+  const namedField = Object.entries(relatedFields).find(
+    ([fieldName, fieldValue]) =>
+      fieldName !== 'Id' && (fieldValue?.displayValue || fieldValue?.value)
+  )
+
+  if (namedField) {
+    return namedField[1]?.displayValue || String(namedField[1]?.value || '')
+  }
+
+  return fallbackDisplayValue || ''
+}
+
 function normalizeFieldComponent(component, item, record, objectInfo, recordTypeId) {
   const fieldApiName = component?.apiName
   const fieldInfo = objectInfo?.fields?.[fieldApiName]
@@ -59,17 +111,34 @@ function normalizeFieldComponent(component, item, record, objectInfo, recordType
 
   const isPicklist =
     fieldInfo.dataType === 'Picklist' || fieldInfo.dataType === 'Multipicklist'
+  const referenceTargets = extractReferenceTargets(fieldInfo)
+  const relatedValue = fieldInfo.relationshipName
+    ? record?.fields?.[fieldInfo.relationshipName]?.value
+    : null
+  const lookupDisplayValue = fieldInfo.reference
+    ? readRelatedDisplayValue(relatedValue, displayValue || '')
+    : ''
+  const resolvedDisplayValue = lookupDisplayValue || displayValue || ''
+  const currentReferenceTargetApiName =
+    relatedValue?.apiName ||
+    relatedValue?.attributes?.type ||
+    referenceTargets[0]?.apiName ||
+    ''
 
   return {
     label: component.label || item.label || fieldInfo.label || fieldApiName,
     field: fieldApiName,
     fieldInfo,
     value: rawValue,
-    displayValue: displayValue || '',
+    displayValue: resolvedDisplayValue,
     editableForUpdate: Boolean(item?.editableForUpdate),
     editableForNew: Boolean(item?.editableForNew),
     required: Boolean(item?.required),
     isNull: rawValue === null || rawValue === undefined || displayValue === '',
+    isLookup: Boolean(fieldInfo.reference),
+    lookupDisplayValue,
+    referenceTargetApiName: currentReferenceTargetApiName,
+    referenceTargetApiNames: referenceTargets.map((referenceTarget) => referenceTarget.apiName),
     picklistUrl: isPicklist
       ? `/ui-api/object-info/${objectInfo.apiName}/picklist-values/${recordTypeId}/${fieldApiName}`
       : null,
@@ -149,6 +218,9 @@ function buildEditValues(layouts) {
               fieldInfo: value.fieldInfo,
               picklistUrl: value.picklistUrl,
               label: value.label,
+              required: value.required,
+              displayOriginal: value.lookupDisplayValue || value.displayValue || '',
+              displayCurrent: value.lookupDisplayValue || value.displayValue || '',
             }
           })
         })
