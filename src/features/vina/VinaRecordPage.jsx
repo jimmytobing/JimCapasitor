@@ -54,6 +54,98 @@ export default function VinaRecordPage({ showToast }) {
     }
   }
 
+  function resolveViewItemLabel(item) {
+    if (item?.label) return item.label
+
+    const lookupComponent = item?.values?.find((component) => component.fieldInfo?.reference)
+    if (!lookupComponent?.fieldInfo?.label) return ''
+
+    return lookupComponent.fieldInfo.label.replace(/\s+ID$/, '')
+  }
+
+  function resolveLookupComponentLabel(component, item) {
+    if (item?.label) return item.label
+    if (component?.label && !/\s+ID$/.test(component.label)) return component.label
+    if (component?.fieldInfo?.label) return component.fieldInfo.label.replace(/\s+ID$/, '')
+    return component?.label || ''
+  }
+
+  function resolveItemValues(item) {
+    const baseValues = item?.values || []
+
+    if (!isCreateMode && mode === 'View' && item?.linkId) {
+      return baseValues.filter((component) => !component.fieldInfo?.reference)
+    }
+
+    if (!isCreateMode && mode === 'Edit') {
+      return baseValues.map((component) =>
+        component.fieldInfo?.reference
+          ? {
+              ...component,
+              label: resolveLookupComponentLabel(component, item),
+            }
+          : component
+      )
+    }
+
+    return baseValues
+  }
+
+  function renderActionButtons() {
+    return (
+      <>
+        {isCreateMode ? (
+          <button
+            type="button"
+            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
+            onClick={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Creating...' : 'Create Account'}
+          </button>
+        ) : mode === 'View' ? (
+          <button
+            type="button"
+            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
+            onClick={enterEditMode}
+            disabled={!recordView}
+          >
+            Edit
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm"
+              onClick={cancelEditMode}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+
+        {!isCreateMode ? (
+          <button
+            type="button"
+            className="rounded-full border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </button>
+        ) : null}
+      </>
+    )
+  }
+
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
       <div className="min-h-screen pb-28">
@@ -90,65 +182,6 @@ export default function VinaRecordPage({ showToast }) {
                   )}
                 </p>
               </div>
-              <div className="rounded-3xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/70">
-                  {isCreateMode ? 'Object' : 'Mode'}
-                </p>
-                <p className="mt-1 text-lg font-semibold">
-                  {isCreateMode ? recordView?.apiName || 'Account' : mode}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              {isCreateMode ? (
-                <button
-                  type="button"
-                  className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                >
-                  {isSaving ? 'Creating...' : 'Create Account'}
-                </button>
-              ) : mode === 'View' ? (
-                <button
-                  type="button"
-                  className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
-                  onClick={enterEditMode}
-                  disabled={!recordView}
-                >
-                  Edit
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
-                    onClick={handleSave}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? 'Saving...' : 'Save'}
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
-                    onClick={cancelEditMode}
-                  >
-                    Cancel
-                  </button>
-                </>
-              )}
-
-              {!isCreateMode ? (
-                <button
-                  type="button"
-                  className="rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
-                </button>
-              ) : null}
             </div>
           </div>
 
@@ -187,6 +220,28 @@ export default function VinaRecordPage({ showToast }) {
                 </p>
               </section>
             ) : null}
+            
+            <section
+              className={`rounded-3xl border p-4 shadow-sm ${
+                isCreateMode
+                  ? 'border-emerald-200 bg-gradient-to-br from-emerald-100 via-teal-50 to-white'
+                  : 'border-orange-200 bg-gradient-to-br from-orange-100 via-amber-50 to-white'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    {isCreateMode ? 'Object' : 'Mode'}
+                  </p>
+                  <p className="mt-1 text-lg font-semibold text-slate-900">
+                    {isCreateMode ? recordView?.apiName || 'Account' : mode}
+                  </p>
+                </div>
+                <div className="flex flex-wrap justify-end gap-2">{renderActionButtons()}</div>
+              </div>
+            </section>
+
+
 
             {activeSections.map((section, sectionIndex) => (
               <section key={`${section.heading}-${sectionIndex}`} className="rounded-3xl bg-white p-4 shadow-sm">
@@ -213,10 +268,11 @@ export default function VinaRecordPage({ showToast }) {
                           key={`${sectionIndex}-${rowIndex}-${itemIndex}`}
                           item={{
                             ...item,
-                            values:
+                            label:
                               !isCreateMode && mode === 'View' && item.linkId
-                                ? item.values.filter((component) => !component.fieldInfo?.reference)
-                                : item.values,
+                                ? resolveViewItemLabel(item)
+                                : item.label,
+                            values: resolveItemValues(item),
                           }}
                           editContext={{
                             values: editValues,
@@ -258,6 +314,16 @@ export default function VinaRecordPage({ showToast }) {
                 </div>
               </section>
             ))}
+
+            <section
+              className={`rounded-3xl border p-4 shadow-sm ${
+                isCreateMode
+                  ? 'border-emerald-200 bg-gradient-to-br from-emerald-100 via-teal-50 to-white'
+                  : 'border-orange-200 bg-gradient-to-br from-orange-100 via-amber-50 to-white'
+              }`}
+            >
+              <div className="flex flex-wrap justify-end gap-2">{renderActionButtons()}</div>
+            </section>
           </PageShell>
         </section>
       </div>

@@ -124,9 +124,12 @@ function normalizeFieldComponent(component, item, record, objectInfo, recordType
     relatedValue?.attributes?.type ||
     referenceTargets[0]?.apiName ||
     ''
+  const resolvedLabel = fieldInfo.reference
+    ? item.label || component.label || fieldInfo.label || fieldApiName
+    : component.label || item.label || fieldInfo.label || fieldApiName
 
   return {
-    label: component.label || item.label || fieldInfo.label || fieldApiName,
+    label: resolvedLabel,
     field: fieldApiName,
     fieldInfo,
     value: rawValue,

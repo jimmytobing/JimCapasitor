@@ -32,12 +32,15 @@ export default function HzRecordItem({
   const shouldShowItemLabel =
     !item?.customLinkUrl &&
     Boolean(item?.label) &&
-    visibleComponents.length > 1
+    (visibleComponents.length > 1 || Boolean(referenceCard))
+  const itemLabelClassName = referenceCard
+    ? 'text-sm font-medium text-slate-700'
+    : 'text-xs font-semibold uppercase tracking-[0.2em] text-slate-400'
 
   return (
     <div className="rounded-2xl bg-slate-50 p-4">
       {shouldShowItemLabel ? (
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{item?.label}</p>
+        <p className={itemLabelClassName}>{item?.label}</p>
       ) : null}
 
       {referenceCard}
