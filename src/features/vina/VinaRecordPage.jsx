@@ -9,11 +9,13 @@ export default function VinaRecordPage({ showToast }) {
   const { recordId = '' } = useParams()
   const {
     activeSections,
+    createRecord,
     cancelEditMode,
     deleteRecord,
     editValues,
     ensurePicklist,
     error,
+    isCreateMode,
     isDeleting,
     isSaving,
     loadingMessage,
@@ -23,7 +25,7 @@ export default function VinaRecordPage({ showToast }) {
     enterEditMode,
     saveRecord,
     updateFieldValue,
-  } = useVinaRecordPage(recordId, showToast)
+  } = useVinaRecordPage('Account', recordId, showToast)
 
   async function handleDelete() {
     const confirmed = window.confirm('Hapus record ini dari Salesforce?')
@@ -36,6 +38,14 @@ export default function VinaRecordPage({ showToast }) {
   }
 
   async function handleSave() {
+    if (isCreateMode) {
+      const createdRecordId = await createRecord()
+      if (createdRecordId) {
+        navigate(`/vina/${createdRecordId}`, { replace: true })
+      }
+      return
+    }
+
     const success = await saveRecord()
     if (success) {
       navigate(`/vina/${recordId}`, { replace: true })
@@ -46,29 +56,59 @@ export default function VinaRecordPage({ showToast }) {
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
       <div className="min-h-screen pb-28">
         <section className="overflow-hidden bg-white shadow-none">
-          <div className="bg-gradient-to-br from-slate-900 via-rose-800 to-orange-500 px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white">
+          <div
+            className={`px-5 pb-8 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white ${
+              isCreateMode
+                ? 'bg-gradient-to-br from-emerald-600 via-teal-500 to-cyan-500'
+                : 'bg-gradient-to-br from-slate-900 via-rose-800 to-orange-500'
+            }`}
+          >
             <button className="text-sm font-medium text-white/80" onClick={() => navigate('/vina')}>
               {'< Back'}
             </button>
             <div className="mt-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
-                  {recordView?.apiName || 'Salesforce Record'}
+                  {isCreateMode ? 'Create Mode' : recordView?.apiName || 'Salesforce Record'}
                 </p>
-                <h1 className="mt-2 text-3xl font-semibold">{recordView?.title || recordId}</h1>
+                <h1 className="mt-2 text-3xl font-semibold">
+                  {isCreateMode ? 'Add New Account' : recordView?.title || recordId}
+                </h1>
                 <p className="mt-3 max-w-[24rem] text-sm leading-6 text-white/85">
-                  Detail ini dibangun dari response <code>/ui-api/record-ui</code> dan dirender
-                  per section, row, lalu item seperti pola sample React Native.
+                  {isCreateMode ? (
+                    <>
+                      Form ini dibentuk dari <code>/ui-api/record-defaults/create/Account</code>,
+                      jadi field create mengikuti layout Salesforce yang aktif.
+                    </>
+                  ) : (
+                    <>
+                      Detail ini dibangun dari response <code>/ui-api/record-ui</code> dan
+                      dirender per section, row, lalu item seperti pola sample React Native.
+                    </>
+                  )}
                 </p>
               </div>
               <div className="rounded-3xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Mode</p>
-                <p className="mt-1 text-lg font-semibold">{mode}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/70">
+                  {isCreateMode ? 'Object' : 'Mode'}
+                </p>
+                <p className="mt-1 text-lg font-semibold">
+                  {isCreateMode ? recordView?.apiName || 'Account' : mode}
+                </p>
               </div>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {mode === 'View' ? (
+              {isCreateMode ? (
+                <button
+                  type="button"
+                  className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Creating...' : 'Create Account'}
+                </button>
+              ) : mode === 'View' ? (
                 <button
                   type="button"
                   className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
@@ -97,20 +137,28 @@ export default function VinaRecordPage({ showToast }) {
                 </>
               )}
 
-              <button
-                type="button"
-                className="rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
+              {!isCreateMode ? (
+                <button
+                  type="button"
+                  className="rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
+              ) : null}
             </div>
           </div>
 
           <PageShell className="space-y-4">
             {loadingMessage ? (
-              <section className="rounded-3xl border border-orange-100 bg-orange-50 p-4 text-sm text-orange-700 shadow-sm">
+              <section
+                className={`rounded-3xl p-4 text-sm shadow-sm ${
+                  isCreateMode
+                    ? 'border border-emerald-100 bg-emerald-50 text-emerald-700'
+                    : 'border border-orange-100 bg-orange-50 text-orange-700'
+                }`}
+              >
                 {loadingMessage}
               </section>
             ) : null}
@@ -121,7 +169,7 @@ export default function VinaRecordPage({ showToast }) {
               </section>
             ) : null}
 
-            {recordView ? (
+            {recordView && !isCreateMode ? (
               <section className="rounded-3xl bg-white p-4 shadow-sm">
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
@@ -143,7 +191,13 @@ export default function VinaRecordPage({ showToast }) {
                 {section.useHeading ? (
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <h2 className="text-base font-semibold text-slate-900">{section.heading}</h2>
-                    <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        isCreateMode
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : 'bg-orange-50 text-orange-600'
+                      }`}
+                    >
                       {section.rows.length} row
                     </span>
                   </div>
@@ -155,30 +209,42 @@ export default function VinaRecordPage({ showToast }) {
                       {row.items.map((item, itemIndex) => (
                         <HzRecordItem
                           key={`${sectionIndex}-${rowIndex}-${itemIndex}`}
-                          item={item}
-                          components={
-                            mode === 'View' && item.linkId
-                              ? item.values.filter((component) => !component.fieldInfo?.reference)
-                              : item.values
-                          }
-                          editValues={editValues}
-                          picklists={picklists}
-                          onChange={updateFieldValue}
-                          onEnsurePicklist={ensurePicklist}
-                          objectApiName={recordView?.apiName}
-                          recordTypeId={recordView?.recordTypeId}
-                          canEditComponent={(component) =>
-                            mode === 'Edit' && component.editableForUpdate
-                          }
-                          tone="orange"
-                          referenceCard={
-                            item.linkId && mode === 'View' ? (
-                              <div className="mt-2 rounded-2xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
-                                <p className="font-semibold text-slate-900">{item.linkText || item.linkId}</p>
-                                <p className="mt-1 text-xs text-slate-500">{item.linkId}</p>
-                              </div>
-                            ) : null
-                          }
+                          item={{
+                            ...item,
+                            values:
+                              !isCreateMode && mode === 'View' && item.linkId
+                                ? item.values.filter((component) => !component.fieldInfo?.reference)
+                                : item.values,
+                          }}
+                          editContext={{
+                            values: editValues,
+                            onChange: updateFieldValue,
+                            canEditComponent: (component) =>
+                              isCreateMode ? component.editableForNew : mode === 'Edit' && component.editableForUpdate,
+                          }}
+                          picklistContext={{
+                            values: picklists,
+                            ensure: ensurePicklist,
+                            objectApiName: recordView?.apiName || 'Account',
+                            recordTypeId: recordView?.recordTypeId,
+                          }}
+                          ui={{
+                            tone: isCreateMode ? 'emerald' : 'orange',
+                            placeholderForComponent: isCreateMode
+                              ? (component) => (component.required ? 'Wajib diisi' : '')
+                              : undefined,
+                            showRequiredBadge: isCreateMode,
+                            readOnlyClassName: isCreateMode
+                              ? 'mt-2 text-sm leading-6 text-slate-500'
+                              : undefined,
+                            referenceCard:
+                              !isCreateMode && item.linkId && mode === 'View' ? (
+                                <div className="mt-2 rounded-2xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
+                                  <p className="font-semibold text-slate-900">{item.linkText || item.linkId}</p>
+                                  <p className="mt-1 text-xs text-slate-500">{item.linkId}</p>
+                                </div>
+                              ) : null,
+                          }}
                         />
                       ))}
                     </div>

@@ -73,7 +73,6 @@ export default function VinaPage({ showToast }) {
                   type="button"
                   className="w-full rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-orange-100 transition hover:-translate-y-0.5 hover:shadow-md"
                   onClick={() => {
-                    notify(item.title)
                     navigate(`/vina/${item.id}`, {
                       state: {
                         card: item,
@@ -88,7 +87,7 @@ export default function VinaPage({ showToast }) {
                       </p>
                       <h2 className="mt-1 text-lg font-semibold text-slate-900">{item.title}</h2>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        {item.meta || item.subtitle || 'Buka untuk melihat layout dari UI API.'}
+                        {item.meta || item.subtitle || 'Lihat detail'}
                       </p>
                     </div>
                     <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">

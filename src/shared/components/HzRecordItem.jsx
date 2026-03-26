@@ -2,22 +2,30 @@ import HzField from './HzField.jsx'
 
 export default function HzRecordItem({
   item,
-  components,
-  editValues,
-  picklists,
-  onChange,
-  onEnsurePicklist,
-  objectApiName,
-  recordTypeId,
-  canEditComponent,
-  tone = 'orange',
-  placeholderForComponent,
-  showRequiredBadge = false,
-  readOnlyClassName = 'mt-2 text-sm leading-6 text-slate-700',
-  emptyText = '-',
-  referenceCard = null,
+  editContext,
+  picklistContext,
+  ui,
 }) {
-  const visibleComponents = Array.isArray(components) ? components : item?.values || []
+  const {
+    values: editValues,
+    onChange,
+    canEditComponent,
+  } = editContext || {}
+  const {
+    values: picklists,
+    ensure: onEnsurePicklist,
+    objectApiName,
+    recordTypeId,
+  } = picklistContext || {}
+  const {
+    tone = 'orange',
+    placeholderForComponent,
+    showRequiredBadge = false,
+    readOnlyClassName = 'mt-2 text-sm leading-6 text-slate-700',
+    emptyText = '-',
+    referenceCard = null,
+  } = ui || {}
+  const visibleComponents = item?.values || []
 
   return (
     <div className="rounded-2xl bg-slate-50 p-4">
