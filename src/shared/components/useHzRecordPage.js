@@ -7,13 +7,13 @@ import {
   fetchRecordUi,
   searchLookupRecords,
   updateRecord,
-} from '../../shared/services/salesforce.js'
+} from '../services/salesforce.js'
 import {
   buildCreateRecordPayload,
   buildRecordUpdatePayload,
   mapCreateDefaultsToLayoutModel,
   mapRecordUiToLayoutModel,
-} from './vinaRecordUi.js'
+} from './hzRecordUi.js'
 
 function mergeEditValueState(currentState, fieldName, nextValue, extras = {}) {
   return {
@@ -34,7 +34,7 @@ function collectMissingRequiredFields(editValues = {}) {
     .filter(Boolean)
 }
 
-export function useVinaRecordPage(objectApiName, recordId, showToast) {
+export function useHzRecordPage(objectApiName, recordId, showToast) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const isCreateMode = !recordId
   const [mode, setMode] = useState('View')

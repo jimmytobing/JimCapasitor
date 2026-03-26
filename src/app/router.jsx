@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useParams } from 'react-router-dom'
 import Home from '../features/home/Home.jsx'
 import JokesPage from '../features/jokes/JokesPage.jsx'
 import DailyPage from '../features/daily/DailyPage.jsx'
@@ -23,8 +23,31 @@ import EditActivityCategoryPage from '../features/activity/EditActivityCategoryP
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
 import SettingsPage from '../features/settings/SettingsPage.jsx'
-import VinaPage from '../features/vina/VinaPage.jsx'
-import VinaRecordPage from '../features/vina/VinaRecordPage.jsx'
+import HzListView from '../shared/components/HzListView.jsx'
+import HzRecordPage from '../shared/components/HzRecordPage.jsx'
+
+function LegacyVinaNewRedirect() {
+  return <Navigate to="/Account/new" replace />
+}
+
+function LegacyVinaListRedirect() {
+  return <Navigate to="/Account" replace />
+}
+
+function LegacyVinaRecordRedirect() {
+  const { recordId = '' } = useParams()
+  return <Navigate to={`/Account/${recordId}`} replace />
+}
+
+function LegacyVinaObjectNewRedirect() {
+  const { objectApiName = 'Account' } = useParams()
+  return <Navigate to={`/${objectApiName}/new`} replace />
+}
+
+function LegacyVinaObjectRecordRedirect() {
+  const { objectApiName = 'Account', recordId = '' } = useParams()
+  return <Navigate to={`/${objectApiName}/${recordId}`} replace />
+}
 
 export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
   return (
@@ -71,9 +94,14 @@ export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
       />
       <Route path="/chat" element={<ChatPage themeMode={themeMode} />} />
       <Route path="/chat/:threadId" element={<ChatDetailPage themeMode={themeMode} />} />
-      <Route path="/vina" element={<VinaPage showToast={showToast} />} />
-      <Route path="/vina/new" element={<VinaRecordPage showToast={showToast} />} />
-      <Route path="/vina/:recordId" element={<VinaRecordPage showToast={showToast} />} />
+      <Route path="/vina" element={<LegacyVinaListRedirect />} />
+      <Route path="/vina/new" element={<LegacyVinaNewRedirect />} />
+      <Route path="/vina/:recordId" element={<LegacyVinaRecordRedirect />} />
+      <Route path="/vina/:objectApiName/new" element={<LegacyVinaObjectNewRedirect />} />
+      <Route path="/vina/:objectApiName/:recordId" element={<LegacyVinaObjectRecordRedirect />} />
+      <Route path="/:objectApiName" element={<HzListView showToast={showToast} />} />
+      <Route path="/:objectApiName/new" element={<HzRecordPage showToast={showToast} />} />
+      <Route path="/:objectApiName/:recordId" element={<HzRecordPage showToast={showToast} />} />
       <Route
         path="/settings"
         element={

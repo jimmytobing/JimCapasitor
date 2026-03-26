@@ -1,12 +1,19 @@
-import { useNavigate } from 'react-router-dom'
-import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
-import PageShell from '../../shared/components/PageShell.jsx'
-import { useVinaPage } from './useVinaPage.js'
+import { useNavigate, useParams } from 'react-router-dom'
+import BottomStickyNav from './BottomStickyNav.jsx'
+import PageShell from './PageShell.jsx'
+import { useHzListView } from './useHzListView.js'
 
-export default function VinaPage({ showToast }) {
+function formatObjectTitle(objectApiName) {
+  return objectApiName.replace(/__/g, ' ').replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+}
+
+export default function HzListView({ showToast, defaultObjectApiName = 'Account' }) {
   const navigate = useNavigate()
+  const { objectApiName: routeObjectApiName = '' } = useParams()
+  const objectApiName = routeObjectApiName || defaultObjectApiName
+  const objectTitle = formatObjectTitle(objectApiName)
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const { cards, error, loadingMessage } = useVinaPage()
+  const { cards, error, loadingMessage } = useHzListView(objectApiName)
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
@@ -19,16 +26,16 @@ export default function VinaPage({ showToast }) {
             <div className="mt-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/75">
-                  Vina Account
+                  Salesforce Object
                 </p>
-                <h1 className="mt-2 text-3xl font-semibold">Accounts</h1>
+                <h1 className="mt-2 text-3xl font-semibold">{objectTitle}</h1>
                 <p className="mt-3 max-w-[24rem] text-sm leading-6 text-white/90">
-                  List awal sekarang memakai query Account agar lebih stabil untuk flow
-                  client_credentials, lalu detailnya tetap dibuka lewat UI API dan layout dinamis.
+                  List memakai query sederhana ke Salesforce, lalu detail dibuka lewat UI API dan
+                  dirender dinamis berdasarkan metadata layout object aktif.
                 </p>
               </div>
               <div className="rounded-3xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Account</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/70">{objectApiName}</p>
                 <p className="mt-1 text-lg font-semibold">{cards.length}</p>
                 <p className="text-xs text-white/80">items</p>
               </div>
@@ -37,19 +44,18 @@ export default function VinaPage({ showToast }) {
 
           <PageShell className="space-y-4">
             <section className="rounded-3xl bg-white p-4 shadow-sm">
-              <h2 className="text-base font-semibold text-slate-900">Pola yang dibawa ke JimCapacitor</h2>
+              <h2 className="text-base font-semibold text-slate-900">Generic List View</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                List memakai SOQL <code>SELECT Id, Name, BillingStreet FROM Account ...</code>, lalu
-                detail memakai <code>/services/data/&lt;apiVersion&gt;/ui-api/record-ui/:id</code>. Render detail dibentuk dari
-                metadata layout Salesforce, bukan hardcode field per object.
+                List ini memakai <code>{`SELECT Id, Name FROM ${objectApiName}`}</code>, lalu
+                detail memakai <code>/services/data/&lt;apiVersion&gt;/ui-api/record-ui/:id</code>.
               </p>
               <div className="mt-4">
                 <button
                   type="button"
                   className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm"
-                  onClick={() => navigate('/vina/new')}
+                  onClick={() => navigate(`/${objectApiName}/new`)}
                 >
-                  Add New Account
+                  {`Add New ${objectTitle}`}
                 </button>
               </div>
             </section>
@@ -73,9 +79,10 @@ export default function VinaPage({ showToast }) {
                   type="button"
                   className="w-full rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-orange-100 transition hover:-translate-y-0.5 hover:shadow-md"
                   onClick={() => {
-                    navigate(`/vina/${item.id}`, {
+                    navigate(`/${item.objectType}/${item.id}`, {
                       state: {
                         card: item,
+                        objectApiName: item.objectType,
                       },
                     })
                   }}

@@ -1,12 +1,15 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
-import PageShell from '../../shared/components/PageShell.jsx'
-import HzRecordItem from '../../shared/components/HzRecordItem.jsx'
-import { useVinaRecordPage } from './useVinaRecordPage.js'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import BottomStickyNav from './BottomStickyNav.jsx'
+import PageShell from './PageShell.jsx'
+import HzRecordItem from './HzRecordItem.jsx'
+import { useHzRecordPage } from './useHzRecordPage.js'
 
-export default function VinaRecordPage({ showToast }) {
+export default function HzRecordPage({ showToast, defaultObjectApiName = 'Account' }) {
+  const location = useLocation()
   const navigate = useNavigate()
-  const { recordId = '' } = useParams()
+  const { objectApiName: routeObjectApiName = '', recordId = '' } = useParams()
+  const objectApiName =
+    routeObjectApiName || location.state?.objectApiName || defaultObjectApiName
   const {
     activeSections,
     createRecord,
@@ -27,7 +30,7 @@ export default function VinaRecordPage({ showToast }) {
     saveRecord,
     updateFieldValue,
     updateLookupValue,
-  } = useVinaRecordPage('Account', recordId, showToast)
+  } = useHzRecordPage(objectApiName, recordId, showToast)
 
   async function handleDelete() {
     const confirmed = window.confirm('Hapus record ini dari Salesforce?')
@@ -35,7 +38,7 @@ export default function VinaRecordPage({ showToast }) {
 
     const success = await deleteRecord()
     if (success) {
-      navigate('/vina')
+      navigate(`/${recordView?.apiName || objectApiName}`)
     }
   }
 
@@ -43,14 +46,14 @@ export default function VinaRecordPage({ showToast }) {
     if (isCreateMode) {
       const createdRecordId = await createRecord()
       if (createdRecordId) {
-        navigate(`/vina/${createdRecordId}`, { replace: true })
+        navigate(`/${objectApiName}/${createdRecordId}`, { replace: true })
       }
       return
     }
 
     const success = await saveRecord()
     if (success) {
-      navigate(`/vina/${recordId}`, { replace: true })
+      navigate(`/${recordView?.apiName || objectApiName}/${recordId}`, { replace: true })
     }
   }
 
@@ -101,7 +104,7 @@ export default function VinaRecordPage({ showToast }) {
             onClick={handleSave}
             disabled={isSaving}
           >
-            {isSaving ? 'Creating...' : 'Create Account'}
+            {isSaving ? 'Creating...' : `Create ${objectApiName}`}
           </button>
         ) : mode === 'View' ? (
           <button
@@ -157,7 +160,10 @@ export default function VinaRecordPage({ showToast }) {
                 : 'bg-gradient-to-br from-slate-900 via-rose-800 to-orange-500'
             }`}
           >
-            <button className="text-sm font-medium text-white/80" onClick={() => navigate('/vina')}>
+            <button
+              className="text-sm font-medium text-white/80"
+              onClick={() => navigate(`/${recordView?.apiName || objectApiName}`)}
+            >
               {'< Back'}
             </button>
             <div className="mt-4 flex items-start justify-between gap-4">
@@ -166,12 +172,12 @@ export default function VinaRecordPage({ showToast }) {
                   {isCreateMode ? 'Create Mode' : recordView?.apiName || 'Salesforce Record'}
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold">
-                  {isCreateMode ? 'Add New Account' : recordView?.title || recordId}
+                  {isCreateMode ? `Add New ${objectApiName}` : recordView?.title || recordId}
                 </h1>
                 <p className="mt-3 max-w-[24rem] text-sm leading-6 text-white/85">
                   {isCreateMode ? (
                     <>
-                      Form ini dibentuk dari <code>/ui-api/record-defaults/create/Account</code>,
+                      Form ini dibentuk dari <code>{`/ui-api/record-defaults/create/${objectApiName}`}</code>,
                       jadi field create mengikuti layout Salesforce yang aktif.
                     </>
                   ) : (
@@ -234,7 +240,7 @@ export default function VinaRecordPage({ showToast }) {
                     {isCreateMode ? 'Object' : 'Mode'}
                   </p>
                   <p className="mt-1 text-lg font-semibold text-slate-900">
-                    {isCreateMode ? recordView?.apiName || 'Account' : mode}
+                    {isCreateMode ? recordView?.apiName || objectApiName : mode}
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">{renderActionButtons()}</div>
@@ -284,7 +290,7 @@ export default function VinaRecordPage({ showToast }) {
                           picklistContext={{
                             values: picklists,
                             ensure: ensurePicklist,
-                            objectApiName: recordView?.apiName || 'Account',
+                            objectApiName: recordView?.apiName || objectApiName,
                             recordTypeId: recordView?.recordTypeId,
                           }}
                           lookupContext={{
