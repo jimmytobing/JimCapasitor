@@ -26,10 +26,14 @@ export default function HzRecordItem({
     referenceCard = null,
   } = ui || {}
   const visibleComponents = item?.values || []
+  const shouldShowItemLabel =
+    !item?.customLinkUrl &&
+    Boolean(item?.label) &&
+    visibleComponents.length > 1
 
   return (
     <div className="rounded-2xl bg-slate-50 p-4">
-      {!item?.customLinkUrl ? (
+      {shouldShowItemLabel ? (
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{item?.label}</p>
       ) : null}
 
