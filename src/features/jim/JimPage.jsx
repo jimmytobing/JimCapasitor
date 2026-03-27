@@ -7,11 +7,7 @@ export default function JimPage() {
   const { cards, error, loadingMessage } = useJimPage()
 
   function handleCardClick(item) {
-    navigate('/jim/edit', {
-      state: {
-        record: item,
-      },
-    })
+    navigate(`/Account/${item.id}`)
   }
 
   return (

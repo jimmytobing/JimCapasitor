@@ -10,7 +10,7 @@ export function useJimPage() {
     void (async () => {
       setLoadingMessage('Loading Salesforce...')
       try {
-        const safeId = escapeSoqlValue('001dL00001yiqmDQAQ')
+        const safeId = escapeSoqlValue('Tanpa Alamat')
         const records = await getRecords(
           `SELECT Id, Name, BillingStreet FROM Account WHERE BillingStreet <> '${safeId}' LIMIT 5`
         )
