@@ -42,6 +42,7 @@ export function useCirclePage() {
 
               return {
                 id: account?.App_Circle_ID__c || account?.Id || `circle-${index + 1}`,
+                accountId: account?.Id || '',
                 title: account?.Name || `Circle ${index + 1}`,
                 emoji: circleEmojis[index % circleEmojis.length],
                 members: `${contacts.length} member aktif`,

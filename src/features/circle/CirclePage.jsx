@@ -93,9 +93,23 @@ export default function CirclePage({ showToast }) {
                             )
                           }
                         >
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-sm">
+                          <button
+                            type="button"
+                            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-sm"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              navigate(`/${circle.accountId}`, {
+                                state: {
+                                  from: '/circle',
+                                  objectApiName: 'Account',
+                                },
+                              })
+                            }}
+                            aria-label={`Open ${circle.title}`}
+                            title={circle.title}
+                          >
                             {circle.emoji}
-                          </div>
+                          </button>
                           <div>
                             <h3 className="text-lg font-semibold">{circle.title}</h3>
                             <p className="text-sm text-white/80">{circle.members}</p>
@@ -128,13 +142,26 @@ export default function CirclePage({ showToast }) {
                           >
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-3">
-                                <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full">
+                                <button
+                                  type="button"
+                                  className="h-11 w-11 shrink-0 overflow-hidden rounded-full"
+                                  onClick={() =>
+                                    navigate(`/${person.id}`, {
+                                      state: {
+                                        from: '/circle',
+                                        objectApiName: 'Contact',
+                                      },
+                                    })
+                                  }
+                                  aria-label={`Open ${person.name}`}
+                                  title={person.name}
+                                >
                                   <UserAvatar
                                     name={person.name}
                                     initial={person.name?.slice(0, 1)?.toUpperCase() || '?'}
                                     tone="from-slate-700 to-slate-900"
                                   />
-                                </div>
+                                </button>
                                 <div>
                                   <p className="text-sm font-semibold text-slate-900">{person.name}</p>
                                   <p className="mt-1 text-sm text-slate-500">{person.status}</p>
