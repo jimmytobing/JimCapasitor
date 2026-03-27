@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getStoredUsername } from '../../auth/session.js'
 import BottomStickyNav from '../../components/BottomStickyNav.jsx'
 import PageShell from '../../components/PageShell.jsx'
-import RecordForm from './RecordForm.jsx'
+import { RecordForm } from './index.js'
 import RecordViewForm from '../recordViewForm/RecordViewForm.jsx'
 import {
   getSectionKey,
@@ -238,7 +238,7 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
                   ) : (
                     <>
                       Detail ini dibangun dari response <code>/ui-api/record-ui</code> dan
-                      dirender per section, row, lalu item seperti pola sample React Native.
+                      dirender per section, row, lalu item.
                     </>
                   )}
                 </p>
@@ -269,10 +269,7 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
                     Record Id : {recordView.recordId}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Semua blok di bawah berasal dari layout metadata Salesforce. Jika object atau
-                  layout berubah di org, struktur yang ditampilkan akan ikut berubah.
-                </p>
+              
               </section>
             ) : null}
 

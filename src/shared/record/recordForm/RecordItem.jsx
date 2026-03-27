@@ -1,4 +1,4 @@
-import Field from './Field.jsx'
+import Field from '../../components/Field.jsx'
 
 export default function RecordItem({
   item,

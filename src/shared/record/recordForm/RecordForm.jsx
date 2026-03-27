@@ -1,4 +1,4 @@
-import RecordItem from '../../components/RecordItem.jsx'
+import RecordItem from './RecordItem.jsx'
 import { getSectionKey, resolveSectionHeading } from '../recordSectionUtils/index.js'
 
 export default function RecordForm({

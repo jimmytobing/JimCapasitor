@@ -1,4 +1,4 @@
-import RecordForm from '../recordForm/RecordForm.jsx'
+import { RecordForm } from '../recordForm/index.js'
 import { resolveSectionPreview } from '../recordSectionUtils/index.js'
 
 export default function RecordViewForm({
