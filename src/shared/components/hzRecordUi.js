@@ -1,3 +1,6 @@
+const LOCALIZED_FIELD_TYPES = new Set(['Multipicklist', 'Picklist', 'Currency', 'Date', 'DateTime'])
+const VIEW_LIKE_MODES = new Set(['View', 'Readonly'])
+
 function toDisplayString(value, fieldInfo) {
   if (value === null || value === undefined) return ''
 
@@ -37,6 +40,47 @@ function formatDateValue(rawValue, fieldInfo) {
   })
 }
 
+function isLocalizedFieldType(fieldType) {
+  return LOCALIZED_FIELD_TYPES.has(fieldType)
+}
+
+function isPersonAccount(record) {
+  if (!record || (record.apiName !== 'Account' && record.apiName !== 'PersonAccount')) {
+    return false
+  }
+
+  return Boolean(record?.fields?.IsPersonAccount?.value)
+}
+
+function getCompoundFields(fieldApiName, record, objectInfo) {
+  return Object.keys(objectInfo?.fields || {}).filter(
+    (key) =>
+      key !== fieldApiName &&
+      record?.fields?.[key] &&
+      objectInfo?.fields?.[key]?.compoundFieldName === fieldApiName
+  )
+}
+
+function isCompoundField(fieldApiName, objectInfo, personAccount = false) {
+  const fieldInfo = objectInfo?.fields?.[fieldApiName]
+  if (!fieldInfo || fieldInfo.compound === false) {
+    return false
+  }
+
+  return Object.keys(objectInfo?.fields || {}).some((key) => {
+    const candidate = objectInfo.fields[key]
+    if (key === fieldApiName || candidate?.compoundFieldName !== fieldApiName) {
+      return false
+    }
+
+    if (objectInfo.apiName === 'Account' && candidate.compoundFieldName === 'Name' && !personAccount) {
+      return false
+    }
+
+    return true
+  })
+}
+
 function dedupeReferenceTargets(referenceTargets = []) {
   return referenceTargets.filter(
     (referenceTarget, index) =>
@@ -66,7 +110,7 @@ function extractReferenceTargets(fieldInfo) {
   return dedupeReferenceTargets([...infoTargets, ...legacyTargets])
 }
 
-function readRelatedDisplayValue(relatedValue, fallbackDisplayValue = '') {
+function readRelatedDisplayValue(relatedValue, fallbackDisplayValue = '', nameFields = []) {
   const relatedFields = relatedValue?.fields
 
   if (!relatedFields || typeof relatedFields !== 'object') {
@@ -75,6 +119,18 @@ function readRelatedDisplayValue(relatedValue, fallbackDisplayValue = '') {
 
   if (relatedFields.Name?.displayValue || relatedFields.Name?.value) {
     return relatedFields.Name.displayValue || String(relatedFields.Name.value)
+  }
+
+  if (nameFields.length > 0) {
+    const joinedName = nameFields
+      .map((nameField) => relatedFields?.[nameField]?.displayValue || relatedFields?.[nameField]?.value || '')
+      .filter(Boolean)
+      .join(' ')
+      .trim()
+
+    if (joinedName) {
+      return joinedName
+    }
   }
 
   const namedField = Object.entries(relatedFields).find(
@@ -89,118 +145,234 @@ function readRelatedDisplayValue(relatedValue, fallbackDisplayValue = '') {
   return fallbackDisplayValue || ''
 }
 
-function normalizeFieldComponent(component, item, record, objectInfo, recordTypeId) {
-  const fieldApiName = component?.apiName
-  const fieldInfo = objectInfo?.fields?.[fieldApiName]
-  const recordField = record?.fields?.[fieldApiName]
-
-  if (!fieldApiName || !fieldInfo || !recordField) {
-    return null
+function normalizeScalarDisplayValue(rawValue, displayValue, fieldInfo) {
+  if (displayValue !== null && displayValue !== undefined && displayValue !== '') {
+    return displayValue
   }
 
-  let displayValue = recordField.displayValue
-  const rawValue = recordField.value
+  if (rawValue === null || rawValue === undefined) {
+    return ''
+  }
 
-  if (!displayValue && rawValue !== null && rawValue !== undefined) {
-    if (fieldInfo.dataType === 'Date' || fieldInfo.dataType === 'DateTime') {
-      displayValue = formatDateValue(rawValue, fieldInfo)
-    } else {
-      displayValue = toDisplayString(rawValue, fieldInfo)
+  if (fieldInfo?.dataType === 'Date' || fieldInfo?.dataType === 'DateTime') {
+    return formatDateValue(rawValue, fieldInfo)
+  }
+
+  return toDisplayString(rawValue, fieldInfo)
+}
+
+function getLocationValue(fieldApiName, record, objectInfo) {
+  const constituentFields = getCompoundFields(fieldApiName, record, objectInfo)
+  const longitudeField = constituentFields.find((key) => /Longitude/i.test(key))
+  const latitudeField = constituentFields.find((key) => /Latitude/i.test(key))
+
+  return {
+    latitude: latitudeField ? record?.fields?.[latitudeField]?.value ?? null : null,
+    longitude: longitudeField ? record?.fields?.[longitudeField]?.value ?? null : null,
+  }
+}
+
+function getCompoundFieldData(fieldApiName, record, fieldInfo, objectInfo) {
+  if (fieldInfo?.dataType === 'Location') {
+    return {
+      value: getLocationValue(fieldApiName, record, objectInfo),
     }
   }
 
-  const isPicklist =
-    fieldInfo.dataType === 'Picklist' || fieldInfo.dataType === 'Multipicklist'
+  const compoundFields = getCompoundFields(fieldApiName, record, objectInfo)
+  const value = {}
+  const displayValue = {}
+
+  compoundFields.forEach((childField) => {
+    const childFieldInfo = objectInfo?.fields?.[childField]
+    const childRecordField = record?.fields?.[childField]
+    if (!childFieldInfo || !childRecordField) return
+
+    value[childField] = childRecordField.value
+
+    if (isLocalizedFieldType(childFieldInfo.dataType)) {
+      displayValue[childField] = childRecordField.displayValue
+    } else if (childRecordField.displayValue !== undefined && childRecordField.displayValue !== null) {
+      displayValue[childField] = childRecordField.displayValue
+    }
+  })
+
+  return {
+    value,
+    displayValue,
+  }
+}
+
+function buildUiField(fieldApiName, record, objectInfo) {
+  const fieldInfo = objectInfo?.fields?.[fieldApiName]
+  if (!fieldInfo) {
+    return null
+  }
+
+  const result = {
+    ...fieldInfo,
+    type: fieldInfo.dataType,
+    value: null,
+    displayValue: '',
+  }
+
+  const personAccount = isPersonAccount(record)
   const referenceTargets = extractReferenceTargets(fieldInfo)
-  const relatedValue = fieldInfo.relationshipName
-    ? record?.fields?.[fieldInfo.relationshipName]?.value
-    : null
-  const lookupDisplayValue = fieldInfo.reference
-    ? readRelatedDisplayValue(relatedValue, displayValue || '')
-    : ''
-  const resolvedDisplayValue = lookupDisplayValue || displayValue || ''
-  const currentReferenceTargetApiName =
-    relatedValue?.apiName ||
-    relatedValue?.attributes?.type ||
-    referenceTargets[0]?.apiName ||
-    ''
-  const resolvedLabel = fieldInfo.reference
-    ? item.label || component.label || fieldInfo.label || fieldApiName
-    : component.label || item.label || fieldInfo.label || fieldApiName
+
+  if (fieldInfo.reference) {
+    const relatedValue = fieldInfo.relationshipName
+      ? record?.fields?.[fieldInfo.relationshipName]?.value
+      : null
+    const rawValue = record?.fields?.[fieldApiName]?.value ?? null
+    const rawDisplayValue = record?.fields?.[fieldApiName]?.displayValue ?? ''
+    const displayValue = readRelatedDisplayValue(
+      relatedValue,
+      rawDisplayValue,
+      referenceTargets[0]?.nameFields || []
+    )
+
+    result.value = rawValue
+    result.displayValue = displayValue
+    result.referenceRecordId = rawValue
+    result.referenceRecord = relatedValue || null
+    result.referenceTargetApiName =
+      relatedValue?.apiName ||
+      relatedValue?.attributes?.type ||
+      referenceTargets[0]?.apiName ||
+      ''
+    result.referenceTargetApiNames = referenceTargets.map((referenceTarget) => referenceTarget.apiName)
+    return result
+  }
+
+  if (isCompoundField(fieldApiName, objectInfo, personAccount)) {
+    const compoundData = getCompoundFieldData(fieldApiName, record, fieldInfo, objectInfo)
+    result.value = compoundData.value
+    result.displayValue = compoundData.displayValue
+    result.isCompoundField = true
+    result.compoundConstituentFields = getCompoundFields(fieldApiName, record, objectInfo)
+    return result
+  }
+
+  const recordField = record?.fields?.[fieldApiName]
+  result.value = recordField?.value ?? null
+
+  if (isLocalizedFieldType(fieldInfo.dataType)) {
+    result.displayValue = recordField?.displayValue ?? ''
+  } else {
+    result.displayValue = normalizeScalarDisplayValue(
+      recordField?.value,
+      recordField?.displayValue,
+      fieldInfo
+    )
+  }
+
+  return result
+}
+
+function getEffectiveFieldApiName(component, objectInfo, modeType) {
+  const fieldApiName = component?.apiName || ''
+  const fieldInfo = objectInfo?.fields?.[fieldApiName]
+  if (!fieldInfo) {
+    return fieldApiName
+  }
+
+  if (!VIEW_LIKE_MODES.has(modeType)) {
+    return fieldApiName
+  }
+
+  return fieldInfo.compoundFieldName || fieldApiName
+}
+
+function normalizeFieldComponent(component, item, record, objectInfo, recordTypeId, modeType) {
+  const rawFieldApiName = component?.apiName
+  const effectiveFieldApiName = getEffectiveFieldApiName(component, objectInfo, modeType)
+  const uiField = buildUiField(effectiveFieldApiName, record, objectInfo)
+
+  if (!rawFieldApiName || !uiField) {
+    return null
+  }
+
+  const isPicklist =
+    uiField.dataType === 'Picklist' || uiField.dataType === 'Multipicklist'
+  const resolvedLabel = item?.label || component?.label || uiField.label || effectiveFieldApiName
 
   return {
     label: resolvedLabel,
-    field: fieldApiName,
-    fieldInfo,
-    value: rawValue,
-    displayValue: resolvedDisplayValue,
+    field: effectiveFieldApiName,
+    rawField: rawFieldApiName,
+    fieldInfo: uiField,
+    value: uiField.value,
+    displayValue: uiField.displayValue,
     editableForUpdate: Boolean(item?.editableForUpdate),
     editableForNew: Boolean(item?.editableForNew),
     required: Boolean(item?.required),
-    isNull: rawValue === null || rawValue === undefined || displayValue === '',
-    isLookup: Boolean(fieldInfo.reference),
-    lookupDisplayValue,
-    referenceTargetApiName: currentReferenceTargetApiName,
-    referenceTargetApiNames: referenceTargets.map((referenceTarget) => referenceTarget.apiName),
+    isNull:
+      uiField.value === null ||
+      uiField.value === undefined ||
+      uiField.displayValue === '',
+    isLookup: Boolean(uiField.reference),
+    isCompoundField: Boolean(uiField.isCompoundField),
+    referenceRecordId: uiField.referenceRecordId || '',
+    referenceRecord: uiField.referenceRecord || null,
+    referenceTargetApiName: uiField.referenceTargetApiName || '',
+    referenceTargetApiNames: uiField.referenceTargetApiNames || [],
+    lookupDisplayValue: uiField.displayValue || '',
     picklistUrl: isPicklist
-      ? `/ui-api/object-info/${objectInfo.apiName}/picklist-values/${recordTypeId}/${fieldApiName}`
+      ? `/ui-api/object-info/${objectInfo.apiName}/picklist-values/${recordTypeId}/${effectiveFieldApiName}`
       : null,
   }
 }
 
-function extractReferenceMeta(values, objectInfo, record) {
-  let linkId = ''
-  let linkText = ''
+function mapLayoutItem(item, record, objectInfo, recordTypeId, modeType) {
+  const dedupedValues = []
+  const seenFields = new Set()
 
-  values.forEach((value) => {
-    const fieldInfo = objectInfo?.fields?.[value.field]
-    if (!fieldInfo?.reference || !fieldInfo.relationshipName) return
-
-    const relatedValue = record?.fields?.[fieldInfo.relationshipName]?.value
-    const relatedId = relatedValue?.fields?.Id?.value
-    const relatedName = relatedValue?.fields?.Name?.value
-
-    if (relatedId && relatedName) {
-      linkId = relatedId
-      linkText = relatedName
-    }
-  })
-
-  return { linkId, linkText }
-}
-
-function mapLayoutItem(item, record, objectInfo, recordTypeId) {
-  const values = (item?.layoutComponents || [])
+  ;(item?.layoutComponents || [])
     .filter((component) => component?.componentType === 'Field')
-    .map((component) => normalizeFieldComponent(component, item, record, objectInfo, recordTypeId))
-    .filter(Boolean)
+    .forEach((component) => {
+      const normalized = normalizeFieldComponent(
+        component,
+        item,
+        record,
+        objectInfo,
+        recordTypeId,
+        modeType
+      )
 
-  const { linkId, linkText } = extractReferenceMeta(values, objectInfo, record)
+      if (!normalized || seenFields.has(normalized.field)) {
+        return
+      }
+
+      seenFields.add(normalized.field)
+      dedupedValues.push(normalized)
+    })
+
+  const firstReference = dedupedValues.find((value) => value?.isLookup && value?.referenceRecordId)
 
   return {
     label: item?.label || '',
-    values,
-    linkId,
-    linkText,
+    values: dedupedValues,
+    linkId: firstReference?.referenceRecordId || '',
+    linkText: firstReference?.lookupDisplayValue || '',
     customLinkUrl: null,
     customText: '',
   }
 }
 
-function mapLayoutRow(layoutRow, record, objectInfo, recordTypeId) {
+function mapLayoutRow(layoutRow, record, objectInfo, recordTypeId, modeType) {
   return {
     items: (layoutRow?.layoutItems || []).map((item) =>
-      mapLayoutItem(item, record, objectInfo, recordTypeId)
+      mapLayoutItem(item, record, objectInfo, recordTypeId, modeType)
     ),
   }
 }
 
-function mapLayoutSection(section, record, objectInfo, recordTypeId) {
+function mapLayoutSection(section, record, objectInfo, recordTypeId, modeType) {
   return {
     heading: section?.heading || '',
     useHeading: Boolean(section?.useHeading),
     rows: (section?.layoutRows || []).map((row) =>
-      mapLayoutRow(row, record, objectInfo, recordTypeId)
+      mapLayoutRow(row, record, objectInfo, recordTypeId, modeType)
     ),
   }
 }
@@ -209,7 +381,7 @@ function buildEditValues(layouts) {
   const editValues = {}
 
   Object.values(layouts).forEach((layoutModes) => {
-    const editSections = layoutModes?.Edit || []
+    const editSections = layoutModes?.Edit || layoutModes?.Create || []
 
     editSections.forEach((section) => {
       section.rows.forEach((row) => {
@@ -275,7 +447,7 @@ export function mapRecordUiToLayoutModel(recordId, recordView) {
 
     Object.entries(layoutModes || {}).forEach(([modeType, layoutRep]) => {
       layouts[layoutType][modeType] = (layoutRep?.sections || []).map((section) =>
-        mapLayoutSection(section, record, objectInfo, recordTypeId)
+        mapLayoutSection(section, record, objectInfo, recordTypeId, modeType)
       )
     })
   })
@@ -320,7 +492,7 @@ export function mapCreateDefaultsToLayoutModel(defaults, objectApiName) {
   const layoutType = layout?.layoutType || 'Full'
   const modeType = layout?.mode || 'Create'
   const sections = (layout?.sections || []).map((section) =>
-    mapLayoutSection(section, record, objectInfo, recordTypeId)
+    mapLayoutSection(section, record, objectInfo, recordTypeId, modeType)
   )
   const layouts = {
     [layoutType]: {

@@ -169,8 +169,9 @@ function fromMultiPicklistSelectOptions(options) {
 }
 
 function readReferenceHref(component) {
-  if (!component?.value) return ''
-  return `/${component.value}`
+  const referenceId = component?.referenceRecordId || component?.value
+  if (!referenceId) return ''
+  return `/${referenceId}`
 }
 
 function readTextValue(component) {
@@ -201,9 +202,88 @@ function readTextValue(component) {
   return String(component.value)
 }
 
+function readCompoundObject(component) {
+  const displayObject =
+    component?.displayValue && typeof component.displayValue === 'object'
+      ? component.displayValue
+      : {}
+  const valueObject =
+    component?.value && typeof component.value === 'object'
+      ? component.value
+      : {}
+
+  return {
+    ...valueObject,
+    ...displayObject,
+  }
+}
+
+function readNameDisplayValue(component) {
+  const data = readCompoundObject(component)
+
+  return [
+    data.Salutation,
+    data.FirstName,
+    data.MiddleName,
+    data.LastName,
+    data.Suffix,
+    data.InformalName,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+}
+
+function readAddressDisplayValue(component) {
+  const data = readCompoundObject(component)
+  const lineOne = [data.Street].filter(Boolean).join(' ')
+  const lineTwo = [data.City, data.State, data.PostalCode].filter(Boolean).join(', ')
+  const lineThree = [data.Country].filter(Boolean).join(' ')
+
+  return [lineOne, lineTwo, lineThree].filter(Boolean)
+}
+
+function readLocationDisplayValue(component) {
+  const latitude = component?.value?.latitude
+  const longitude = component?.value?.longitude
+
+  if (latitude === null || latitude === undefined || longitude === null || longitude === undefined) {
+    return ''
+  }
+
+  return `${latitude}, ${longitude}`
+}
+
+function readLocationHref(component) {
+  const latitude = component?.value?.latitude
+  const longitude = component?.value?.longitude
+
+  if (latitude === null || latitude === undefined || longitude === null || longitude === undefined) {
+    return ''
+  }
+
+  return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+}
+
 function resolveReadOnlyValue(component) {
   const fieldInfo = component?.fieldInfo || {}
   const fieldDataType = fieldInfo?.dataType
+
+  if (component?.isCompoundField && fieldInfo?.extraTypeInfo === 'PersonName') {
+    return readNameDisplayValue(component)
+  }
+
+  if (component?.isCompoundField && fieldInfo?.extraTypeInfo === 'SwitchablePersonName') {
+    return readNameDisplayValue(component)
+  }
+
+  if (component?.isCompoundField && fieldDataType === 'Address') {
+    return readAddressDisplayValue(component).join('\n')
+  }
+
+  if (fieldDataType === 'Location') {
+    return readLocationDisplayValue(component)
+  }
 
   if (fieldDataType === 'Phone' || fieldDataType === 'Fax') {
     return formatIndonesianPhoneNumber(component?.displayValue || component?.value || '')
@@ -306,6 +386,35 @@ function renderReadOnlyContent(component, readOnlyClassName) {
 
   if (fieldDataType === 'Url') {
     const href = String(component?.value || component?.displayValue || '')
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={`${textClassName} inline-flex text-orange-600 underline decoration-orange-200 underline-offset-4`}
+      >
+        {displayValue}
+      </a>
+    )
+  }
+
+  if (component?.isCompoundField && fieldDataType === 'Address') {
+    return (
+      <div className={`${textClassName} space-y-1 whitespace-pre-wrap`}>
+        {readAddressDisplayValue(component).map((line, index) => (
+          <p key={`${component?.field || 'address'}-${index}`}>{line}</p>
+        ))}
+      </div>
+    )
+  }
+
+  if (fieldDataType === 'Location') {
+    const href = readLocationHref(component)
+
+    if (!href) {
+      return <p className={textClassName}>{displayValue || EMPTY_TEXT}</p>
+    }
+
     return (
       <a
         href={href}
