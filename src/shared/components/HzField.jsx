@@ -236,9 +236,11 @@ function readNameDisplayValue(component) {
 
 function readAddressDisplayValue(component) {
   const data = readCompoundObject(component)
+  const stateValue = data.StateCode || data.State || ''
+  const countryValue = data.CountryCode || data.Country || ''
   const lineOne = [data.Street].filter(Boolean).join(' ')
-  const lineTwo = [data.City, data.State, data.PostalCode].filter(Boolean).join(', ')
-  const lineThree = [data.Country].filter(Boolean).join(' ')
+  const lineTwo = [data.City, stateValue, data.PostalCode].filter(Boolean).join(', ')
+  const lineThree = [countryValue].filter(Boolean).join(' ')
 
   return [lineOne, lineTwo, lineThree].filter(Boolean)
 }

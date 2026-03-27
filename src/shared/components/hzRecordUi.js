@@ -172,6 +172,15 @@ function getLocationValue(fieldApiName, record, objectInfo) {
   }
 }
 
+function normalizeCompoundChildKey(fieldApiName, childField, fieldInfo) {
+  if (fieldInfo?.dataType === 'Address') {
+    const prefix = fieldApiName.replace(/Address$/, '')
+    return prefix ? childField.replace(prefix, '') : childField
+  }
+
+  return childField
+}
+
 function getCompoundFieldData(fieldApiName, record, fieldInfo, objectInfo) {
   if (fieldInfo?.dataType === 'Location') {
     return {
@@ -188,12 +197,14 @@ function getCompoundFieldData(fieldApiName, record, fieldInfo, objectInfo) {
     const childRecordField = record?.fields?.[childField]
     if (!childFieldInfo || !childRecordField) return
 
-    value[childField] = childRecordField.value
+    const normalizedChildKey = normalizeCompoundChildKey(fieldApiName, childField, fieldInfo)
+
+    value[normalizedChildKey] = childRecordField.value
 
     if (isLocalizedFieldType(childFieldInfo.dataType)) {
-      displayValue[childField] = childRecordField.displayValue
+      displayValue[normalizedChildKey] = childRecordField.displayValue
     } else if (childRecordField.displayValue !== undefined && childRecordField.displayValue !== null) {
-      displayValue[childField] = childRecordField.displayValue
+      displayValue[normalizedChildKey] = childRecordField.displayValue
     }
   })
 
@@ -283,6 +294,14 @@ function getEffectiveFieldApiName(component, objectInfo, modeType) {
   return fieldInfo.compoundFieldName || fieldApiName
 }
 
+function resolveFieldLabel(item, component, uiField, effectiveFieldApiName, modeType) {
+  if (VIEW_LIKE_MODES.has(modeType)) {
+    return item?.label || component?.label || uiField.label || effectiveFieldApiName
+  }
+
+  return component?.label || uiField.label || item?.label || effectiveFieldApiName
+}
+
 function normalizeFieldComponent(component, item, record, objectInfo, recordTypeId, modeType) {
   const rawFieldApiName = component?.apiName
   const effectiveFieldApiName = getEffectiveFieldApiName(component, objectInfo, modeType)
@@ -294,7 +313,13 @@ function normalizeFieldComponent(component, item, record, objectInfo, recordType
 
   const isPicklist =
     uiField.dataType === 'Picklist' || uiField.dataType === 'Multipicklist'
-  const resolvedLabel = item?.label || component?.label || uiField.label || effectiveFieldApiName
+  const resolvedLabel = resolveFieldLabel(
+    item,
+    component,
+    uiField,
+    effectiveFieldApiName,
+    modeType
+  )
 
   return {
     label: resolvedLabel,
