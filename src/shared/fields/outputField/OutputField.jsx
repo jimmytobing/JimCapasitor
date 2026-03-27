@@ -6,9 +6,9 @@ import {
   readLocationHref,
   readReferenceHref,
   resolveReadOnlyValue,
-} from '../fieldShared/fieldShared.js'
+} from '../fieldShared/index.js'
 
-export default function HzOutputField({
+export default function OutputField({
   component,
   readOnlyClassName = 'mt-2 text-sm leading-6 text-slate-700',
 }) {

@@ -23,8 +23,8 @@ import EditActivityCategoryPage from '../features/activity/EditActivityCategoryP
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
 import SettingsPage from '../features/settings/SettingsPage.jsx'
-import { HzListView } from '../shared/list/index.js'
-import { HzRecordPage } from '../shared/record/index.js'
+import { ListView } from '../shared/list/index.js'
+import { RecordPage as SalesforceRecordPage } from '../shared/record/index.js'
 
 function isSalesforceRecordId(value = '') {
   return /^[a-zA-Z0-9]{15}(?:[a-zA-Z0-9]{3})?$/.test(value)
@@ -57,7 +57,7 @@ function RecordOrListRoute({ showToast }) {
   const { recordId = '' } = useParams()
 
   if (isSalesforceRecordId(recordId)) {
-    return <HzRecordPage showToast={showToast} />
+    return <SalesforceRecordPage showToast={showToast} />
   }
 
   return <Navigate to={`/o/${recordId}`} replace />
@@ -113,8 +113,8 @@ export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
       <Route path="/vina/:recordId" element={<LegacyVinaRecordRedirect />} />
       <Route path="/vina/:objectApiName/new" element={<LegacyVinaObjectNewRedirect />} />
       <Route path="/vina/:objectApiName/:recordId" element={<LegacyVinaObjectRecordRedirect />} />
-      <Route path="/o/:objectApiName" element={<HzListView showToast={showToast} />} />
-      <Route path="/o/:objectApiName/new" element={<HzRecordPage showToast={showToast} />} />
+      <Route path="/o/:objectApiName" element={<ListView showToast={showToast} />} />
+      <Route path="/o/:objectApiName/new" element={<SalesforceRecordPage showToast={showToast} />} />
       <Route path="/:recordId" element={<RecordOrListRoute showToast={showToast} />} />
       <Route
         path="/settings"

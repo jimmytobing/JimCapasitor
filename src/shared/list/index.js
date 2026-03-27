@@ -1,5 +1,5 @@
-export { default as HzListView } from './HzListView.jsx'
-export { useHzListView } from './useHzListView.js'
+export { default as ListView } from './ListView.jsx'
+export { useListView } from './useListView.js'
 
 export {
   buildListQuery,

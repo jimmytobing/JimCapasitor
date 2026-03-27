@@ -2,16 +2,16 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import BottomStickyNav from '../components/BottomStickyNav.jsx'
 import PageShell from '../components/PageShell.jsx'
 import { formatObjectTitle } from './listViewUtils.js'
-import { useHzListView } from './useHzListView.js'
+import { useListView } from './useListView.js'
 
-export default function HzListView({ showToast, defaultObjectApiName = 'Account' }) {
+export default function ListView({ showToast, defaultObjectApiName = 'Account' }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { objectApiName: routeObjectApiName = '' } = useParams()
   const objectApiName = routeObjectApiName || defaultObjectApiName
   const objectTitle = formatObjectTitle(objectApiName)
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const { cards, error, loadingMessage } = useHzListView(objectApiName)
+  const { cards, error, loadingMessage } = useListView(objectApiName)
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">

@@ -1,7 +1,7 @@
-import HzRecordItem from '../../components/HzRecordItem.jsx'
-import { getSectionKey, resolveSectionHeading } from '../recordSectionUtils/recordSectionUtils.js'
+import RecordItem from '../../components/RecordItem.jsx'
+import { getSectionKey, resolveSectionHeading } from '../recordSectionUtils/index.js'
 
-export default function HzRecordForm({
+export default function RecordForm({
   sections = [],
   collapsedSections,
   onToggleSection,
@@ -52,7 +52,7 @@ export default function HzRecordForm({
                 const resolvedItem = resolveItem?.(item) || item
 
                 return (
-                  <HzRecordItem
+                  <RecordItem
                     key={`${sectionKey}-${rowIndex}-${itemIndex}`}
                     item={resolvedItem}
                     editContext={editContext}

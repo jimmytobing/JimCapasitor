@@ -10,9 +10,9 @@ import {
   toDateInputValue,
   toDateTimeLocalInputValue,
   toMultiPicklistArray,
-} from '../fieldShared/fieldShared.js'
+} from '../fieldShared/index.js'
 
-export default function HzInputField({
+export default function InputField({
   component,
   editValue,
   picklist,

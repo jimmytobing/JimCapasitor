@@ -18,7 +18,7 @@ async function resolveTitleField(objectApiName) {
   }
 }
 
-export function useHzListView(objectApiName) {
+export function useListView(objectApiName) {
   const [cards, setCards] = useState([])
   const [error, setError] = useState('')
   const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')

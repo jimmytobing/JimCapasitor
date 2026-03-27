@@ -1,17 +1,13 @@
-export { default as HzRecordForm } from './recordForm/HzRecordForm.jsx'
-export { default as HzRecordPage } from './recordForm/HzRecordPage.jsx'
-export { default as HzRecordViewForm } from './recordViewForm/HzRecordViewForm.jsx'
-
-export { useHzRecordForm } from './recordEditForm/useHzRecordForm.js'
-
+export { RecordForm, RecordPage } from './recordForm/index.js'
+export { RecordViewForm } from './recordViewForm/index.js'
 export {
   buildCreateRecordPayload,
   buildRecordUpdatePayload,
   mapCreateDefaultsToLayoutModel,
   mapRecentItemsToCards,
   mapRecordUiToLayoutModel,
-} from './recordEditForm/hzRecordUi.js'
-
+  useRecordForm,
+} from './recordEditForm/index.js'
 export {
   buildMissingRequiredErrorMessage,
   buildMissingRequiredFieldErrors,
@@ -20,15 +16,13 @@ export {
   extractFieldErrors,
   mergeEditValueState,
   normalizeFieldMatchValue,
-} from './recordEditUtils/recordEditUtils.js'
-
+} from './recordEditUtils/index.js'
 export {
   applyDependentValueCleanup,
   getControllerFieldName,
   getFilteredPicklistValues,
   normalizePicklistMeta,
-} from './fieldDependencyManager/fieldDependencyManager.js'
-
+} from './fieldDependencyManager/index.js'
 export {
   buildUiField,
   formatDateValue,
@@ -39,8 +33,7 @@ export {
   isPersonAccount,
   resolveFieldLabel,
   toDisplayString,
-} from './fieldUtils/fieldUtils.js'
-
+} from './fieldUtils/index.js'
 export {
   formatSectionPreviewValue,
   getSectionKey,
@@ -49,4 +42,4 @@ export {
   resolveSectionHeading,
   resolveSectionPreview,
   resolveViewItemLabel,
-} from './recordSectionUtils/recordSectionUtils.js'
+} from './recordSectionUtils/index.js'

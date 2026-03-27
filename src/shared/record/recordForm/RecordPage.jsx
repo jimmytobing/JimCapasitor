@@ -3,16 +3,16 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getStoredUsername } from '../../auth/session.js'
 import BottomStickyNav from '../../components/BottomStickyNav.jsx'
 import PageShell from '../../components/PageShell.jsx'
-import HzRecordForm from './HzRecordForm.jsx'
-import HzRecordViewForm from '../recordViewForm/HzRecordViewForm.jsx'
+import RecordForm from './RecordForm.jsx'
+import RecordViewForm from '../recordViewForm/RecordViewForm.jsx'
 import {
   getSectionKey,
   resolveItemValues,
   resolveViewItemLabel,
-} from '../recordSectionUtils/recordSectionUtils.js'
-import { useHzRecordForm } from '../recordEditForm/useHzRecordForm.js'
+} from '../recordSectionUtils/index.js'
+import { useRecordForm } from '../recordEditForm/useRecordForm.js'
 
-export default function HzRecordPage({ showToast, defaultObjectApiName = 'Account' }) {
+export default function RecordPage({ showToast, defaultObjectApiName = 'Account' }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { objectApiName: routeObjectApiName = '', recordId = '' } = useParams()
@@ -40,7 +40,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
     saveRecord,
     updateFieldValue,
     updateLookupValue,
-  } = useHzRecordForm(objectApiName, recordId, showToast)
+  } = useRecordForm(objectApiName, recordId, showToast)
   const currentUsername = getStoredUsername().toLowerCase()
   const shouldShowLookupReferenceCard =
     !isCreateMode && mode === 'View' && currentUsername === 'jimmy.bfipbf@gmail.com'
@@ -309,7 +309,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
 
             {renderErrorSection()}
             {mode === 'View' && !isCreateMode ? (
-              <HzRecordViewForm
+              <RecordViewForm
                 sections={activeSections}
                 collapsedSections={collapsedSections}
                 onToggleSection={toggleSection}
@@ -340,7 +340,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                 onInlineEdit={handleInlineEdit}
               />
             ) : (
-              <HzRecordForm
+              <RecordForm
                 sections={activeSections}
                 collapsedSections={collapsedSections}
                 onToggleSection={toggleSection}

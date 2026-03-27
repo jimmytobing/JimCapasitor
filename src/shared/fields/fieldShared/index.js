@@ -1,6 +1,3 @@
-export { InputField } from './inputField/index.js'
-export { OutputField } from './outputField/index.js'
-
 export {
   EMPTY_TEXT,
   formatDateDisplay,
@@ -24,4 +21,4 @@ export {
   toDateInputValue,
   toDateTimeLocalInputValue,
   toMultiPicklistArray,
-} from './fieldShared/index.js'
+} from './fieldShared.js'

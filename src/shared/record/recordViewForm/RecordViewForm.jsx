@@ -1,7 +1,7 @@
-import HzRecordForm from '../recordForm/HzRecordForm.jsx'
-import { resolveSectionPreview } from '../recordSectionUtils/recordSectionUtils.js'
+import RecordForm from '../recordForm/RecordForm.jsx'
+import { resolveSectionPreview } from '../recordSectionUtils/index.js'
 
-export default function HzRecordViewForm({
+export default function RecordViewForm({
   sections,
   collapsedSections,
   onToggleSection,
@@ -13,7 +13,7 @@ export default function HzRecordViewForm({
   onInlineEdit,
 }) {
   return (
-    <HzRecordForm
+    <RecordForm
       sections={sections}
       collapsedSections={collapsedSections}
       onToggleSection={onToggleSection}

@@ -2,6 +2,13 @@
 
 Minimal mobile wallet-style starter using React, Vite, TailwindCSS, and Capacitor.
 
+## Architecture
+
+- Shared architecture reference: [docs/SHARED-ARCHITECTURE.md](docs/SHARED-ARCHITECTURE.md)
+- Record engine lives in `src/shared/record`
+- List engine lives in `src/shared/list`
+- Field renderers live in `src/shared/fields`
+
 ## Dev
 
 ```bash

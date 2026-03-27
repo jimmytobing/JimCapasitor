@@ -18,7 +18,7 @@ import {
   applyDependentValueCleanup,
   getFilteredPicklistValues,
   normalizePicklistMeta,
-} from '../fieldDependencyManager/fieldDependencyManager.js'
+} from '../fieldDependencyManager/index.js'
 import {
   buildMissingRequiredErrorMessage,
   buildMissingRequiredFieldErrors,
@@ -26,7 +26,7 @@ import {
   collectMissingRequiredFields,
   extractFieldErrors,
   mergeEditValueState,
-} from '../recordEditUtils/recordEditUtils.js'
+} from '../recordEditUtils/index.js'
 
 function getLoadingMessage(isCreateMode, objectApiName) {
   return isCreateMode
@@ -34,7 +34,7 @@ function getLoadingMessage(isCreateMode, objectApiName) {
     : 'Mengambil detail record dari Salesforce...'
 }
 
-export function useHzRecordForm(objectApiName, recordId, showToast) {
+export function useRecordForm(objectApiName, recordId, showToast) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const isCreateMode = !recordId
   const [mode, setMode] = useState('View')

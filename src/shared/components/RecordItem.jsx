@@ -1,6 +1,6 @@
-import HzField from './HzField.jsx'
+import Field from './Field.jsx'
 
-export default function HzRecordItem({
+export default function RecordItem({
   item,
   editContext,
   picklistContext,
@@ -86,7 +86,7 @@ export default function HzRecordItem({
           {component?.fieldInfo?.inlineHelpText ? (
             <p className="mt-1 text-xs leading-5 text-slate-500">{component.fieldInfo.inlineHelpText}</p>
           ) : null}
-          <HzField
+          <Field
             component={component}
             editValue={editValues?.[component.field]}
             canEdit={Boolean(canEditComponent?.(component))}
