@@ -1,7 +1,7 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import BottomStickyNav from '../components/BottomStickyNav.jsx'
 import PageShell from '../components/PageShell.jsx'
-import { formatObjectTitle } from './listViewUtils.js'
+import { buildFiltersFromSearchParams, formatObjectTitle } from './listViewUtils.js'
 import { useListView } from './useListView.js'
 
 export default function ListView({ showToast, defaultObjectApiName = 'Account' }) {
@@ -10,8 +10,9 @@ export default function ListView({ showToast, defaultObjectApiName = 'Account' }
   const { objectApiName: routeObjectApiName = '' } = useParams()
   const objectApiName = routeObjectApiName || defaultObjectApiName
   const objectTitle = formatObjectTitle(objectApiName)
+  const filters = buildFiltersFromSearchParams(new URLSearchParams(location.search))
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const { cards, error, loadingMessage } = useListView(objectApiName)
+  const { cards, error, loadingMessage } = useListView(objectApiName, filters)
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">

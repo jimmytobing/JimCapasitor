@@ -18,10 +18,11 @@ async function resolveTitleField(objectApiName) {
   }
 }
 
-export function useListView(objectApiName) {
+export function useListView(objectApiName, filters = []) {
   const [cards, setCards] = useState([])
   const [error, setError] = useState('')
   const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
+  const filtersKey = JSON.stringify(filters)
 
   useEffect(() => {
     let isMounted = true
@@ -32,7 +33,7 @@ export function useListView(objectApiName) {
 
       try {
         const titleFieldName = await resolveTitleField(objectApiName)
-        const records = await getRecords(buildListQuery(objectApiName, titleFieldName))
+        const records = await getRecords(buildListQuery(objectApiName, titleFieldName, filters))
 
         if (!isMounted) return
 
@@ -59,7 +60,7 @@ export function useListView(objectApiName) {
     return () => {
       isMounted = false
     }
-  }, [objectApiName])
+  }, [filtersKey, objectApiName])
 
   return {
     cards,
