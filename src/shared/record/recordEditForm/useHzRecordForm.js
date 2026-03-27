@@ -7,166 +7,34 @@ import {
   fetchRecordUi,
   searchLookupRecords,
   updateRecord,
-} from '../services/salesforce.js'
+} from '../../services/salesforce.js'
 import {
   buildCreateRecordPayload,
   buildRecordUpdatePayload,
   mapCreateDefaultsToLayoutModel,
   mapRecordUiToLayoutModel,
 } from './hzRecordUi.js'
+import {
+  applyDependentValueCleanup,
+  getFilteredPicklistValues,
+  normalizePicklistMeta,
+} from '../fieldDependencyManager/fieldDependencyManager.js'
+import {
+  buildMissingRequiredErrorMessage,
+  buildMissingRequiredFieldErrors,
+  clearFieldError,
+  collectMissingRequiredFields,
+  extractFieldErrors,
+  mergeEditValueState,
+} from '../recordEditUtils/recordEditUtils.js'
 
-function mergeEditValueState(currentState, fieldName, nextValue, extras = {}) {
-  return {
-    ...currentState,
-    [fieldName]: {
-      ...currentState[fieldName],
-      current: nextValue,
-      ...extras,
-    },
-  }
+function getLoadingMessage(isCreateMode, objectApiName) {
+  return isCreateMode
+    ? `Mengambil create defaults ${objectApiName}...`
+    : 'Mengambil detail record dari Salesforce...'
 }
 
-function collectMissingRequiredFields(editValues = {}) {
-  return Object.values(editValues)
-    .filter((value) => value?.required)
-    .filter((value) => value?.current === null || value?.current === undefined || value?.current === '')
-    .map((value) => value?.label || '')
-    .filter(Boolean)
-}
-
-function buildMissingRequiredFieldErrors(editValues = {}) {
-  return Object.entries(editValues)
-    .filter(([, value]) => value?.required)
-    .filter(([, value]) => value?.current === null || value?.current === undefined || value?.current === '')
-    .reduce((result, [fieldName, value]) => {
-      result[fieldName] = `${value?.label || fieldName} wajib diisi.`
-      return result
-    }, {})
-}
-
-function normalizeFieldMatchValue(value) {
-  return String(value || '')
-    .trim()
-    .toLowerCase()
-}
-
-function extractFieldErrors(message, editValues = {}) {
-  if (!message) return {}
-
-  const entries = Object.entries(editValues || {})
-  if (entries.length === 0) return {}
-
-  const result = {}
-  const fieldMessageParts = String(message)
-    .split(/\n+/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-
-  fieldMessageParts.forEach((part) => {
-    const separatorIndex = part.indexOf(':')
-    if (separatorIndex <= 0) return
-
-    const rawFieldName = part.slice(0, separatorIndex).trim()
-    const fieldMessage = part.slice(separatorIndex + 1).trim() || part
-    const normalizedRawFieldName = normalizeFieldMatchValue(rawFieldName)
-
-    const matchedFieldEntry = entries.find(([fieldApiName, fieldValue]) => {
-      const candidates = [
-        fieldApiName,
-        fieldValue?.label,
-        fieldValue?.fieldInfo?.label,
-      ]
-
-      return candidates.some(
-        (candidate) => candidate && normalizeFieldMatchValue(candidate) === normalizedRawFieldName
-      )
-    })
-
-    if (!matchedFieldEntry) return
-    result[matchedFieldEntry[0]] = fieldMessage
-  })
-
-  return result
-}
-
-function getControllerFieldName(fieldInfo = {}) {
-  return (
-    fieldInfo?.controllerName ||
-    fieldInfo?.controllingField ||
-    fieldInfo?.controllingFields?.[0] ||
-    ''
-  )
-}
-
-function normalizePicklistMeta(result, fieldApiName, fieldInfo = {}) {
-  return {
-    ...result,
-    fieldApiName,
-    controllerName: getControllerFieldName(fieldInfo),
-    values: Array.isArray(result?.values) ? result.values : [],
-    controllerValues: result?.controllerValues || {},
-  }
-}
-
-function getFilteredPicklistValues(picklistMeta, controllerValue) {
-  const options = Array.isArray(picklistMeta?.values) ? picklistMeta.values : []
-  const controllerValues = picklistMeta?.controllerValues || {}
-  const hasController = Boolean(picklistMeta?.controllerName) && Object.keys(controllerValues).length > 0
-
-  if (!hasController) {
-    return options
-  }
-
-  if (controllerValue === null || controllerValue === undefined || controllerValue === '') {
-    return []
-  }
-
-  const controllerIndex = controllerValues[controllerValue]
-  if (controllerIndex === null || controllerIndex === undefined) {
-    return []
-  }
-
-  return options.filter((option) => Array.isArray(option?.validFor) && option.validFor.includes(controllerIndex))
-}
-
-function applyDependentValueCleanup(nextEditValues, changedFieldName, picklists) {
-  const nextState = { ...nextEditValues }
-
-  Object.values(picklists || {}).forEach((picklistMeta) => {
-    if (picklistMeta?.controllerName !== changedFieldName) {
-      return
-    }
-
-    const dependentFieldName = picklistMeta?.fieldApiName
-    const dependentFieldState = nextState?.[dependentFieldName]
-    if (!dependentFieldState) {
-      return
-    }
-
-    const controllerValue = nextState?.[changedFieldName]?.current
-    const allowedValues = getFilteredPicklistValues(picklistMeta, controllerValue)
-    const currentValue = dependentFieldState?.current
-    const isCurrentValueAllowed =
-      currentValue === null ||
-      currentValue === undefined ||
-      currentValue === '' ||
-      allowedValues.some((option) => option?.value === currentValue)
-
-    if (isCurrentValueAllowed) {
-      return
-    }
-
-    nextState[dependentFieldName] = {
-      ...dependentFieldState,
-      current: '',
-      displayCurrent: '',
-    }
-  })
-
-  return nextState
-}
-
-export function useHzRecordPage(objectApiName, recordId, showToast) {
+export function useHzRecordForm(objectApiName, recordId, showToast) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const isCreateMode = !recordId
   const [mode, setMode] = useState('View')
@@ -176,9 +44,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [loadingMessage, setLoadingMessage] = useState(
-    isCreateMode
-      ? `Mengambil create defaults ${objectApiName}...`
-      : 'Mengambil detail record dari Salesforce...'
+    getLoadingMessage(isCreateMode, objectApiName)
   )
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -187,11 +53,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     let isMounted = true
 
     void (async () => {
-      setLoadingMessage(
-        isCreateMode
-          ? `Mengambil create defaults ${objectApiName}...`
-          : 'Mengambil detail record dari Salesforce...'
-      )
+      setLoadingMessage(getLoadingMessage(isCreateMode, objectApiName))
       setError('')
       setFieldErrors({})
 
@@ -199,16 +61,19 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
         const response = isCreateMode
           ? await fetchCreateDefaults(objectApiName)
           : await fetchRecordUi(recordId)
+
         if (!isMounted) return
 
         const model = isCreateMode
           ? mapCreateDefaultsToLayoutModel(response, objectApiName)
           : mapRecordUiToLayoutModel(recordId, response)
+
         setRecordView(model)
         setEditValues(model.editValues)
         setMode(isCreateMode ? 'Create' : 'View')
       } catch (err) {
         if (!isMounted) return
+
         setRecordView(null)
         setEditValues({})
         setFieldErrors({})
@@ -263,11 +128,16 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     }, {})
   }, [editValues, picklists])
 
-  async function ensurePicklist(url, objectApiName, currentRecordTypeId, fieldApiName, fieldInfo) {
+  async function ensurePicklist(url, targetObjectApiName, currentRecordTypeId, fieldApiName, fieldInfo) {
     if (!url || picklists[url]) return
 
     try {
-      const result = await fetchPicklistValues(objectApiName, currentRecordTypeId, fieldApiName)
+      const result = await fetchPicklistValues(
+        targetObjectApiName,
+        currentRecordTypeId,
+        fieldApiName
+      )
+
       setPicklists((current) => ({
         ...current,
         [url]: normalizePicklistMeta(result, fieldApiName, fieldInfo),
@@ -279,13 +149,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
   }
 
   function updateFieldValue(fieldName, nextValue) {
-    setFieldErrors((current) => {
-      if (!current[fieldName]) return current
-
-      const nextErrors = { ...current }
-      delete nextErrors[fieldName]
-      return nextErrors
-    })
+    setFieldErrors((current) => clearFieldError(current, fieldName))
     setEditValues((current) => {
       const nextState = mergeEditValueState(current, fieldName, nextValue)
       return applyDependentValueCleanup(nextState, fieldName, picklists)
@@ -293,13 +157,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
   }
 
   function updateLookupValue(fieldName, nextValue, displayValue = '') {
-    setFieldErrors((current) => {
-      if (!current[fieldName]) return current
-
-      const nextErrors = { ...current }
-      delete nextErrors[fieldName]
-      return nextErrors
-    })
+    setFieldErrors((current) => clearFieldError(current, fieldName))
     setEditValues((current) =>
       applyDependentValueCleanup(
         mergeEditValueState(current, fieldName, nextValue, {
@@ -319,9 +177,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       return []
     }
 
-    return searchLookupRecords(targetObjectApiName, searchTerm, {
-      limit: 8,
-    })
+    return searchLookupRecords(targetObjectApiName, searchTerm, { limit: 8 })
   }
 
   function enterEditMode() {
@@ -331,6 +187,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
 
   function cancelEditMode() {
     if (!recordView) return
+
     setEditValues(recordView.editValues)
     setFieldErrors({})
     setMode(isCreateMode ? 'Create' : 'View')
@@ -342,8 +199,9 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     }
 
     const missingRequiredFields = collectMissingRequiredFields(editValues)
+
     if (missingRequiredFields.length > 0) {
-      setError(`Field wajib belum diisi: ${missingRequiredFields.join(', ')}`)
+      setError(buildMissingRequiredErrorMessage(editValues))
       setFieldErrors(buildMissingRequiredFieldErrors(editValues))
       return false
     }
@@ -360,9 +218,12 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       setIsSaving(true)
       setError('')
       setFieldErrors({})
-      await updateRecord(recordView?.apiName || 'Account', recordId, payload.fields)
+
+      await updateRecord(recordView?.apiName || objectApiName || 'Account', recordId, payload.fields)
+
       const refreshed = await fetchRecordUi(recordId)
       const model = mapRecordUiToLayoutModel(recordId, refreshed)
+
       setRecordView(model)
       setEditValues(model.editValues)
       setMode('View')
@@ -384,8 +245,9 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     }
 
     const missingRequiredFields = collectMissingRequiredFields(editValues)
+
     if (missingRequiredFields.length > 0) {
-      setError(`Field wajib belum diisi: ${missingRequiredFields.join(', ')}`)
+      setError(buildMissingRequiredErrorMessage(editValues))
       setFieldErrors(buildMissingRequiredFieldErrors(editValues))
       return null
     }

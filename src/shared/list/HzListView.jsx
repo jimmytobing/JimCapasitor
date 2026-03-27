@@ -1,11 +1,8 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import BottomStickyNav from './BottomStickyNav.jsx'
-import PageShell from './PageShell.jsx'
+import BottomStickyNav from '../components/BottomStickyNav.jsx'
+import PageShell from '../components/PageShell.jsx'
+import { formatObjectTitle } from './listViewUtils.js'
 import { useHzListView } from './useHzListView.js'
-
-function formatObjectTitle(objectApiName) {
-  return objectApiName.replace(/__/g, ' ').replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-}
 
 export default function HzListView({ showToast, defaultObjectApiName = 'Account' }) {
   const location = useLocation()

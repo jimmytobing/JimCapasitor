@@ -23,8 +23,8 @@ import EditActivityCategoryPage from '../features/activity/EditActivityCategoryP
 import ChatPage from '../features/chat/ChatPage.jsx'
 import ChatDetailPage from '../features/chat/ChatDetailPage.jsx'
 import SettingsPage from '../features/settings/SettingsPage.jsx'
-import HzListView from '../shared/components/HzListView.jsx'
-import HzRecordPage from '../shared/components/HzRecordPage.jsx'
+import { HzListView } from '../shared/list/index.js'
+import { HzRecordPage } from '../shared/record/index.js'
 
 function isSalesforceRecordId(value = '') {
   return /^[a-zA-Z0-9]{15}(?:[a-zA-Z0-9]{3})?$/.test(value)
