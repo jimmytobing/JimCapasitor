@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import BottomStickyNav from './BottomStickyNav.jsx'
 import PageShell from './PageShell.jsx'
 import { useHzListView } from './useHzListView.js'
@@ -8,6 +8,7 @@ function formatObjectTitle(objectApiName) {
 }
 
 export default function HzListView({ showToast, defaultObjectApiName = 'Account' }) {
+  const location = useLocation()
   const navigate = useNavigate()
   const { objectApiName: routeObjectApiName = '' } = useParams()
   const objectApiName = routeObjectApiName || defaultObjectApiName
@@ -53,7 +54,14 @@ export default function HzListView({ showToast, defaultObjectApiName = 'Account'
                 <button
                   type="button"
                   className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm"
-                  onClick={() => navigate(`/${objectApiName}/new`)}
+                  onClick={() =>
+                    navigate(`/o/${objectApiName}/new`, {
+                      state: {
+                        from: location.pathname,
+                        objectApiName,
+                      },
+                    })
+                  }
                 >
                   {`Add New ${objectTitle}`}
                 </button>
@@ -79,10 +87,11 @@ export default function HzListView({ showToast, defaultObjectApiName = 'Account'
                   type="button"
                   className="w-full rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-orange-100 transition hover:-translate-y-0.5 hover:shadow-md"
                   onClick={() => {
-                    navigate(`/${item.objectType}/${item.id}`, {
+                    navigate(`/${item.id}`, {
                       state: {
                         card: item,
                         objectApiName: item.objectType,
+                        from: location.pathname,
                       },
                     })
                   }}

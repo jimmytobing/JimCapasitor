@@ -27,26 +27,26 @@ import HzListView from '../shared/components/HzListView.jsx'
 import HzRecordPage from '../shared/components/HzRecordPage.jsx'
 
 function LegacyVinaNewRedirect() {
-  return <Navigate to="/Account/new" replace />
+  return <Navigate to="/o/Account/new" replace />
 }
 
 function LegacyVinaListRedirect() {
-  return <Navigate to="/Account" replace />
+  return <Navigate to="/o/Account" replace />
 }
 
 function LegacyVinaRecordRedirect() {
   const { recordId = '' } = useParams()
-  return <Navigate to={`/Account/${recordId}`} replace />
+  return <Navigate to={`/${recordId}`} replace />
 }
 
 function LegacyVinaObjectNewRedirect() {
   const { objectApiName = 'Account' } = useParams()
-  return <Navigate to={`/${objectApiName}/new`} replace />
+  return <Navigate to={`/o/${objectApiName}/new`} replace />
 }
 
 function LegacyVinaObjectRecordRedirect() {
-  const { objectApiName = 'Account', recordId = '' } = useParams()
-  return <Navigate to={`/${objectApiName}/${recordId}`} replace />
+  const { recordId = '' } = useParams()
+  return <Navigate to={`/${recordId}`} replace />
 }
 
 export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
@@ -99,9 +99,9 @@ export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
       <Route path="/vina/:recordId" element={<LegacyVinaRecordRedirect />} />
       <Route path="/vina/:objectApiName/new" element={<LegacyVinaObjectNewRedirect />} />
       <Route path="/vina/:objectApiName/:recordId" element={<LegacyVinaObjectRecordRedirect />} />
-      <Route path="/:objectApiName" element={<HzListView showToast={showToast} />} />
-      <Route path="/:objectApiName/new" element={<HzRecordPage showToast={showToast} />} />
-      <Route path="/:objectApiName/:recordId" element={<HzRecordPage showToast={showToast} />} />
+      <Route path="/o/:objectApiName" element={<HzListView showToast={showToast} />} />
+      <Route path="/o/:objectApiName/new" element={<HzRecordPage showToast={showToast} />} />
+      <Route path="/:recordId" element={<HzRecordPage showToast={showToast} />} />
       <Route
         path="/settings"
         element={

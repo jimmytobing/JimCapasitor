@@ -1,4 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { getStoredUsername } from '../auth/session.js'
 import BottomStickyNav from './BottomStickyNav.jsx'
 import PageShell from './PageShell.jsx'
 import HzRecordItem from './HzRecordItem.jsx'
@@ -32,6 +33,19 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
     updateFieldValue,
     updateLookupValue,
   } = useHzRecordPage(objectApiName, recordId, showToast)
+  const currentUsername = getStoredUsername().toLowerCase()
+  const shouldShowLookupReferenceCard =
+    !isCreateMode && mode === 'View' && currentUsername === 'jimmy.bfipbf@gmail.com'
+  const fallbackPath = `/o/${recordView?.apiName || objectApiName}`
+
+  function handleBack() {
+    if (location.state?.from) {
+      navigate(location.state.from)
+      return
+    }
+
+    navigate(fallbackPath)
+  }
 
   async function handleDelete() {
     const confirmed = window.confirm('Hapus record ini dari Salesforce?')
@@ -39,7 +53,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
 
     const success = await deleteRecord()
     if (success) {
-      navigate(`/${recordView?.apiName || objectApiName}`)
+      navigate(fallbackPath)
     }
   }
 
@@ -47,14 +61,26 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
     if (isCreateMode) {
       const createdRecordId = await createRecord()
       if (createdRecordId) {
-        navigate(`/${objectApiName}/${createdRecordId}`, { replace: true })
+        navigate(`/${createdRecordId}`, {
+          replace: true,
+          state: {
+            from: location.state?.from,
+            objectApiName,
+          },
+        })
       }
       return
     }
 
     const success = await saveRecord()
     if (success) {
-      navigate(`/${recordView?.apiName || objectApiName}/${recordId}`, { replace: true })
+      navigate(`/${recordId}`, {
+        replace: true,
+        state: {
+          from: location.state?.from,
+          objectApiName: recordView?.apiName || objectApiName,
+        },
+      })
     }
   }
 
@@ -77,7 +103,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
   function resolveItemValues(item) {
     const baseValues = item?.values || []
 
-    if (!isCreateMode && mode === 'View' && item?.linkId) {
+    if (shouldShowLookupReferenceCard && item?.linkId) {
       return baseValues.filter((component) => !component.fieldInfo?.reference)
     }
 
@@ -173,7 +199,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
           >
             <button
               className="text-sm font-medium text-white/80"
-              onClick={() => navigate(`/${recordView?.apiName || objectApiName}`)}
+              onClick={handleBack}
             >
               {'< Back'}
             </button>
@@ -282,7 +308,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                           item={{
                             ...item,
                             label:
-                              !isCreateMode && mode === 'View' && item.linkId
+                              shouldShowLookupReferenceCard && item.linkId
                                 ? resolveViewItemLabel(item)
                                 : item.label,
                             values: resolveItemValues(item),
@@ -314,7 +340,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                               ? 'mt-2 text-sm leading-6 text-slate-500'
                               : undefined,
                             referenceCard:
-                              !isCreateMode && item.linkId && mode === 'View' ? (
+                              shouldShowLookupReferenceCard && item.linkId ? (
                                 <div className="mt-2 rounded-2xl bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
                                   <p className="font-semibold text-slate-900">{item.linkText || item.linkId}</p>
                                   <p className="mt-1 text-xs text-slate-500">{item.linkId}</p>
