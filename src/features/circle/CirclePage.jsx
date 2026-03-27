@@ -1,13 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { circleActions, circles } from './circleData.js'
+import { circleActions } from './circleData.js'
+import { useCirclePage } from './useCirclePage.js'
 
 export default function CirclePage({ showToast }) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const [openCircleId, setOpenCircleId] = useState(circles[0]?.id || '')
+  const { circles, error, loadingMessage } = useCirclePage()
+  const [openCircleId, setOpenCircleId] = useState('')
+
+  useEffect(() => {
+    if (!openCircleId && circles[0]?.id) {
+      setOpenCircleId(circles[0].id)
+    }
+  }, [circles, openCircleId])
 
   function handleCircleAction(circle, action) {
     if (action.id === 'chat') {
@@ -52,9 +60,21 @@ export default function CirclePage({ showToast }) {
                   </p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                  4 circles
+                  {circles.length} circles
                 </span>
               </div>
+
+              {loadingMessage ? (
+                <section className="mt-4 rounded-3xl border border-sky-100 bg-sky-50 p-4 text-sm text-sky-700 shadow-sm">
+                  {loadingMessage}
+                </section>
+              ) : null}
+
+              {error ? (
+                <section className="mt-4 rounded-3xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700 shadow-sm">
+                  {error}
+                </section>
+              ) : null}
 
               <div className="mt-4 space-y-3">
                 {circles.map((circle) => (
@@ -68,7 +88,9 @@ export default function CirclePage({ showToast }) {
                           type="button"
                           className="flex flex-1 items-center gap-3 text-left"
                           onClick={() =>
-                            setOpenCircleId((current) => (current === circle.id ? '' : circle.id))
+                            setOpenCircleId((current) =>
+                              current === circle.id ? '' : circle.id
+                            )
                           }
                         >
                           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-sm">
@@ -124,6 +146,11 @@ export default function CirclePage({ showToast }) {
                             </div>
                           </div>
                         ))}
+                        {circle.people?.length === 0 ? (
+                          <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">
+                            Belum ada Contact di circle ini.
+                          </div>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>
