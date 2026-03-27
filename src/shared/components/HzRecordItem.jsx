@@ -37,9 +37,10 @@ export default function HzRecordItem({
   const itemLabelClassName = referenceCard
     ? 'text-sm font-medium text-slate-700'
     : 'text-xs font-semibold uppercase tracking-[0.2em] text-slate-400'
+  const hasAnyFieldError = visibleComponents.some((component) => Boolean(fieldErrors?.[component.field]))
 
   return (
-    <div className="rounded-2xl bg-slate-50 p-4">
+    <div className={`rounded-2xl p-4 ${hasAnyFieldError ? 'bg-rose-50 ring-1 ring-rose-100' : 'bg-slate-50'}`}>
       {shouldShowItemLabel ? (
         <p className={itemLabelClassName}>{item?.label}</p>
       ) : null}
@@ -62,6 +63,9 @@ export default function HzRecordItem({
               </span>
             ) : null}
           </div>
+          {component?.fieldInfo?.inlineHelpText ? (
+            <p className="mt-1 text-xs leading-5 text-slate-500">{component.fieldInfo.inlineHelpText}</p>
+          ) : null}
           <HzField
             component={component}
             editValue={editValues?.[component.field]}

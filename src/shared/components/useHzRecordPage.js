@@ -34,6 +34,16 @@ function collectMissingRequiredFields(editValues = {}) {
     .filter(Boolean)
 }
 
+function buildMissingRequiredFieldErrors(editValues = {}) {
+  return Object.entries(editValues)
+    .filter(([, value]) => value?.required)
+    .filter(([, value]) => value?.current === null || value?.current === undefined || value?.current === '')
+    .reduce((result, [fieldName, value]) => {
+      result[fieldName] = `${value?.label || fieldName} wajib diisi.`
+      return result
+    }, {})
+}
+
 function normalizeFieldMatchValue(value) {
   return String(value || '')
     .trim()
@@ -151,6 +161,12 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     return recordView?.layouts?.Full?.[mode] || []
   }, [isCreateMode, mode, recordView])
 
+  const dirtyFieldsCount = useMemo(
+    () =>
+      Object.values(editValues || {}).filter((value) => value?.original !== value?.current).length,
+    [editValues]
+  )
+
   async function ensurePicklist(url, objectApiName, currentRecordTypeId, fieldApiName) {
     if (!url || picklists[url]) return
 
@@ -222,6 +238,13 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       return false
     }
 
+    const missingRequiredFields = collectMissingRequiredFields(editValues)
+    if (missingRequiredFields.length > 0) {
+      setError(`Field wajib belum diisi: ${missingRequiredFields.join(', ')}`)
+      setFieldErrors(buildMissingRequiredFieldErrors(editValues))
+      return false
+    }
+
     const payload = buildRecordUpdatePayload(editValues)
 
     if (!Object.keys(payload.fields).length) {
@@ -260,7 +283,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     const missingRequiredFields = collectMissingRequiredFields(editValues)
     if (missingRequiredFields.length > 0) {
       setError(`Field wajib belum diisi: ${missingRequiredFields.join(', ')}`)
-      setFieldErrors({})
+      setFieldErrors(buildMissingRequiredFieldErrors(editValues))
       return null
     }
 
@@ -322,6 +345,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     isSaving,
     loadingMessage,
     mode,
+    dirtyFieldsCount,
     picklists,
     recordView,
     searchLookupOptions,

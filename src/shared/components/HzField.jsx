@@ -1,24 +1,7 @@
 import { useEffect, useState } from 'react'
 
-function formatFieldValue(component) {
-  if (component?.fieldInfo?.dataType === 'Phone' || component?.fieldInfo?.dataType === 'Fax') {
-    return formatIndonesianPhoneNumber(component?.displayValue || component?.value || '') || '-'
-  }
-
-  if (component?.fieldInfo?.dataType === 'Email') {
-    return formatEmailValue(component?.displayValue || component?.value || '') || '-'
-  }
-
-  if (component?.displayValue !== null && component?.displayValue !== undefined && component?.displayValue !== '') {
-    return component.displayValue
-  }
-
-  if (component?.value !== null && component?.value !== undefined && component?.value !== '') {
-    return String(component.value)
-  }
-
-  return '-'
-}
+const EMPTY_TEXT = '-'
+const MULTI_PICKLIST_SEPARATOR = ';'
 
 function groupDigits(digits, pattern) {
   const groups = []
@@ -114,6 +97,243 @@ function fromDateTimeLocalInputValue(value) {
   return parsed.toISOString()
 }
 
+function formatDateDisplay(value, withTime = false) {
+  if (!value) return ''
+
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.valueOf())) return String(value)
+
+  if (withTime) {
+    return parsed.toLocaleString('id-ID', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    })
+  }
+
+  return parsed.toLocaleDateString('id-ID', {
+    dateStyle: 'medium',
+  })
+}
+
+function formatNumberDisplay(value, fieldInfo = {}) {
+  if (value === null || value === undefined || value === '') return ''
+
+  const numberValue = Number(value)
+  if (Number.isNaN(numberValue)) return String(value)
+
+  const { dataType, scale = 0 } = fieldInfo
+
+  if (dataType === 'Currency') {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: scale,
+      maximumFractionDigits: scale,
+    }).format(numberValue)
+  }
+
+  if (dataType === 'Percent') {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'percent',
+      minimumFractionDigits: scale,
+      maximumFractionDigits: scale,
+    }).format(numberValue / 100)
+  }
+
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: dataType === 'Int' ? 0 : scale,
+    maximumFractionDigits: dataType === 'Int' ? 0 : scale,
+  }).format(numberValue)
+}
+
+function toMultiPicklistArray(value) {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean)
+  }
+
+  if (!value) {
+    return []
+  }
+
+  return String(value)
+    .split(MULTI_PICKLIST_SEPARATOR)
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function fromMultiPicklistSelectOptions(options) {
+  return Array.from(options)
+    .filter((option) => option.selected)
+    .map((option) => option.value)
+    .join(MULTI_PICKLIST_SEPARATOR)
+}
+
+function readReferenceHref(component) {
+  if (!component?.value) return ''
+  return `/${component.value}`
+}
+
+function readTextValue(component) {
+  if (!component) return ''
+
+  if (
+    component.displayValue !== null &&
+    component.displayValue !== undefined &&
+    component.displayValue !== ''
+  ) {
+    return component.displayValue
+  }
+
+  if (component.value === null || component.value === undefined || component.value === '') {
+    return ''
+  }
+
+  if (Array.isArray(component.value)) {
+    return component.value.join(', ')
+  }
+
+  if (typeof component.value === 'object') {
+    return Object.values(component.value)
+      .filter((item) => item !== null && item !== undefined && item !== '')
+      .join(', ')
+  }
+
+  return String(component.value)
+}
+
+function resolveReadOnlyValue(component) {
+  const fieldInfo = component?.fieldInfo || {}
+  const fieldDataType = fieldInfo?.dataType
+
+  if (fieldDataType === 'Phone' || fieldDataType === 'Fax') {
+    return formatIndonesianPhoneNumber(component?.displayValue || component?.value || '')
+  }
+
+  if (fieldDataType === 'Email') {
+    return formatEmailValue(component?.displayValue || component?.value || '')
+  }
+
+  if (fieldDataType === 'Date') {
+    return formatDateDisplay(component?.displayValue || component?.value, false)
+  }
+
+  if (fieldDataType === 'DateTime') {
+    return formatDateDisplay(component?.displayValue || component?.value, true)
+  }
+
+  if (
+    fieldDataType === 'Currency' ||
+    fieldDataType === 'Int' ||
+    fieldDataType === 'Double' ||
+    fieldDataType === 'Percent'
+  ) {
+    return formatNumberDisplay(component?.value, fieldInfo)
+  }
+
+  if (fieldDataType === 'Multipicklist') {
+    return toMultiPicklistArray(component?.displayValue || component?.value).join(', ')
+  }
+
+  return readTextValue(component)
+}
+
+function isRichTextField(component) {
+  const fieldInfo = component?.fieldInfo || {}
+  return (
+    fieldInfo?.dataType === 'TextArea' &&
+    (fieldInfo?.extraTypeInfo === 'RichTextArea' || fieldInfo?.htmlFormatted)
+  )
+}
+
+function isTextAreaField(component) {
+  return component?.fieldInfo?.dataType === 'TextArea' && !isRichTextField(component)
+}
+
+function renderReadOnlyContent(component, readOnlyClassName) {
+  const fieldInfo = component?.fieldInfo || {}
+  const fieldDataType = fieldInfo?.dataType
+  const displayValue = resolveReadOnlyValue(component)
+  const textClassName = `${readOnlyClassName} break-words`
+
+  if (!displayValue && fieldDataType !== 'Boolean') {
+    return <p className={textClassName}>{EMPTY_TEXT}</p>
+  }
+
+  if (fieldDataType === 'Boolean') {
+    return (
+      <span
+        className={`mt-2 inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+          component?.value
+            ? 'bg-emerald-100 text-emerald-700'
+            : 'bg-slate-200 text-slate-600'
+        }`}
+      >
+        {component?.value ? 'True' : 'False'}
+      </span>
+    )
+  }
+
+  if (component?.isLookup) {
+    const href = readReferenceHref(component)
+
+    if (!href) {
+      return <p className={textClassName}>{displayValue || EMPTY_TEXT}</p>
+    }
+
+    return (
+      <a href={href} className={`${textClassName} inline-flex text-orange-600 underline decoration-orange-200 underline-offset-4`}>
+        {displayValue}
+      </a>
+    )
+  }
+
+  if (fieldDataType === 'Email') {
+    return (
+      <a href={`mailto:${displayValue}`} className={`${textClassName} inline-flex text-orange-600 underline decoration-orange-200 underline-offset-4`}>
+        {displayValue}
+      </a>
+    )
+  }
+
+  if (fieldDataType === 'Phone' || fieldDataType === 'Fax') {
+    const phoneHref = String(component?.value || '').replace(/\s+/g, '')
+    return (
+      <a href={`tel:${phoneHref}`} className={`${textClassName} inline-flex text-orange-600 underline decoration-orange-200 underline-offset-4`}>
+        {displayValue}
+      </a>
+    )
+  }
+
+  if (fieldDataType === 'Url') {
+    const href = String(component?.value || component?.displayValue || '')
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={`${textClassName} inline-flex text-orange-600 underline decoration-orange-200 underline-offset-4`}
+      >
+        {displayValue}
+      </a>
+    )
+  }
+
+  if (isRichTextField(component)) {
+    return (
+      <div
+        className={textClassName}
+        dangerouslySetInnerHTML={{ __html: String(component?.displayValue || component?.value || '') }}
+      />
+    )
+  }
+
+  if (isTextAreaField(component)) {
+    return <p className={`${textClassName} whitespace-pre-wrap`}>{displayValue}</p>
+  }
+
+  return <p className={textClassName}>{displayValue}</p>
+}
+
 export default function HzField({
   component,
   editValue,
@@ -135,12 +355,21 @@ export default function HzField({
   const [lookupLoading, setLookupLoading] = useState(false)
   const [lookupError, setLookupError] = useState('')
   const [isLookupOpen, setIsLookupOpen] = useState(false)
+
   const isLookupField = Boolean(component?.isLookup)
   const fieldDataType = component?.fieldInfo?.dataType
   const isDateField = fieldDataType === 'Date'
   const isDateTimeField = fieldDataType === 'DateTime'
   const isPhoneField = fieldDataType === 'Phone' || fieldDataType === 'Fax'
   const isEmailField = fieldDataType === 'Email'
+  const isUrlField = fieldDataType === 'Url'
+  const isCheckboxField = fieldDataType === 'Boolean'
+  const isNumberField =
+    fieldDataType === 'Currency' ||
+    fieldDataType === 'Int' ||
+    fieldDataType === 'Double' ||
+    fieldDataType === 'Percent'
+  const isMultiPicklistField = fieldDataType === 'Multipicklist'
   const hasFieldError = Boolean(fieldError)
 
   useEffect(() => {
@@ -210,10 +439,33 @@ export default function HzField({
   }`
 
   if (!canEdit) {
-    return <p className={readOnlyClassName}>{formatFieldValue(component)}</p>
+    return renderReadOnlyContent(component, readOnlyClassName)
   }
 
   if (component?.picklistUrl) {
+    if (isMultiPicklistField) {
+      return (
+        <div className="mt-2 space-y-2">
+          <select
+            multiple
+            className={`${inputClassName} min-h-28`}
+            value={toMultiPicklistArray(editValue?.current)}
+            onChange={(event) =>
+              onChange?.(component.field, fromMultiPicklistSelectOptions(event.target.options))
+            }
+          >
+            {(picklist?.values || []).map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
+          <p className="text-xs text-slate-500">Pilih lebih dari satu opsi dengan tap atau klik bertahap.</p>
+        </div>
+      )
+    }
+
     return (
       <div className="mt-2 space-y-2">
         <select
@@ -241,6 +493,11 @@ export default function HzField({
           className={inputClassName}
           value={lookupQuery}
           onFocus={() => setIsLookupOpen(true)}
+          onBlur={() => {
+            window.setTimeout(() => {
+              setIsLookupOpen(false)
+            }, 150)
+          }}
           onChange={(event) => {
             const nextValue = event.target.value
             setLookupQuery(nextValue)
@@ -302,14 +559,33 @@ export default function HzField({
     )
   }
 
+  if (isCheckboxField) {
+    return (
+      <div className="mt-2 space-y-2">
+        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={Boolean(editValue?.current)}
+            onChange={(event) => onChange?.(component.field, event.target.checked)}
+          />
+          <span>{component?.label}</span>
+        </label>
+        {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
+      </div>
+    )
+  }
+
   if (isDateField) {
     return (
-      <input
-        type="date"
-        className={`mt-2 ${inputClassName}`}
-        value={toDateInputValue(editValue?.current)}
-        onChange={(event) => onChange?.(component.field, event.target.value)}
-      />
+      <div className="mt-2 space-y-2">
+        <input
+          type="date"
+          className={inputClassName}
+          value={toDateInputValue(editValue?.current)}
+          onChange={(event) => onChange?.(component.field, event.target.value)}
+        />
+        {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
+      </div>
     )
   }
 
@@ -339,7 +615,9 @@ export default function HzField({
           autoComplete="tel"
           className={inputClassName}
           value={formatIndonesianPhoneNumber(editValue?.current ?? '')}
-          onChange={(event) => onChange?.(component.field, formatIndonesianPhoneNumber(event.target.value))}
+          onChange={(event) =>
+            onChange?.(component.field, formatIndonesianPhoneNumber(event.target.value))
+          }
           placeholder={placeholder || 'Masukkan nomor telepon'}
         />
         {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
@@ -362,6 +640,54 @@ export default function HzField({
         />
         {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
         <p className="text-xs text-slate-500">Email dirapikan otomatis ke format huruf kecil.</p>
+      </div>
+    )
+  }
+
+  if (isUrlField) {
+    return (
+      <div className="mt-2 space-y-2">
+        <input
+          type="url"
+          inputMode="url"
+          className={inputClassName}
+          value={editValue?.current ?? ''}
+          onChange={(event) => onChange?.(component.field, event.target.value)}
+          placeholder={placeholder || 'https://contoh.com'}
+        />
+        {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
+      </div>
+    )
+  }
+
+  if (isNumberField) {
+    return (
+      <div className="mt-2 space-y-2">
+        <input
+          type="number"
+          step={fieldDataType === 'Int' ? '1' : 'any'}
+          inputMode="decimal"
+          className={inputClassName}
+          value={editValue?.current ?? ''}
+          onChange={(event) => onChange?.(component.field, event.target.value)}
+          placeholder={placeholder}
+        />
+        {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
+      </div>
+    )
+  }
+
+  if (isTextAreaField(component) || isRichTextField(component)) {
+    return (
+      <div className="mt-2 space-y-2">
+        <textarea
+          rows={isRichTextField(component) ? 6 : 4}
+          className={`${inputClassName} resize-y`}
+          value={editValue?.current ?? ''}
+          onChange={(event) => onChange?.(component.field, event.target.value)}
+          placeholder={placeholder}
+        />
+        {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
       </div>
     )
   }

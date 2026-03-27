@@ -25,6 +25,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
     isSaving,
     loadingMessage,
     mode,
+    dirtyFieldsCount,
     picklists,
     recordView,
     searchLookupOptions,
@@ -273,6 +274,17 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                   <p className="mt-1 text-lg font-semibold text-slate-900">
                     {isCreateMode ? recordView?.apiName || objectApiName : mode}
                   </p>
+                  {!isCreateMode ? (
+                    <p className="mt-1 text-xs text-slate-500">
+                      {dirtyFieldsCount > 0
+                        ? `${dirtyFieldsCount} field berubah dan siap disimpan.`
+                        : 'Belum ada perubahan pada field.'}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Field create mengikuti metadata layout aktif dari Salesforce.
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">{renderActionButtons()}</div>
               </div>
