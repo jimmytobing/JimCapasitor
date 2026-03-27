@@ -1,10 +1,29 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { circleActions, circles } from './circleData.js'
 
 export default function CirclePage({ showToast }) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
+  const [openCircleId, setOpenCircleId] = useState(circles[0]?.id || '')
+
+  function handleCircleAction(circle, action) {
+    if (action.id === 'chat') {
+      navigate(`/chat?circle=${circle.id}`)
+      return
+    }
+    if (action.id === 'ranking') {
+      navigate(`/friend-ranking?circle=${circle.id}`)
+      return
+    }
+    if (action.id === 'challenge') {
+      navigate(`/friend-quiz?circle=${circle.id}`)
+      return
+    }
+    notify(`${circle.title} - ${action.label}`)
+  }
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
@@ -44,45 +63,69 @@ export default function CirclePage({ showToast }) {
                     className="overflow-hidden rounded-3xl bg-slate-50 shadow-sm ring-1 ring-slate-100"
                   >
                     <div className={`bg-gradient-to-r ${circle.accent} px-4 py-4 text-white`}>
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-sm">
-                          {circle.emoji}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">{circle.title}</h3>
-                          <p className="text-sm text-white/80">{circle.members}</p>
+                      <div className="flex items-start justify-between gap-3">
+                        <button
+                          type="button"
+                          className="flex flex-1 items-center gap-3 text-left"
+                          onClick={() =>
+                            setOpenCircleId((current) => (current === circle.id ? '' : circle.id))
+                          }
+                        >
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl backdrop-blur-sm">
+                            {circle.emoji}
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold">{circle.title}</h3>
+                            <p className="text-sm text-white/80">{circle.members}</p>
+                          </div>
+                        </button>
+
+                        <div className="flex flex-wrap justify-end gap-2">
+                          {circleActions.filter((action) => action.id !== 'chat').map((action) => (
+                            <button
+                              key={`${circle.id}-${action.id}`}
+                              type="button"
+                              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-lg text-white shadow-sm backdrop-blur-sm transition hover:bg-white/25"
+                              onClick={() => handleCircleAction(circle, action)}
+                              aria-label={action.label}
+                              title={action.label}
+                            >
+                              {action.emoji}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 p-3">
-                      {circleActions.map((action) => (
-                        <button
-                          key={`${circle.id}-${action.id}`}
-                          className="rounded-2xl bg-white px-3 py-3 text-center shadow-sm ring-1 ring-slate-100 transition hover:bg-slate-100"
-                          onClick={() => {
-                            if (action.id === 'chat') {
-                              navigate(`/chat?circle=${circle.id}`)
-                              return
-                            }
-                            if (action.id === 'ranking') {
-                              navigate(`/friend-ranking?circle=${circle.id}`)
-                              return
-                            }
-                            if (action.id === 'challenge') {
-                              navigate(`/friend-quiz?circle=${circle.id}`)
-                              return
-                            }
-                            notify(`${circle.title} - ${action.label}`)
-                          }}
-                        >
-                          <div className="text-lg">{action.emoji}</div>
-                          <div className="mt-1 text-sm font-semibold text-slate-800">
-                            {action.label}
+                    {openCircleId === circle.id ? (
+                      <div className="space-y-3 p-3">
+                        {(circle.people || []).map((person) => (
+                          <div
+                            key={person.id}
+                            className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full">
+                                  <UserAvatar
+                                    name={person.name}
+                                    initial={person.name?.slice(0, 1)?.toUpperCase() || '?'}
+                                    tone="from-slate-700 to-slate-900"
+                                  />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold text-slate-900">{person.name}</p>
+                                  <p className="mt-1 text-sm text-slate-500">{person.status}</p>
+                                </div>
+                              </div>
+                              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                Member
+                              </span>
+                            </div>
                           </div>
-                        </button>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
