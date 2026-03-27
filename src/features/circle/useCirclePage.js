@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getRecords } from '../../shared/services/salesforce.js'
+import { getRecords } from '../../shared/services/index.js'
 
 const circleAccents = [
   'from-amber-400 to-orange-500',

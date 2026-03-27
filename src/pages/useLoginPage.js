@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AUTH_STORAGE_KEY } from '../shared/auth/session.js'
-import { ensureContactFromGoogleProfile } from '../shared/services/salesforce.js'
+import { ensureContactFromGoogleProfile } from '../shared/services/index.js'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const GOOGLE_SCRIPT_SRC = 'https://accounts.google.com/gsi/client'

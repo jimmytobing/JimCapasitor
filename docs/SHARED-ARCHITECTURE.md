@@ -12,6 +12,8 @@ Struktur `src/shared` sekarang dibagi menjadi beberapa area yang punya tanggung 
   Renderer field edit dan view-only.
 - `src/shared/components`
   Shared UI umum yang tidak khusus ke record/list engine.
+- `src/shared/services`
+  Boundary ke Salesforce dan integrasi data eksternal.
 
 ## Dependency Map
 
@@ -38,6 +40,27 @@ Makna praktis:
 - `fields` fokus ke rendering nilai field, bukan ke lifecycle record.
 - `components` berisi shared UI ringan yang dipakai oleh layer lain.
 - `services` adalah boundary ke Salesforce API.
+
+## Services Layer
+
+Folder `src/shared/services` sekarang punya public barrel supaya consumer di feature dan shared layer tidak perlu tahu detail file internal.
+
+- `services/index.js`
+  Public entry point umum untuk consumer app.
+- `services/salesforce/index.js`
+  Public entry point khusus domain Salesforce.
+- `services/salesforce/client.js`
+  HTTP transport, auth session, dan retry invalid session.
+- `services/salesforce/uiApi.js`
+  Wrapper endpoint UI API.
+- `services/salesforce/querySalesforce.js`
+  Wrapper SOQL, GraphQL, lookup search, dan update sederhana.
+
+Praktik import:
+
+```js
+import { getRecords, fetchRecordUi, testSalesforceConnection } from '@/shared/services'
+```
 
 ## Dependency Rules
 

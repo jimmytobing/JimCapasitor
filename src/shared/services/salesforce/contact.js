@@ -1,5 +1,5 @@
 import { sendSalesforceRequest } from './client.js'
-import { escapeSoqlValue, getRecord } from './querySalesforce.js'
+import { escapeSoqlValue, getRecord } from './query.js'
 
 function splitDisplayName(profile) {
   const givenName = typeof profile?.givenName === 'string' ? profile.givenName.trim() : ''

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fetchAccountContactsByName } from '../../shared/services/salesforce.js'
+import { fetchAccountContactsByName } from '../../shared/services/index.js'
 import { chatThreads, circleTitles } from './chatData.js'
 
 export function useChatPageData(circleId) {

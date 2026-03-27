@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createFormChangeHandler } from '../../shared/utils/forms.js'
-import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/salesforce.js'
+import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/index.js'
 
 function mapRecordToForm(record) {
   return Object.entries(record || {}).reduce((current, [field, value]) => {

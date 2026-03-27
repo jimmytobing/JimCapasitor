@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAuthSession, getStoredUsername } from '../../shared/auth/session.js'
-import { findContactByIdentity, updateContact } from '../../shared/services/salesforce.js'
+import { findContactByIdentity, updateContact } from '../../shared/services/index.js'
 import { createFormChangeHandler } from '../../shared/utils/forms.js'
 
 function splitName(fullName) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/salesforce.js'
+import { escapeSoqlValue, getRecord, updateRecord } from '../../shared/services/index.js'
 
 export function createEmptyCard() {
   return {

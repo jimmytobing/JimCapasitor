@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { escapeSoqlValue, getRecords } from '../../shared/services/salesforce.js'
+import { escapeSoqlValue, getRecords } from '../../shared/services/index.js'
 
 export function useJimPage() {
   const [cards, setCards] = useState([])

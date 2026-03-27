@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getAuthSession, getStoredUsername } from '../../shared/auth/session.js'
-import { findContactByIdentity } from '../../shared/services/salesforce.js'
+import { findContactByIdentity } from '../../shared/services/index.js'
 import { buildCardsFromRecord } from '../../shared/utils/cards.js'
 import { calculateAge, formatBirthdate } from '../../shared/utils/date.js'
 

@@ -7,7 +7,7 @@ import {
   fetchRecordUi,
   searchLookupRecords,
   updateRecord,
-} from '../../services/salesforce.js'
+} from '../../services/index.js'
 import {
   buildCreateRecordPayload,
   buildRecordUpdatePayload,

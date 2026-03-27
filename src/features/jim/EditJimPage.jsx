@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { escapeSoqlValue } from '../../shared/services/salesforce.js'
+import { escapeSoqlValue } from '../../shared/services/index.js'
 import EditGeneric from './EditGeneric.jsx'
 
 export default function EditJimPage({ showToast }) {

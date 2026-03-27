@@ -1,4 +1,4 @@
-import { querySalesforceGraphQL } from './querySalesforce.js'
+import { querySalesforceGraphQL } from './query.js'
 import { ACCOUNT_CONTACTS_QUERY } from './queries/accountContacts.js'
 
 function mapAccountContacts(accountNode, fallbackName) {

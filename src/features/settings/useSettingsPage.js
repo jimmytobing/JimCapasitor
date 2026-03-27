@@ -3,7 +3,7 @@ import {
   fetchSampleAccounts,
   getSalesforceConnectionSummary,
   testSalesforceConnection,
-} from '../../shared/services/salesforce.js'
+} from '../../shared/services/index.js'
 
 export function useSettingsPage({ notify, setThemeMode }) {
   const [isCheckingSalesforce, setIsCheckingSalesforce] = useState(false)

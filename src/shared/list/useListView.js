@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getRecords } from '../services/salesforce.js'
+import { getRecords } from '../services/index.js'
 import { sendSalesforceRequest } from '../services/salesforce/client.js'
 import {
   buildListQuery,
