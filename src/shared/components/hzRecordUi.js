@@ -282,9 +282,12 @@ export function mapRecordUiToLayoutModel(recordId, recordView) {
 
   const titleFieldName = objectInfo?.nameFields?.[0] || 'Name'
   const titleValue = record?.fields?.[titleFieldName]
+  const lastNameValue = record?.fields?.LastName
   const title =
     titleValue?.displayValue ||
     toDisplayString(titleValue?.value, objectInfo?.fields?.[titleFieldName]) ||
+    lastNameValue?.displayValue ||
+    toDisplayString(lastNameValue?.value, objectInfo?.fields?.LastName) ||
     recordId
 
   return {
