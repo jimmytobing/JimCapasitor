@@ -450,6 +450,7 @@ export default function HzField({
   editValue,
   canEdit = false,
   picklist,
+  picklistDisabled = false,
   onChange,
   onLookupChange,
   onSearchLookup,
@@ -490,11 +491,18 @@ export default function HzField({
       !picklist?.values?.length &&
       typeof onEnsurePicklist === 'function'
     ) {
-      void onEnsurePicklist(component.picklistUrl, objectApiName, recordTypeId, component.field)
+      void onEnsurePicklist(
+        component.picklistUrl,
+        objectApiName,
+        recordTypeId,
+        component.field,
+        component.fieldInfo
+      )
     }
   }, [
     canEdit,
     component?.field,
+    component?.fieldInfo,
     component?.picklistUrl,
     objectApiName,
     onEnsurePicklist,
@@ -561,6 +569,7 @@ export default function HzField({
             multiple
             className={`${inputClassName} min-h-28`}
             value={toMultiPicklistArray(editValue?.current)}
+            disabled={picklistDisabled}
             onChange={(event) =>
               onChange?.(component.field, fromMultiPicklistSelectOptions(event.target.options))
             }
@@ -572,7 +581,11 @@ export default function HzField({
             ))}
           </select>
           {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
-          <p className="text-xs text-slate-500">Pilih lebih dari satu opsi dengan tap atau klik bertahap.</p>
+          <p className="text-xs text-slate-500">
+            {picklistDisabled
+              ? 'Isi field controller lebih dulu sebelum memilih opsi.'
+              : 'Pilih lebih dari satu opsi dengan tap atau klik bertahap.'}
+          </p>
         </div>
       )
     }
@@ -582,6 +595,7 @@ export default function HzField({
         <select
           className={inputClassName}
           value={editValue?.current ?? ''}
+          disabled={picklistDisabled}
           onChange={(event) => onChange?.(component.field, event.target.value)}
         >
           <option value="">Pilih {component?.label}</option>
@@ -592,6 +606,9 @@ export default function HzField({
           ))}
         </select>
         {hasFieldError ? <p className="text-xs text-rose-600">{fieldError}</p> : null}
+        {picklistDisabled ? (
+          <p className="text-xs text-slate-500">Isi field controller lebih dulu sebelum memilih opsi.</p>
+        ) : null}
       </div>
     )
   }

@@ -89,6 +89,83 @@ function extractFieldErrors(message, editValues = {}) {
   return result
 }
 
+function getControllerFieldName(fieldInfo = {}) {
+  return (
+    fieldInfo?.controllerName ||
+    fieldInfo?.controllingField ||
+    fieldInfo?.controllingFields?.[0] ||
+    ''
+  )
+}
+
+function normalizePicklistMeta(result, fieldApiName, fieldInfo = {}) {
+  return {
+    ...result,
+    fieldApiName,
+    controllerName: getControllerFieldName(fieldInfo),
+    values: Array.isArray(result?.values) ? result.values : [],
+    controllerValues: result?.controllerValues || {},
+  }
+}
+
+function getFilteredPicklistValues(picklistMeta, controllerValue) {
+  const options = Array.isArray(picklistMeta?.values) ? picklistMeta.values : []
+  const controllerValues = picklistMeta?.controllerValues || {}
+  const hasController = Boolean(picklistMeta?.controllerName) && Object.keys(controllerValues).length > 0
+
+  if (!hasController) {
+    return options
+  }
+
+  if (controllerValue === null || controllerValue === undefined || controllerValue === '') {
+    return []
+  }
+
+  const controllerIndex = controllerValues[controllerValue]
+  if (controllerIndex === null || controllerIndex === undefined) {
+    return []
+  }
+
+  return options.filter((option) => Array.isArray(option?.validFor) && option.validFor.includes(controllerIndex))
+}
+
+function applyDependentValueCleanup(nextEditValues, changedFieldName, picklists) {
+  const nextState = { ...nextEditValues }
+
+  Object.values(picklists || {}).forEach((picklistMeta) => {
+    if (picklistMeta?.controllerName !== changedFieldName) {
+      return
+    }
+
+    const dependentFieldName = picklistMeta?.fieldApiName
+    const dependentFieldState = nextState?.[dependentFieldName]
+    if (!dependentFieldState) {
+      return
+    }
+
+    const controllerValue = nextState?.[changedFieldName]?.current
+    const allowedValues = getFilteredPicklistValues(picklistMeta, controllerValue)
+    const currentValue = dependentFieldState?.current
+    const isCurrentValueAllowed =
+      currentValue === null ||
+      currentValue === undefined ||
+      currentValue === '' ||
+      allowedValues.some((option) => option?.value === currentValue)
+
+    if (isCurrentValueAllowed) {
+      return
+    }
+
+    nextState[dependentFieldName] = {
+      ...dependentFieldState,
+      current: '',
+      displayCurrent: '',
+    }
+  })
+
+  return nextState
+}
+
 export function useHzRecordPage(objectApiName, recordId, showToast) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const isCreateMode = !recordId
@@ -167,14 +244,33 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     [editValues]
   )
 
-  async function ensurePicklist(url, objectApiName, currentRecordTypeId, fieldApiName) {
+  const resolvedPicklists = useMemo(() => {
+    return Object.entries(picklists || {}).reduce((result, [url, picklistMeta]) => {
+      const controllerName = picklistMeta?.controllerName || ''
+      const controllerValue = controllerName ? editValues?.[controllerName]?.current : undefined
+      const options = getFilteredPicklistValues(picklistMeta, controllerValue)
+      const disabled =
+        Boolean(controllerName) &&
+        (controllerValue === null || controllerValue === undefined || controllerValue === '')
+
+      result[url] = {
+        ...picklistMeta,
+        values: options,
+        disabled,
+      }
+
+      return result
+    }, {})
+  }, [editValues, picklists])
+
+  async function ensurePicklist(url, objectApiName, currentRecordTypeId, fieldApiName, fieldInfo) {
     if (!url || picklists[url]) return
 
     try {
       const result = await fetchPicklistValues(objectApiName, currentRecordTypeId, fieldApiName)
       setPicklists((current) => ({
         ...current,
-        [url]: result,
+        [url]: normalizePicklistMeta(result, fieldApiName, fieldInfo),
       }))
     } catch (err) {
       setError(err.message || 'Gagal mengambil picklist.')
@@ -190,7 +286,10 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       delete nextErrors[fieldName]
       return nextErrors
     })
-    setEditValues((current) => mergeEditValueState(current, fieldName, nextValue))
+    setEditValues((current) => {
+      const nextState = mergeEditValueState(current, fieldName, nextValue)
+      return applyDependentValueCleanup(nextState, fieldName, picklists)
+    })
   }
 
   function updateLookupValue(fieldName, nextValue, displayValue = '') {
@@ -202,9 +301,13 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
       return nextErrors
     })
     setEditValues((current) =>
-      mergeEditValueState(current, fieldName, nextValue, {
-        displayCurrent: displayValue,
-      })
+      applyDependentValueCleanup(
+        mergeEditValueState(current, fieldName, nextValue, {
+          displayCurrent: displayValue,
+        }),
+        fieldName,
+        picklists
+      )
     )
   }
 
@@ -346,7 +449,7 @@ export function useHzRecordPage(objectApiName, recordId, showToast) {
     loadingMessage,
     mode,
     dirtyFieldsCount,
-    picklists,
+    picklists: resolvedPicklists,
     recordView,
     searchLookupOptions,
     setMode,

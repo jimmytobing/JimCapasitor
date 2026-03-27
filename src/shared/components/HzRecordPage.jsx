@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getStoredUsername } from '../auth/session.js'
 import BottomStickyNav from './BottomStickyNav.jsx'
@@ -38,6 +39,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
   const shouldShowLookupReferenceCard =
     !isCreateMode && mode === 'View' && currentUsername === 'jimmy.bfipbf@gmail.com'
   const fallbackPath = `/o/${recordView?.apiName || objectApiName}`
+  const [collapsedSections, setCollapsedSections] = useState({})
 
   function handleBack() {
     if (location.state?.from) {
@@ -121,6 +123,146 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
 
     return baseValues
   }
+
+  function formatSectionPreviewValue(component) {
+    if (!component) return ''
+
+    const compoundObject =
+      component.value && typeof component.value === 'object'
+        ? {
+            ...component.value,
+            ...(component.displayValue && typeof component.displayValue === 'object'
+              ? component.displayValue
+              : {}),
+          }
+        : {}
+
+    if (component.isCompoundField && component.fieldInfo?.dataType === 'Address') {
+      const address = compoundObject
+      const stateValue = address.StateCode || address.State || ''
+      const countryValue = address.CountryCode || address.Country || ''
+      return [address.Street, address.City, stateValue, address.PostalCode, countryValue]
+        .filter(Boolean)
+        .join(', ')
+    }
+
+    if (
+      component.isCompoundField &&
+      (component.fieldInfo?.extraTypeInfo === 'PersonName' ||
+        component.fieldInfo?.extraTypeInfo === 'SwitchablePersonName')
+    ) {
+      const nameValue = compoundObject
+
+      return [
+        nameValue.Salutation,
+        nameValue.FirstName,
+        nameValue.MiddleName,
+        nameValue.LastName,
+        nameValue.Suffix,
+        nameValue.InformalName,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .trim()
+    }
+
+    if (component.isCompoundField && component.fieldInfo?.dataType === 'Location') {
+      const latitude = component?.value?.latitude
+      const longitude = component?.value?.longitude
+      if (latitude === null || latitude === undefined || longitude === null || longitude === undefined) {
+        return ''
+      }
+      return `${latitude}, ${longitude}`
+    }
+
+    if (component.isCompoundField && typeof component.displayValue === 'object') {
+      return Object.values(compoundObject).filter(Boolean).join(', ')
+    }
+
+    if (component.displayValue !== null && component.displayValue !== undefined && component.displayValue !== '') {
+      return String(component.displayValue)
+    }
+
+    if (component.value !== null && component.value !== undefined && component.value !== '') {
+      if (typeof component.value === 'object') {
+        return Object.values(component.value).filter(Boolean).join(' ')
+      }
+
+      return String(component.value)
+    }
+
+    return ''
+  }
+
+  function resolveSectionPreview(section) {
+    const allComponents = []
+
+    section.rows.forEach((row) => {
+      row.items.forEach((item) => {
+        resolveItemValues(item).forEach((component) => {
+          allComponents.push(component)
+        })
+      })
+    })
+
+    const prioritizedComponents = [
+      ...allComponents.filter((component) => component?.isCompoundField),
+      ...allComponents.filter((component) => !component?.isCompoundField),
+    ]
+
+    const previews = prioritizedComponents
+      .map((component) => formatSectionPreviewValue(component).trim())
+      .filter(Boolean)
+      .filter((value, index, values) => values.indexOf(value) === index)
+      .slice(0, 3)
+
+    return previews.join(' • ')
+  }
+
+  function getSectionKey(section, sectionIndex) {
+    return `${section.heading || 'section'}-${sectionIndex}`
+  }
+
+  function resolveSectionHeading(section, sectionIndex) {
+    if (section?.heading) {
+      return section.heading
+    }
+
+    if (isCreateMode) {
+      return `Create Section ${sectionIndex + 1}`
+    }
+
+    if (mode === 'Edit') {
+      return `Edit Section ${sectionIndex + 1}`
+    }
+
+    return `Details Section ${sectionIndex + 1}`
+  }
+
+  function toggleSection(sectionKey) {
+    setCollapsedSections((current) => ({
+      ...current,
+      [sectionKey]: !current[sectionKey],
+    }))
+  }
+
+  function handleInlineEdit() {
+    if (isCreateMode || mode === 'Edit') {
+      return
+    }
+
+    enterEditMode()
+  }
+
+  useEffect(() => {
+    setCollapsedSections((current) =>
+      activeSections.reduce((result, section, sectionIndex) => {
+        const sectionKey = getSectionKey(section, sectionIndex)
+        result[sectionKey] = current[sectionKey] ?? true
+        return result
+      }, {})
+    )
+  }, [activeSections])
 
   function renderActionButtons() {
     return (
@@ -296,9 +438,23 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
 
             {activeSections.map((section, sectionIndex) => (
               <section key={`${section.heading}-${sectionIndex}`} className="rounded-3xl bg-white p-4 shadow-sm">
-                {section.useHeading ? (
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <h2 className="text-base font-semibold text-slate-900">{section.heading}</h2>
+                <button
+                  type="button"
+                  className="mb-4 flex w-full items-center justify-between gap-3 text-left"
+                  onClick={() => toggleSection(getSectionKey(section, sectionIndex))}
+                >
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">
+                        {resolveSectionHeading(section, sectionIndex)}
+                      </h2>
+                      {mode === 'View' && !isCreateMode ? (
+                        <p className="mt-1 text-xs text-slate-500">
+                          {resolveSectionPreview(section) ||
+                            'Tap section untuk buka/tutup, atau tap edit pada field untuk masuk ke mode edit.'}
+                        </p>
+                      ) : null}
+                    </div>
+                  <div className="flex items-center gap-2">
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
                         isCreateMode
@@ -306,12 +462,19 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                           : 'bg-orange-50 text-orange-600'
                       }`}
                     >
-                      {section.rows.length} row
+                      {section.rows.length} {section.rows.length === 1 ? 'row' : 'rows'}
+                    </span>
+                    <span className="text-sm text-slate-400">
+                      {collapsedSections[getSectionKey(section, sectionIndex)] ? '+' : '-'}
                     </span>
                   </div>
-                ) : null}
+                </button>
 
-                <div className="space-y-3">
+                <div
+                  className={`space-y-3 ${
+                    collapsedSections[getSectionKey(section, sectionIndex)] ? 'hidden' : ''
+                  }`}
+                >
                   {section.rows.map((row, rowIndex) => (
                     <div key={`${sectionIndex}-${rowIndex}`} className="grid gap-3">
                       {row.items.map((item, itemIndex) => (
@@ -343,10 +506,13 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                             onSearch: searchLookupOptions,
                           }}
                           ui={{
+                            mode,
                             tone: isCreateMode ? 'emerald' : 'orange',
                             placeholderForComponent: isCreateMode
                               ? (component) => (component.required ? 'Wajib diisi' : '')
                               : undefined,
+                            showInlineEditCue: !isCreateMode && mode === 'View',
+                            canInlineEditComponent: (component) => Boolean(component.editableForUpdate),
                             showRequiredBadge: isCreateMode,
                             readOnlyClassName: isCreateMode
                               ? 'mt-2 text-sm leading-6 text-slate-500'
@@ -359,6 +525,7 @@ export default function HzRecordPage({ showToast, defaultObjectApiName = 'Accoun
                                 </div>
                               ) : null,
                           }}
+                          onInlineEdit={handleInlineEdit}
                         />
                       ))}
                     </div>
