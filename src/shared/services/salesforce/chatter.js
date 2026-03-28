@@ -28,12 +28,9 @@ function formatActor(actor = {}, instanceUrl) {
 }
 
 function extractMessageText(body = {}) {
-  if (typeof body?.text === 'string' && body.text.trim()) {
-    return body.text.trim()
-  }
-
   if (Array.isArray(body?.messageSegments)) {
     const text = body.messageSegments
+      .filter((segment) => !['InlineImage', 'MarkupBegin', 'MarkupEnd'].includes(segment?.type))
       .map((segment) => segment?.text || segment?.name || '')
       .join('')
       .trim()
@@ -41,6 +38,14 @@ function extractMessageText(body = {}) {
     if (text) {
       return text
     }
+  }
+
+  if (typeof body?.text === 'string' && body.text.trim()) {
+    return body.text
+      .split('\n')
+      .filter((line) => !/^\[Image:\s*.+\]$/.test(line.trim()))
+      .join('\n')
+      .trim()
   }
 
   return ''
@@ -70,6 +75,10 @@ function mapComment(comment = {}, instanceUrl) {
     text: extractMessageText(comment?.body),
     actor: formatActor(comment?.user, instanceUrl),
   }
+}
+
+function normalizeDataPath(pathname = '') {
+  return String(pathname || '').replace(/^https?:\/\/[^/]+/i, '').replace(/^\/services\/data\/v[0-9]+\.[0-9]+\//, '')
 }
 
 function mapAttachment(attachment = {}, instanceUrl) {
@@ -104,6 +113,27 @@ function extractAttachments(item = {}, instanceUrl) {
     return [mapAttachment(singleAttachment, instanceUrl)].filter(Boolean)
   }
 
+  const inlineImages = Array.isArray(item?.body?.messageSegments)
+    ? item.body.messageSegments
+        .filter((segment) => segment?.type === 'InlineImage')
+        .map((segment) => {
+          const previewUrl =
+            segment?.thumbnails?.previews?.find((preview) => Array.isArray(preview?.previewUrls) && preview.previewUrls[0]?.previewUrl)
+              ?.previewUrls?.[0]?.previewUrl || ''
+
+          return {
+            id: segment?.thumbnails?.fileId || segment?.url || previewUrl,
+            title: segment?.altText || 'Inline image',
+            imageUrl: resolveSalesforceUrl(instanceUrl, previewUrl || segment?.url || ''),
+          }
+        })
+        .filter((attachment) => attachment.imageUrl)
+    : []
+
+  if (inlineImages.length > 0) {
+    return inlineImages
+  }
+
   return []
 }
 
@@ -130,6 +160,7 @@ function mapFeedElement(item = {}, instanceUrl) {
     attachments: extractAttachments(item, instanceUrl),
     likesCount: Number(likesCount) || 0,
     commentsCount: Number(commentsCount) || 0,
+    commentsUrl: item?.capabilities?.comments?.page?.currentPageUrl || '',
     comments: commentItems.map((comment) => mapComment(comment, instanceUrl)),
     raw: item,
   }
@@ -148,5 +179,142 @@ export async function fetchRecordFeedElements(recordId) {
     items: items.map((item) => mapFeedElement(item, session.instanceUrl)),
     currentPageUrl: payload?.currentPageUrl || '',
     nextPageUrl: payload?.nextPageUrl || '',
+  }
+}
+
+export async function createRecordFeedElement(recordId, text) {
+  const trimmedText = typeof text === 'string' ? text.trim() : ''
+
+  if (!trimmedText) {
+    throw new Error('Isi post tidak boleh kosong.')
+  }
+
+  const payload = await sendSalesforceRequest('chatter/feed-elements', {
+    method: 'POST',
+    data: {
+      feedElementType: 'FeedItem',
+      subjectId: recordId,
+      body: {
+        messageSegments: [
+          {
+            type: 'Text',
+            text: trimmedText,
+          },
+        ],
+      },
+    },
+  })
+
+  const session = await ensureSalesforceConnection()
+  return mapFeedElement(payload, session.instanceUrl)
+}
+
+export async function createRecordFeedElementWithSegments(recordId, messageSegments = []) {
+  if (!Array.isArray(messageSegments) || messageSegments.length === 0) {
+    throw new Error('Message segments tidak boleh kosong.')
+  }
+
+  const payload = await sendSalesforceRequest('chatter/feed-elements', {
+    method: 'POST',
+    data: {
+      feedElementType: 'FeedItem',
+      subjectId: recordId,
+      body: {
+        messageSegments,
+      },
+    },
+  })
+
+  const session = await ensureSalesforceConnection()
+  return mapFeedElement(payload, session.instanceUrl)
+}
+
+export async function createFeedElementComment(feedElementId, text) {
+  const trimmedText = typeof text === 'string' ? text.trim() : ''
+
+  if (!trimmedText) {
+    throw new Error('Isi komentar tidak boleh kosong.')
+  }
+
+  const payload = await sendSalesforceRequest(
+    `chatter/feed-elements/${feedElementId}/capabilities/comments/items`,
+    {
+      method: 'POST',
+      data: {
+        body: {
+          messageSegments: [
+            {
+              type: 'Text',
+              text: trimmedText,
+            },
+          ],
+        },
+      },
+    }
+  )
+
+  const session = await ensureSalesforceConnection()
+  return mapComment(payload, session.instanceUrl)
+}
+
+export async function fetchFeedElementComments(feedElementId, commentsUrl = '') {
+  const session = await ensureSalesforceConnection()
+  const pathname = commentsUrl
+    ? normalizeDataPath(commentsUrl)
+    : `chatter/feed-elements/${feedElementId}/capabilities/comments/items`
+  const payload = await sendSalesforceRequest(pathname)
+  const items = Array.isArray(payload?.items) ? payload.items : []
+
+  return {
+    items: items.map((comment) => mapComment(comment, session.instanceUrl)),
+    total: Number(payload?.total) || items.length,
+  }
+}
+
+export async function uploadFileToRecord(recordId, filePayload) {
+  const fileName = String(filePayload?.fileName || '').trim()
+  const base64Data = String(filePayload?.base64Data || '').trim()
+  const title = String(filePayload?.title || fileName || 'Upload').trim()
+  const description = String(filePayload?.description || '').trim()
+
+  if (!fileName || !base64Data) {
+    throw new Error('File upload tidak valid.')
+  }
+
+  return sendSalesforceRequest('sobjects/ContentVersion', {
+    method: 'POST',
+    data: {
+      Title: title,
+      PathOnClient: fileName,
+      VersionData: base64Data,
+      FirstPublishLocationId: recordId,
+      Description: description || null,
+    },
+  })
+}
+
+export async function fetchContentVersion(versionId) {
+  return sendSalesforceRequest(`sobjects/ContentVersion/${versionId}`)
+}
+
+export async function uploadInlineImageToRecord(recordId, filePayload) {
+  const createResult = await uploadFileToRecord(recordId, filePayload)
+  const versionId = createResult?.id || ''
+
+  if (!versionId) {
+    throw new Error('Salesforce tidak mengembalikan ContentVersion Id.')
+  }
+
+  const versionRecord = await fetchContentVersion(versionId)
+  const fileId = versionRecord?.ContentDocumentId || ''
+
+  if (!fileId) {
+    throw new Error('ContentDocumentId untuk gambar tidak ditemukan.')
+  }
+
+  return {
+    fileId,
+    versionId,
+    title: versionRecord?.Title || filePayload?.title || filePayload?.fileName || 'Image',
   }
 }

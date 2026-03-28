@@ -1,10 +1,20 @@
 export {
   ensureSalesforceConnection,
   getSalesforceConnectionSummary,
+  sendSalesforceBinaryRequest,
   testSalesforceConnection,
 } from './client.js'
 
-export { fetchRecordFeedElements } from './chatter.js'
+export {
+  createFeedElementComment,
+  createRecordFeedElement,
+  createRecordFeedElementWithSegments,
+  fetchFeedElementComments,
+  fetchContentVersion,
+  fetchRecordFeedElements,
+  uploadInlineImageToRecord,
+  uploadFileToRecord,
+} from './chatter.js'
 
 export {
   createUiRecord,

@@ -2,7 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { fetchRecordFeedElements } from '../../shared/services/index.js'
+import {
+  createFeedElementComment,
+  createRecordFeedElement,
+  createRecordFeedElementWithSegments,
+  fetchFeedElementComments,
+  fetchRecordFeedElements,
+  sendSalesforceBinaryRequest,
+  uploadFileToRecord,
+  uploadInlineImageToRecord,
+} from '../../shared/services/index.js'
 
 function formatPostDate(value) {
   if (!value) return ''
@@ -18,12 +27,201 @@ function formatPostDate(value) {
   }).format(date)
 }
 
-function PostCard({ post, fallbackName }) {
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : ''
+      const base64Data = result.includes(',') ? result.split(',')[1] : result
+      resolve(base64Data)
+    }
+
+    reader.onerror = () => {
+      reject(new Error('Gagal membaca file gambar.'))
+    }
+
+    reader.readAsDataURL(file)
+  })
+}
+
+function AuthenticatedFeedImage({ src, alt, className = '' }) {
+  const [resolvedSrc, setResolvedSrc] = useState('')
+
+  useEffect(() => {
+    let active = true
+    let objectUrl = ''
+
+    async function loadImage() {
+      if (!src) {
+        setResolvedSrc('')
+        return
+      }
+
+      if (!/^https?:\/\/.+salesforce\.com\//i.test(src)) {
+        setResolvedSrc(src)
+        return
+      }
+
+      try {
+        const blob = await sendSalesforceBinaryRequest(src)
+        if (!active) return
+        objectUrl = URL.createObjectURL(blob)
+        setResolvedSrc(objectUrl)
+      } catch {
+        if (!active) return
+        setResolvedSrc('')
+      }
+    }
+
+    void loadImage()
+
+    return () => {
+      active = false
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl)
+      }
+    }
+  }, [src])
+
+  if (!resolvedSrc) {
+    return <div className={`h-full w-full animate-pulse bg-slate-200 ${className}`.trim()} />
+  }
+
+  return (
+    <img
+      src={resolvedSrc}
+      alt={alt}
+      className={`h-full w-full object-cover ${className}`.trim()}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+    />
+  )
+}
+
+function ComposerModal({
+  caption,
+  file,
+  filePreview,
+  isSubmitting,
+  onCaptionChange,
+  onClose,
+  onFileChange,
+  onSubmit,
+}) {
+  return (
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-slate-950/55 px-4 pb-4 pt-16 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-[2rem] bg-white p-5 shadow-[0_30px_90px_rgba(15,23,42,0.38)]">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+              Create Post
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-slate-900">New Post</h2>
+          </div>
+          <button
+            type="button"
+            className="rounded-full px-3 py-2 text-sm font-medium text-slate-500"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Close
+          </button>
+        </div>
+
+        <form className="mt-4 space-y-4" onSubmit={onSubmit}>
+          <textarea
+            className="min-h-32 w-full resize-none rounded-[1.5rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400"
+            placeholder="Tulis caption atau update baru di sini..."
+            value={caption}
+            onChange={onCaptionChange}
+            disabled={isSubmitting}
+          />
+
+          <label className="flex cursor-pointer items-center justify-between rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600">
+            <span>{file ? file.name : 'Tambah foto untuk Salesforce File'}</span>
+            <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+              Choose
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onFileChange}
+              disabled={isSubmitting}
+            />
+          </label>
+
+          {filePreview ? (
+            <div className="overflow-hidden rounded-[1.5rem] bg-slate-100">
+              <img
+                src={filePreview}
+                alt={file?.name || 'Preview'}
+                className="h-56 w-full object-cover"
+              />
+            </div>
+          ) : null}
+
+          <p className="text-xs leading-5 text-slate-500">
+            Jika memilih foto, file akan di-upload ke Contact ini sebagai Salesforce File. Jika
+            caption diisi juga, caption akan dikirim sebagai post teks terpisah.
+          </p>
+
+          <button
+            type="submit"
+            className="w-full rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Posting...' : 'Publish'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function PostCard({
+  fallbackName,
+  loadingCommentsForId,
+  onCreateComment,
+  onLoadComments,
+  pendingCommentForId,
+  post,
+}) {
+  const [commentText, setCommentText] = useState('')
+  const [showCommentComposer, setShowCommentComposer] = useState(false)
   const [showComments, setShowComments] = useState(false)
   const displayName = fallbackName || 'Contact'
   const firstAttachment = post.attachments[0]
   const visibleComments = post.comments || []
   const hasCommentItems = visibleComments.length > 0
+  const isCommentSubmitting = pendingCommentForId === post.id
+  const isCommentsLoading = loadingCommentsForId === post.id
+
+  useEffect(() => {
+    if (!showComments || hasCommentItems || post.commentsCount === 0) {
+      return
+    }
+
+    void onLoadComments(post.id, post.commentsUrl)
+  }, [hasCommentItems, onLoadComments, post.commentsCount, post.commentsUrl, post.id, showComments])
+
+  async function handleCommentSubmit(event) {
+    event.preventDefault()
+    const trimmedText = commentText.trim()
+
+    if (!trimmedText) {
+      return
+    }
+
+    const success = await onCreateComment(post.id, trimmedText)
+
+    if (success) {
+      setCommentText('')
+      setShowComments(true)
+      setShowCommentComposer(false)
+    }
+  }
 
   return (
     <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
@@ -48,12 +246,10 @@ function PostCard({ post, fallbackName }) {
 
       {firstAttachment ? (
         <div className="aspect-square overflow-hidden bg-slate-100">
-          <img
+          <AuthenticatedFeedImage
             src={firstAttachment.imageUrl}
             alt={firstAttachment.title}
-            className="h-full w-full object-cover"
-            loading="lazy"
-            referrerPolicy="no-referrer"
+            className="h-full w-full"
           />
         </div>
       ) : (
@@ -68,33 +264,82 @@ function PostCard({ post, fallbackName }) {
 
       <div className="px-4 py-4">
         <div className="flex items-center gap-4 text-slate-900">
-          <span className="text-xl">♡</span>
-          <span className="text-xl">💬</span>
-          <span className="text-xl">↗</span>
-          <span className="ml-auto text-xl">🔖</span>
+          <button type="button" className="text-xl">
+            ♡
+          </button>
+          <button
+            type="button"
+            className="text-xl"
+            onClick={() => setShowCommentComposer((current) => !current)}
+          >
+            💬
+          </button>
+          <button type="button" className="text-xl">
+            ↗
+          </button>
+          <button type="button" className="ml-auto text-xl">
+            🔖
+          </button>
         </div>
+
         <p className="mt-3 text-sm font-semibold text-slate-900">{post.likesCount} likes</p>
         {post.text ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{post.text}</p> : null}
-        <button
-          type="button"
-          className={`mt-3 text-sm ${
-            post.commentsCount > 0 ? 'font-medium text-slate-600' : 'text-slate-400'
-          }`}
-          onClick={() => {
-            if (post.commentsCount > 0) {
-              setShowComments((current) => !current)
-            }
-          }}
-        >
-          {post.commentsCount > 0
-            ? showComments
-              ? `Sembunyikan ${post.commentsCount} komentar`
-              : `Lihat ${post.commentsCount} komentar`
-            : 'Belum ada komentar'}
-        </button>
+
+        <div className="mt-3 flex items-center gap-3">
+          <button
+            type="button"
+            className={`text-sm ${
+              post.commentsCount > 0 ? 'font-medium text-slate-600' : 'text-slate-400'
+            }`}
+            onClick={() => {
+              if (post.commentsCount > 0) {
+                setShowComments((current) => !current)
+              }
+            }}
+          >
+            {post.commentsCount > 0
+              ? showComments
+                ? `Sembunyikan ${post.commentsCount} komentar`
+                : `Lihat ${post.commentsCount} komentar`
+              : 'Belum ada komentar'}
+          </button>
+
+          <button
+            type="button"
+            className="text-sm font-medium text-rose-500"
+            onClick={() => setShowCommentComposer((current) => !current)}
+          >
+            New Comment
+          </button>
+        </div>
+
+        {showCommentComposer ? (
+          <form className="mt-4 space-y-3" onSubmit={(event) => void handleCommentSubmit(event)}>
+            <textarea
+              className="min-h-24 w-full resize-none rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-800 outline-none"
+              placeholder="Tulis komentar baru..."
+              value={commentText}
+              onChange={(event) => setCommentText(event.target.value)}
+              disabled={isCommentSubmitting}
+            />
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+                disabled={isCommentSubmitting}
+              >
+                {isCommentSubmitting ? 'Sending...' : 'Send Comment'}
+              </button>
+            </div>
+          </form>
+        ) : null}
 
         {showComments ? (
-          hasCommentItems ? (
+          isCommentsLoading ? (
+            <div className="mt-4 rounded-[1.25rem] bg-slate-50 px-4 py-3 text-sm text-slate-500">
+              Mengambil komentar...
+            </div>
+          ) : hasCommentItems ? (
             <div className="mt-4 space-y-3 rounded-[1.5rem] bg-slate-50 p-4">
               {visibleComments.map((comment) => (
                 <div key={comment.id || `${post.id}-${comment.createdDate}`} className="flex gap-3">
@@ -132,15 +377,23 @@ function PostCard({ post, fallbackName }) {
   )
 }
 
-export default function ContactPostFeedPage() {
+export default function ContactPostFeedPage({ showToast }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const notify = typeof showToast === 'function' ? showToast : () => {}
   const { contactId = '' } = useParams()
   const [state, setState] = useState({
     loading: true,
     error: '',
     feed: [],
   })
+  const [composerCaption, setComposerCaption] = useState('')
+  const [composerFile, setComposerFile] = useState(null)
+  const [composerFilePreview, setComposerFilePreview] = useState('')
+  const [isComposerOpen, setIsComposerOpen] = useState(false)
+  const [isSubmittingPost, setIsSubmittingPost] = useState(false)
+  const [pendingCommentForId, setPendingCommentForId] = useState('')
+  const [loadingCommentsForId, setLoadingCommentsForId] = useState('')
 
   const person = location.state?.person || null
   const circleTitle = location.state?.circleTitle || 'Circle'
@@ -150,7 +403,7 @@ export default function ContactPostFeedPage() {
   useEffect(() => {
     let active = true
 
-    void (async () => {
+    async function loadFeed() {
       setState({
         loading: true,
         error: '',
@@ -176,12 +429,177 @@ export default function ContactPostFeedPage() {
           feed: [],
         })
       }
-    })()
+    }
+
+    void loadFeed()
 
     return () => {
       active = false
     }
   }, [contactId])
+
+  useEffect(() => {
+    if (!composerFile) {
+      setComposerFilePreview('')
+      return undefined
+    }
+
+    const nextPreview = URL.createObjectURL(composerFile)
+    setComposerFilePreview(nextPreview)
+
+    return () => {
+      URL.revokeObjectURL(nextPreview)
+    }
+  }, [composerFile])
+
+  async function refreshFeed() {
+    const result = await fetchRecordFeedElements(contactId)
+    setState({
+      loading: false,
+      error: '',
+      feed: result.items,
+    })
+  }
+
+  function resetComposer() {
+    setComposerCaption('')
+    setComposerFile(null)
+    setComposerFilePreview('')
+    setIsComposerOpen(false)
+  }
+
+  async function handleCreatePost(event) {
+    event.preventDefault()
+
+    const trimmedCaption = composerCaption.trim()
+
+    if (!trimmedCaption && !composerFile) {
+      setState((current) => ({
+        ...current,
+        error: 'Isi post atau pilih foto terlebih dahulu.',
+      }))
+      return
+    }
+
+    setIsSubmittingPost(true)
+    setState((current) => ({
+      ...current,
+      error: '',
+    }))
+
+    try {
+      if (composerFile && trimmedCaption) {
+        const base64Data = await fileToBase64(composerFile)
+
+        try {
+          const inlineImage = await uploadInlineImageToRecord(contactId, {
+            fileName: composerFile.name,
+            base64Data,
+            title: composerFile.name.replace(/\.[^.]+$/, '') || composerFile.name,
+            description: trimmedCaption,
+          })
+
+          await createRecordFeedElementWithSegments(contactId, [
+            {
+              type: 'InlineImage',
+              fileId: inlineImage.fileId,
+              altText: inlineImage.title,
+            },
+            {
+              type: 'Text',
+              text: trimmedCaption,
+            },
+          ])
+        } catch {
+          await uploadFileToRecord(contactId, {
+            fileName: composerFile.name,
+            base64Data,
+            title: composerFile.name.replace(/\.[^.]+$/, '') || composerFile.name,
+            description: trimmedCaption,
+          })
+
+          await createRecordFeedElement(contactId, trimmedCaption)
+        }
+      } else if (composerFile) {
+        const base64Data = await fileToBase64(composerFile)
+        await uploadFileToRecord(contactId, {
+          fileName: composerFile.name,
+          base64Data,
+          title: composerFile.name.replace(/\.[^.]+$/, '') || composerFile.name,
+          description: trimmedCaption,
+        })
+      }
+
+      if (trimmedCaption && !composerFile) {
+        await createRecordFeedElement(contactId, trimmedCaption)
+      }
+
+      resetComposer()
+      await refreshFeed()
+      notify(composerFile ? 'Post dan file berhasil dikirim' : 'Post berhasil dibuat')
+    } catch (error) {
+      setState((current) => ({
+        ...current,
+        error: error?.message || 'Gagal membuat post baru.',
+      }))
+    } finally {
+      setIsSubmittingPost(false)
+    }
+  }
+
+  async function handleCreateComment(feedElementId, text) {
+    setPendingCommentForId(feedElementId)
+    setState((current) => ({
+      ...current,
+      error: '',
+    }))
+
+    try {
+      await createFeedElementComment(feedElementId, text)
+      await refreshFeed()
+      notify('Komentar berhasil dikirim')
+      return true
+    } catch (error) {
+      setState((current) => ({
+        ...current,
+        error: error?.message || 'Gagal membuat komentar.',
+      }))
+      return false
+    } finally {
+      setPendingCommentForId('')
+    }
+  }
+
+  async function handleLoadComments(feedElementId, commentsUrl) {
+    if (!feedElementId || loadingCommentsForId === feedElementId) {
+      return
+    }
+
+    setLoadingCommentsForId(feedElementId)
+
+    try {
+      const result = await fetchFeedElementComments(feedElementId, commentsUrl)
+      setState((current) => ({
+        ...current,
+        feed: current.feed.map((post) =>
+          post.id === feedElementId
+            ? {
+                ...post,
+                comments: result.items,
+                commentsCount: result.total || post.commentsCount,
+              }
+            : post
+        ),
+      }))
+    } catch (error) {
+      setState((current) => ({
+        ...current,
+        error: error?.message || 'Gagal mengambil komentar.',
+      }))
+    } finally {
+      setLoadingCommentsForId('')
+    }
+  }
 
   const headerSubtitle = useMemo(() => {
     if (state.loading) return 'Mengambil post terbaru dari Chatter...'
@@ -195,13 +613,22 @@ export default function ContactPostFeedPage() {
       <div className="mx-auto min-h-screen w-full max-w-sm pb-28">
         <section className="px-4 pb-6 pt-[calc(1rem+env(safe-area-inset-top)+1rem)]">
           <div className="rounded-[2rem] bg-[#101828] px-5 pb-5 pt-4 text-white shadow-[0_24px_60px_rgba(15,23,42,0.28)]">
-            <button
-              type="button"
-              className="text-sm font-medium text-white/70"
-              onClick={() => navigate('/circle')}
-            >
-              {'< Back'}
-            </button>
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                className="text-sm font-medium text-white/70"
+                onClick={() => navigate('/circle')}
+              >
+                {'< Back'}
+              </button>
+              <button
+                type="button"
+                className="rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm"
+                onClick={() => setIsComposerOpen(true)}
+              >
+                New Post
+              </button>
+            </div>
 
             <div className="mt-5 flex items-center gap-4">
               <div className="h-16 w-16 overflow-hidden rounded-full ring-4 ring-white/15">
@@ -250,8 +677,8 @@ export default function ContactPostFeedPage() {
             <div className="rounded-[2rem] border border-dashed border-orange-200 bg-white/85 px-5 py-8 text-center shadow-sm">
               <p className="text-lg font-semibold text-slate-900">Belum ada post</p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Endpoint Chatter untuk record ini belum mengembalikan feed item. Begitu ada post,
-                tampilannya akan muncul di sini seperti feed Instagram.
+                Belum ada post untuk contact ini. Gunakan tombol New Post untuk menambahkan update
+                baru atau upload foto ke Salesforce Files.
               </p>
             </div>
           ) : null}
@@ -264,11 +691,36 @@ export default function ContactPostFeedPage() {
 
           {!state.loading && state.feed.length > 0
             ? state.feed.map((post) => (
-                <PostCard key={post.id || `${contactId}-${post.createdDate}`} post={post} fallbackName={fallbackName} />
+                <PostCard
+                  key={post.id || `${contactId}-${post.createdDate}`}
+                  fallbackName={fallbackName}
+                  loadingCommentsForId={loadingCommentsForId}
+                  onCreateComment={handleCreateComment}
+                  onLoadComments={handleLoadComments}
+                  pendingCommentForId={pendingCommentForId}
+                  post={post}
+                />
               ))
             : null}
         </section>
       </div>
+
+      {isComposerOpen ? (
+        <ComposerModal
+          caption={composerCaption}
+          file={composerFile}
+          filePreview={composerFilePreview}
+          isSubmitting={isSubmittingPost}
+          onCaptionChange={(event) => setComposerCaption(event.target.value)}
+          onClose={() => {
+            if (!isSubmittingPost) {
+              resetComposer()
+            }
+          }}
+          onFileChange={(event) => setComposerFile(event.target.files?.[0] || null)}
+          onSubmit={(event) => void handleCreatePost(event)}
+        />
+      ) : null}
 
       <BottomStickyNav />
     </div>

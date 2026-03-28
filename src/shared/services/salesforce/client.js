@@ -139,6 +139,32 @@ async function executeSalesforceRequest(pathname, options = {}, session) {
   return payload
 }
 
+async function executeSalesforceBinaryRequest(pathnameOrUrl, session) {
+  ensureSalesforceConfig()
+
+  const requestHeaders = {
+    Authorization: `${session.tokenType || 'Bearer'} ${session.accessToken}`,
+  }
+
+  const url = /^https?:\/\//i.test(String(pathnameOrUrl || ''))
+    ? String(pathnameOrUrl)
+    : buildSalesforceUrl(session.instanceUrl, String(pathnameOrUrl || ''))
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: requestHeaders,
+  })
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null)
+    const error = new Error(readSalesforceError(payload))
+    error.status = response.status
+    error.payload = payload
+    throw error
+  }
+
+  return response.blob()
+}
+
 export async function sendSalesforceRequest(pathname, options = {}) {
   const session = await ensureSalesforceConnection()
 
@@ -152,6 +178,22 @@ export async function sendSalesforceRequest(pathname, options = {}) {
     await clearSalesforceAccessToken()
     const refreshedSession = await getSalesforceAccessSession({ forceRefresh: true })
     return executeSalesforceRequest(pathname, options, refreshedSession)
+  }
+}
+
+export async function sendSalesforceBinaryRequest(pathnameOrUrl) {
+  const session = await ensureSalesforceConnection()
+
+  try {
+    return await executeSalesforceBinaryRequest(pathnameOrUrl, session)
+  } catch (error) {
+    if (!isSessionExpiredError(error?.status, error?.payload)) {
+      throw error
+    }
+
+    await clearSalesforceAccessToken()
+    const refreshedSession = await getSalesforceAccessSession({ forceRefresh: true })
+    return executeSalesforceBinaryRequest(pathnameOrUrl, refreshedSession)
   }
 }
 
