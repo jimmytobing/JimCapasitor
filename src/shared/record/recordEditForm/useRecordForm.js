@@ -56,28 +56,63 @@ function buildComponentLookup(sections = []) {
   return componentLookup
 }
 
+function buildSectionLookup(sections = []) {
+  return new Map(
+    sections.map((section) => [section?.heading || '', section])
+  )
+}
+
+function shouldUseEditItem(viewItem, editItem) {
+  if (!editItem) {
+    return false
+  }
+
+  if ((viewItem?.label || '') === (editItem?.label || '')) {
+    return true
+  }
+
+  const viewRawFields = new Set(
+    (viewItem?.values || []).map((component) => component?.rawField).filter(Boolean)
+  )
+
+  return (editItem?.values || []).some((component) => viewRawFields.has(component?.rawField))
+}
+
 function mergeEditSectionsWithViewStructure(viewSections = [], editSections = []) {
   if (!viewSections.length) {
     return editSections
   }
 
   const editComponentLookup = buildComponentLookup(editSections)
+  const editSectionLookup = buildSectionLookup(editSections)
 
-  return viewSections.map((section) => ({
-    ...section,
-    rows: (section?.rows || []).map((row) => ({
-      ...row,
-      items: (row?.items || []).map((item) => ({
-        ...item,
-        values: (item?.values || []).map((component) => {
-          const mergedComponent =
-            editComponentLookup.get(component?.rawField) || editComponentLookup.get(component?.field)
+  return viewSections.map((section) => {
+    const editSection = editSectionLookup.get(section?.heading || '')
 
-          return mergedComponent ? { ...component, ...mergedComponent } : component
+    return {
+      ...section,
+      rows: (section?.rows || []).map((row, rowIndex) => ({
+        ...row,
+        items: (row?.items || []).map((item, itemIndex) => {
+          const editItem = editSection?.rows?.[rowIndex]?.items?.[itemIndex]
+
+          if (shouldUseEditItem(item, editItem)) {
+            return editItem
+          }
+
+          return {
+            ...item,
+            values: (item?.values || []).map((component) => {
+              const mergedComponent =
+                editComponentLookup.get(component?.rawField) || editComponentLookup.get(component?.field)
+
+              return mergedComponent ? { ...component, ...mergedComponent } : component
+            }),
+          }
         }),
       })),
-    })),
-  }))
+    }
+  })
 }
 
 export function useRecordForm(objectApiName, recordId, showToast) {
