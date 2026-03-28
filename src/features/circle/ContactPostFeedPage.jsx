@@ -256,43 +256,51 @@ function PostCard({
   }
 
   return (
-    <article className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
-      <div className="flex items-center gap-3 px-4 py-4">
-        <div className="h-12 w-12 overflow-hidden rounded-full ring-2 ring-rose-200 ring-offset-2 ring-offset-white">
-          <UserAvatar
-            name={displayName}
-            initial={displayName.slice(0, 1).toUpperCase()}
-            tone="from-rose-500 via-orange-400 to-amber-300"
-          />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-slate-900">{displayName}</p>
-          <p className="truncate text-xs text-slate-500">
-            Post {post.createdDate ? `• ${formatPostDate(post.createdDate)}` : ''}
-          </p>
-        </div>
-        <button type="button" className="rounded-full p-2 text-slate-400">
-          <span className="text-lg leading-none">...</span>
-        </button>
-      </div>
+    <article className="overflow-hidden border-y border-slate-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+      <div className="relative">
+        {firstAttachment ? (
+          <div className="aspect-[4/5] overflow-hidden bg-slate-100">
+            <AuthenticatedFeedImage
+              src={firstAttachment.imageUrl}
+              alt={firstAttachment}
+              className="h-full w-full"
+            />
+          </div>
+        ) : (
+          <div className="bg-[linear-gradient(160deg,#fef3c7_0%,#fff7ed_52%,#ffe4e6_100%)] px-5 py-16">
+            <div className="bg-white/70 p-5 shadow-sm backdrop-blur">
+              <p className="text-lg font-semibold leading-8 text-slate-900">
+                {post.text || 'Belum ada caption di post ini.'}
+              </p>
+            </div>
+          </div>
+        )}
 
-      {firstAttachment ? (
-        <div className="aspect-square overflow-hidden bg-slate-100">
-          <AuthenticatedFeedImage
-            src={firstAttachment.imageUrl}
-            alt={firstAttachment}
-            className="h-full w-full"
-          />
-        </div>
-      ) : (
-        <div className="bg-[linear-gradient(160deg,#fef3c7_0%,#fff7ed_52%,#ffe4e6_100%)] px-5 py-10">
-          <div className="rounded-[1.75rem] bg-white/70 p-5 shadow-sm backdrop-blur">
-            <p className="text-lg font-semibold leading-8 text-slate-900">
-              {post.text || 'Belum ada caption di post ini.'}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-950/70 via-slate-950/35 to-transparent" />
+
+        <div className="absolute left-4 top-4 flex items-center gap-3">
+          <div className="h-12 w-12 overflow-hidden rounded-full ring-2 ring-white/70 ring-offset-2 ring-offset-transparent">
+            <UserAvatar
+              name={displayName}
+              initial={displayName.slice(0, 1).toUpperCase()}
+              tone="from-rose-500 via-orange-400 to-amber-300"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-white drop-shadow-sm">{displayName}</p>
+            <p className="truncate text-xs text-white/85 drop-shadow-sm">
+              Post {post.createdDate ? `• ${formatPostDate(post.createdDate)}` : ''}
             </p>
           </div>
         </div>
-      )}
+
+        <button
+          type="button"
+          className="absolute right-3 top-3 rounded-full bg-slate-950/45 p-2 text-white backdrop-blur-sm"
+        >
+          <span className="text-lg leading-none">...</span>
+        </button>
+      </div>
 
       <div className="px-4 py-4">
         <div className="flex items-center gap-4 text-slate-900">
@@ -334,14 +342,6 @@ function PostCard({
                 ? `Sembunyikan ${post.commentsCount} komentar`
                 : `Lihat ${post.commentsCount} komentar`
               : 'Belum ada komentar'}
-          </button>
-
-          <button
-            type="button"
-            className="text-sm font-medium text-rose-500"
-            onClick={() => setShowCommentComposer((current) => !current)}
-          >
-            New Comment
           </button>
         </div>
 
@@ -637,14 +637,14 @@ export default function ContactPostFeedPage({ showToast }) {
     if (state.loading) return 'Mengambil post terbaru dari Chatter...'
     if (state.error) return state.error
     if (state.feed.length === 0) return 'Belum ada post untuk contact ini.'
-    return `${state.feed.length} post ditemukan dari feed Chatter.`
+    return `${state.feed.length} post`
   }, [state.error, state.feed.length, state.loading])
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#fff7ed_0%,#fff1f2_36%,#f8fafc_100%)]">
-      <div className="mx-auto min-h-screen w-full max-w-sm pb-28">
-        <section className="px-4 pb-6 pt-[calc(1rem+env(safe-area-inset-top)+1rem)]">
-          <div className="rounded-[2rem] bg-[#101828] px-5 pb-5 pt-4 text-white shadow-[0_24px_60px_rgba(15,23,42,0.28)]">
+      <div className="min-h-screen pb-28">
+        <section className="pb-6">
+          <div className="bg-[#101828] px-5 pb-5 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white shadow-[0_24px_60px_rgba(15,23,42,0.28)]">
             <div className="flex items-center justify-between gap-3">
               <button
                 type="button"
@@ -684,9 +684,9 @@ export default function ContactPostFeedPage({ showToast }) {
           </div>
         </section>
 
-        <section className="space-y-4 px-4 pb-6">
+        <section className="space-y-4 pb-6">
           {state.loading ? (
-            <div className="space-y-4">
+            <div className="space-y-4 px-3">
               {[0, 1].map((item) => (
                 <div
                   key={item}
@@ -706,7 +706,7 @@ export default function ContactPostFeedPage({ showToast }) {
           ) : null}
 
           {!state.loading && !state.error && state.feed.length === 0 ? (
-            <div className="rounded-[2rem] border border-dashed border-orange-200 bg-white/85 px-5 py-8 text-center shadow-sm">
+            <div className="mx-3 rounded-[2rem] border border-dashed border-orange-200 bg-white/85 px-5 py-8 text-center shadow-sm">
               <p className="text-lg font-semibold text-slate-900">Belum ada post</p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 Belum ada post untuk contact ini. Gunakan tombol New Post untuk menambahkan update
@@ -716,7 +716,7 @@ export default function ContactPostFeedPage({ showToast }) {
           ) : null}
 
           {!state.loading && state.error ? (
-            <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-5 py-6 text-sm leading-6 text-rose-700 shadow-sm">
+            <div className="mx-3 rounded-[2rem] border border-rose-200 bg-rose-50 px-5 py-6 text-sm leading-6 text-rose-700 shadow-sm">
               {state.error}
             </div>
           ) : null}
