@@ -47,24 +47,30 @@ function fileToBase64(file) {
 
 function AuthenticatedFeedImage({ src, alt, className = '' }) {
   const [resolvedSrc, setResolvedSrc] = useState('')
+  const [currentSrc, setCurrentSrc] = useState(src)
+  const [isLoadingHd, setIsLoadingHd] = useState(false)
+
+  useEffect(() => {
+    setCurrentSrc(src)
+  }, [src])
 
   useEffect(() => {
     let active = true
     let objectUrl = ''
 
     async function loadImage() {
-      if (!src) {
+      if (!currentSrc) {
         setResolvedSrc('')
         return
       }
 
-      if (!/^https?:\/\/.+salesforce\.com\//i.test(src)) {
-        setResolvedSrc(src)
+      if (!/^https?:\/\/.+salesforce\.com\//i.test(currentSrc)) {
+        setResolvedSrc(currentSrc)
         return
       }
 
       try {
-        const blob = await sendSalesforceBinaryRequest(src)
+        const blob = await sendSalesforceBinaryRequest(currentSrc)
         if (!active) return
         objectUrl = URL.createObjectURL(blob)
         setResolvedSrc(objectUrl)
@@ -82,20 +88,46 @@ function AuthenticatedFeedImage({ src, alt, className = '' }) {
         URL.revokeObjectURL(objectUrl)
       }
     }
-  }, [src])
+  }, [currentSrc])
 
-  if (!resolvedSrc) {
-    return <div className={`h-full w-full animate-pulse bg-slate-200 ${className}`.trim()} />
+  async function handleGetHd() {
+    if (!alt?.fullImageUrl || alt.fullImageUrl === currentSrc || isLoadingHd) {
+      return
+    }
+
+    setIsLoadingHd(true)
+    try {
+      setCurrentSrc(alt.fullImageUrl)
+    } finally {
+      setIsLoadingHd(false)
+    }
   }
 
   return (
-    <img
-      src={resolvedSrc}
-      alt={alt}
-      className={`h-full w-full object-cover ${className}`.trim()}
-      loading="lazy"
-      referrerPolicy="no-referrer"
-    />
+    <div className={`relative h-full w-full ${className}`.trim()}>
+      {alt?.fullImageUrl && alt.fullImageUrl !== currentSrc ? (
+        <button
+          type="button"
+          className="absolute right-3 top-3 z-10 rounded-full bg-slate-950/75 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm"
+          onClick={() => void handleGetHd()}
+          disabled={isLoadingHd}
+        >
+          {isLoadingHd ? 'Loading...' : 'Get HD'}
+        </button>
+      ) : null}
+
+      {resolvedSrc ? (
+        <img
+          src={resolvedSrc}
+          alt={typeof alt === 'string' ? alt : alt?.title || 'Feed image'}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <div className="h-full w-full animate-pulse bg-slate-200" />
+      )}
+    </div>
   )
 }
 
@@ -248,7 +280,7 @@ function PostCard({
         <div className="aspect-square overflow-hidden bg-slate-100">
           <AuthenticatedFeedImage
             src={firstAttachment.imageUrl}
-            alt={firstAttachment.title}
+            alt={firstAttachment}
             className="h-full w-full"
           />
         </div>

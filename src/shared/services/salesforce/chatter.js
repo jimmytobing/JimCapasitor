@@ -117,14 +117,41 @@ function extractAttachments(item = {}, instanceUrl) {
     ? item.body.messageSegments
         .filter((segment) => segment?.type === 'InlineImage')
         .map((segment) => {
-          const previewUrl =
-            segment?.thumbnails?.previews?.find((preview) => Array.isArray(preview?.previewUrls) && preview.previewUrls[0]?.previewUrl)
-              ?.previewUrls?.[0]?.previewUrl || ''
+          const previews = Array.isArray(segment?.thumbnails?.previews)
+            ? segment.thumbnails.previews
+            : []
+          const preferredPreview =
+            previews.find(
+              (preview) =>
+                preview?.format === 'ThumbnailBig' &&
+                Array.isArray(preview?.previewUrls) &&
+                preview.previewUrls[0]?.previewUrl
+            ) ||
+            previews.find(
+              (preview) =>
+                preview?.format === 'Thumbnail' &&
+                Array.isArray(preview?.previewUrls) &&
+                preview.previewUrls[0]?.previewUrl
+            ) ||
+            previews.find(
+              (preview) =>
+                preview?.format === 'ThumbnailTiny' &&
+                Array.isArray(preview?.previewUrls) &&
+                preview.previewUrls[0]?.previewUrl
+            ) ||
+            previews.find(
+              (preview) =>
+                Array.isArray(preview?.previewUrls) &&
+                preview.previewUrls[0]?.previewUrl
+            )
+          const previewUrl = preferredPreview?.previewUrls?.[0]?.previewUrl || ''
+          const fullImageUrl = segment?.url || ''
 
           return {
-            id: segment?.thumbnails?.fileId || segment?.url || previewUrl,
+            id: segment?.thumbnails?.fileId || fullImageUrl || previewUrl,
             title: segment?.altText || 'Inline image',
-            imageUrl: resolveSalesforceUrl(instanceUrl, previewUrl || segment?.url || ''),
+            imageUrl: resolveSalesforceUrl(instanceUrl, previewUrl || fullImageUrl),
+            fullImageUrl: resolveSalesforceUrl(instanceUrl, fullImageUrl || previewUrl),
           }
         })
         .filter((attachment) => attachment.imageUrl)
