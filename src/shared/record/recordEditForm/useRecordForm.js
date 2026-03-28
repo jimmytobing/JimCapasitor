@@ -169,6 +169,22 @@ export function useRecordForm(objectApiName, recordId, showToast) {
     )
   }
 
+  function resetFieldValue(fieldName) {
+    setFieldErrors((current) => clearFieldError(current, fieldName))
+    setEditValues((current) => {
+      const fieldState = current?.[fieldName]
+      if (!fieldState) {
+        return current
+      }
+
+      const nextState = mergeEditValueState(current, fieldName, fieldState.original, {
+        displayCurrent: fieldState.displayOriginal,
+      })
+
+      return applyDependentValueCleanup(nextState, fieldName, picklists)
+    })
+  }
+
   async function searchLookupOptions(component, searchTerm) {
     const targetObjectApiName =
       component?.referenceTargetApiName || component?.referenceTargetApiNames?.[0] || ''
@@ -319,6 +335,7 @@ export function useRecordForm(objectApiName, recordId, showToast) {
     cancelEditMode,
     updateFieldValue,
     updateLookupValue,
+    resetFieldValue,
     saveRecord,
     deleteRecord,
   }

@@ -40,6 +40,7 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
     saveRecord,
     updateFieldValue,
     updateLookupValue,
+    resetFieldValue,
   } = useRecordForm(objectApiName, recordId, showToast)
   const currentUsername = getStoredUsername().toLowerCase()
   const shouldShowLookupReferenceCard =
@@ -365,6 +366,8 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
                   onSearch: searchLookupOptions,
                 }}
                 onInlineEdit={handleInlineEdit}
+                onSaveDirtyField={handleSave}
+                onCancelDirtyField={resetFieldValue}
               />
             )}
 

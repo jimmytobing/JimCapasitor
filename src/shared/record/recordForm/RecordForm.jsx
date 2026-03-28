@@ -14,6 +14,8 @@ export default function RecordForm({
   lookupContext,
   renderSectionSubtitle,
   onInlineEdit,
+  onSaveDirtyField,
+  onCancelDirtyField,
 }) {
   return sections.map((section, sectionIndex) => {
     const sectionKey = getSectionKey(section, sectionIndex)
@@ -74,6 +76,8 @@ export default function RecordForm({
                       ...(resolvedItem.ui || {}),
                     }}
                     onInlineEdit={onInlineEdit}
+                    onSaveDirtyField={onSaveDirtyField}
+                    onCancelDirtyField={onCancelDirtyField}
                   />
                 )
               })}
