@@ -146,52 +146,57 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
   function renderActionButtons() {
     return (
       <>
-        {isCreateMode ? (
-          <button
-            type="button"
-            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Creating...' : `Create ${objectApiName}`}
-          </button>
-        ) : mode === 'View' ? (
-          <button
-            type="button"
-            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
-            onClick={enterEditMode}
-            disabled={!recordView}
-          >
-            Edit
-          </button>
-        ) : (
+        {!isCreateMode && mode === 'Edit' ? (
           <>
             <button
               type="button"
-              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm"
-              onClick={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? 'Saving...' : 'Save'}
-            </button>
-            <button
-              type="button"
-              className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm"
               onClick={cancelEditMode}
+              aria-label="Cancel"
+              title="Cancel"
             >
-              Cancel
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
             </button>
           </>
-        )}
+        ) : null}
 
         {!isCreateMode ? (
           <button
             type="button"
-            className="rounded-full border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white text-rose-600 shadow-sm"
             onClick={handleDelete}
             disabled={isDeleting}
+            aria-label={isDeleting ? 'Deleting' : 'Delete'}
+            title={isDeleting ? 'Deleting' : 'Delete'}
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 6h18" />
+              <path d="M8 6V4h8v2" />
+              <path d="M19 6l-1 14H6L5 6" />
+              <path d="M10 11v6" />
+              <path d="M14 11v6" />
+            </svg>
           </button>
         ) : null}
       </>
