@@ -4,6 +4,7 @@ import JokesPage from '../features/jokes/JokesPage.jsx'
 import DailyPage from '../features/daily/DailyPage.jsx'
 import TodayFriendsPage from '../features/today-friends/TodayFriendsPage.jsx'
 import CirclePage from '../features/circle/CirclePage.jsx'
+import ContactPostFeedPage from '../features/circle/ContactPostFeedPage.jsx'
 import MiniChallengePage from '../features/mini-challenge/MiniChallengePage.jsx'
 import FriendRadarPage from '../features/friend-radar/FriendRadarPage.jsx'
 import ActivitySuggestionPage from '../features/activity-suggestion/ActivitySuggestionPage.jsx'
@@ -76,6 +77,7 @@ export default function AppRoutes({ showToast, themeMode, setThemeMode }) {
       <Route path="/daily" element={<DailyPage showToast={showToast} />} />
       <Route path="/today-friends" element={<TodayFriendsPage showToast={showToast} />} />
       <Route path="/circle" element={<CirclePage showToast={showToast} />} />
+      <Route path="/circle/contact/:contactId/posts" element={<ContactPostFeedPage />} />
       <Route path="/mini-challenge" element={<MiniChallengePage showToast={showToast} />} />
       <Route path="/friend-radar" element={<FriendRadarPage showToast={showToast} />} />
       <Route

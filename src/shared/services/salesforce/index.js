@@ -4,6 +4,8 @@ export {
   testSalesforceConnection,
 } from './client.js'
 
+export { fetchRecordFeedElements } from './chatter.js'
+
 export {
   createUiRecord,
   deleteUiRecord,

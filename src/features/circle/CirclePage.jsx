@@ -144,32 +144,47 @@ export default function CirclePage({ showToast }) {
                               <div className="flex items-center gap-3">
                                 <button
                                   type="button"
-                                  className="h-11 w-11 shrink-0 overflow-hidden rounded-full"
+                                  className="flex flex-1 items-center gap-3 text-left"
                                   onClick={() =>
-                                    navigate(`/${person.id}`, {
+                                    navigate(`/circle/contact/${person.id}/posts`, {
                                       state: {
                                         from: '/circle',
-                                        objectApiName: 'Contact',
+                                        person,
+                                        circleTitle: circle.title,
                                       },
                                     })
                                   }
-                                  aria-label={`Open ${person.name}`}
+                                  aria-label={`Open ${person.name} posts`}
                                   title={person.name}
                                 >
-                                  <UserAvatar
-                                    name={person.name}
-                                    initial={person.name?.slice(0, 1)?.toUpperCase() || '?'}
-                                    tone="from-slate-700 to-slate-900"
-                                  />
+                                  <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full">
+                                    <UserAvatar
+                                      name={person.name}
+                                      initial={person.name?.slice(0, 1)?.toUpperCase() || '?'}
+                                      tone="from-slate-700 to-slate-900"
+                                    />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-semibold text-slate-900">{person.name}</p>
+                                    <p className="mt-1 text-sm text-slate-500">{person.status}</p>
+                                  </div>
                                 </button>
-                                <div>
-                                  <p className="text-sm font-semibold text-slate-900">{person.name}</p>
-                                  <p className="mt-1 text-sm text-slate-500">{person.status}</p>
-                                </div>
                               </div>
-                              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                                Member
-                              </span>
+                              <button
+                                type="button"
+                                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-200"
+                                onClick={() =>
+                                  navigate(`/circle/contact/${person.id}/posts`, {
+                                    state: {
+                                      from: '/circle',
+                                      person,
+                                      circleTitle: circle.title,
+                                    },
+                                  })
+                                }
+                              >
+                                View Post
+                              </button>
                             </div>
                           </div>
                         ))}
