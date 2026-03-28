@@ -34,6 +34,52 @@ function getLoadingMessage(isCreateMode, objectApiName) {
     : 'Mengambil detail record dari Salesforce...'
 }
 
+function buildComponentLookup(sections = []) {
+  const componentLookup = new Map()
+
+  sections.forEach((section) => {
+    section?.rows?.forEach((row) => {
+      row?.items?.forEach((item) => {
+        item?.values?.forEach((component) => {
+          const keys = [component?.rawField, component?.field].filter(Boolean)
+
+          keys.forEach((key) => {
+            if (!componentLookup.has(key)) {
+              componentLookup.set(key, component)
+            }
+          })
+        })
+      })
+    })
+  })
+
+  return componentLookup
+}
+
+function mergeEditSectionsWithViewStructure(viewSections = [], editSections = []) {
+  if (!viewSections.length) {
+    return editSections
+  }
+
+  const editComponentLookup = buildComponentLookup(editSections)
+
+  return viewSections.map((section) => ({
+    ...section,
+    rows: (section?.rows || []).map((row) => ({
+      ...row,
+      items: (row?.items || []).map((item) => ({
+        ...item,
+        values: (item?.values || []).map((component) => {
+          const mergedComponent =
+            editComponentLookup.get(component?.rawField) || editComponentLookup.get(component?.field)
+
+          return mergedComponent ? { ...component, ...mergedComponent } : component
+        }),
+      })),
+    })),
+  }))
+}
+
 export function useRecordForm(objectApiName, recordId, showToast) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const isCreateMode = !recordId
@@ -98,6 +144,13 @@ export function useRecordForm(objectApiName, recordId, showToast) {
   const activeSections = useMemo(() => {
     if (isCreateMode) {
       return recordView?.layouts?.Full?.Create || []
+    }
+
+    if (mode === 'Edit') {
+      return mergeEditSectionsWithViewStructure(
+        recordView?.layouts?.Full?.View || [],
+        recordView?.layouts?.Full?.Edit || []
+      )
     }
 
     return recordView?.layouts?.Full?.[mode] || []
