@@ -21,6 +21,20 @@ export default function RecordForm({
     const sectionKey = getSectionKey(section, sectionIndex)
     const isCollapsed = Boolean(collapsedSections?.[sectionKey])
     const subtitle = renderSectionSubtitle?.(section, sectionIndex) || ''
+    const dirtyCount = section.rows.reduce((total, row) => {
+      return (
+        total +
+        row.items.reduce((rowTotal, item) => {
+          return (
+            rowTotal +
+            item.values.reduce((itemTotal, component) => {
+              const fieldState = editContext?.values?.[component.field]
+              return fieldState?.original !== fieldState?.current ? itemTotal + 1 : itemTotal
+            }, 0)
+          )
+        }, 0)
+      )
+    }, 0)
 
     return (
       <section key={sectionKey} className="rounded-3xl bg-white p-4 shadow-sm">
@@ -36,13 +50,17 @@ export default function RecordForm({
             {subtitle ? <p className="mt-1 text-xs text-slate-500">{subtitle}</p> : null}
           </div>
           <div className="flex items-center gap-2">
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                tone === 'emerald' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
-              }`}
-            >
-              {section.rows.length} {section.rows.length === 1 ? 'row' : 'rows'}
-            </span>
+            {dirtyCount > 0 ? (
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
+                  tone === 'emerald'
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'bg-orange-50 text-orange-600'
+                }`}
+              >
+                {dirtyCount}
+              </span>
+            ) : null}
             <span className="text-sm text-slate-400">{isCollapsed ? '+' : '-'}</span>
           </div>
         </button>
