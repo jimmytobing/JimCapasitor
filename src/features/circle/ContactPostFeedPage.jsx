@@ -267,11 +267,29 @@ function PostCard({
             />
           </div>
         ) : (
-          <div className="bg-[linear-gradient(160deg,#fef3c7_0%,#fff7ed_52%,#ffe4e6_100%)] px-5 py-16">
-            <div className="bg-white/70 p-5 shadow-sm backdrop-blur">
-              <p className="text-lg font-semibold leading-8 text-slate-900">
-                {post.text || 'Belum ada caption di post ini.'}
-              </p>
+          <div className="relative aspect-[4/5] overflow-hidden bg-[linear-gradient(160deg,#fef08a_0%,#f9a8d4_48%,#93c5fd_100%)] px-6 py-12">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.48)_0%,rgba(255,255,255,0)_36%)]" />
+            <div className="absolute -left-6 top-8 h-24 w-24 rounded-full bg-white/25 blur-2xl" />
+            <div className="absolute right-2 top-14 h-16 w-16 rounded-full bg-fuchsia-200/40 blur-2xl" />
+            <div className="absolute bottom-8 left-10 h-20 w-20 rounded-full bg-sky-200/45 blur-3xl" />
+            <div className="absolute bottom-10 right-8 h-24 w-24 rounded-full bg-amber-200/35 blur-3xl" />
+            <div className="relative flex h-full items-center justify-center">
+              <div className="relative w-full max-w-[82%] rotate-[-4deg] rounded-[1.4rem_1.1rem_1.5rem_1.2rem] bg-[#fff278] px-6 py-8 shadow-[0_24px_50px_rgba(131,24,67,0.22)] ring-2 ring-white/45">
+                <div className="absolute -left-3 top-5 h-6 w-6 rounded-full bg-fuchsia-400 shadow-[0_6px_14px_rgba(190,24,93,0.35)] ring-4 ring-pink-100/80" />
+                <div className="absolute right-6 top-0 h-7 w-24 -translate-y-1/2 rotate-[8deg] rounded-full bg-white/55 shadow-[0_10px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm" />
+                <div className="absolute inset-0 rounded-[1.4rem_1.1rem_1.5rem_1.2rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0)_26%,rgba(249,168,212,0.08)_100%)]" />
+                <div className="absolute left-4 top-4 h-3 w-3 rounded-full bg-rose-300/70" />
+                <div className="absolute right-5 top-10 h-2.5 w-2.5 rounded-full bg-sky-300/80" />
+                <div className="absolute bottom-5 left-6 h-2.5 w-2.5 rounded-full bg-orange-300/80" />
+                <div className="absolute inset-x-0 top-9 border-t border-amber-300/45" />
+                <div className="absolute inset-x-0 top-[5.5rem] border-t border-amber-300/30" />
+                <div className="absolute inset-x-0 top-[8rem] border-t border-amber-300/25" />
+                <div className="relative">
+                  <p className="whitespace-pre-wrap text-lg font-bold leading-8 text-slate-800">
+                    {post.text || 'Belum ada caption di post ini.'}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -429,8 +447,8 @@ export default function ContactPostFeedPage({ showToast }) {
 
   const person = location.state?.person || null
   const circleTitle = location.state?.circleTitle || 'Circle'
-  const fallbackName = person?.name || 'Contact'
-  const fallbackStatus = person?.status || 'Member aktif'
+  const fallbackName = person?.name || 'No Name'
+  const fallbackStatus = person?.status || 'No Status'
 
   useEffect(() => {
     let active = true
@@ -705,19 +723,19 @@ export default function ContactPostFeedPage({ showToast }) {
             </div>
           ) : null}
 
+          {state.error ? (
+            <div className="mx-3 rounded-[2rem] border border-rose-200 bg-rose-50 px-5 py-6 text-sm leading-6 text-rose-700 shadow-sm">
+              {state.error}
+            </div>
+          ) : null}
+
           {!state.loading && !state.error && state.feed.length === 0 ? (
             <div className="mx-3 rounded-[2rem] border border-dashed border-orange-200 bg-white/85 px-5 py-8 text-center shadow-sm">
               <p className="text-lg font-semibold text-slate-900">Belum ada post</p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Belum ada post untuk contact ini. Gunakan tombol New Post untuk menambahkan update
-                baru atau upload foto ke Salesforce Files.
+                Belum ada post untuk contact ini. Minta dia untuk mengunakan tombol New Post untuk menambahkan update
+                baru atau upload foto ke HypeZone.
               </p>
-            </div>
-          ) : null}
-
-          {!state.loading && state.error ? (
-            <div className="mx-3 rounded-[2rem] border border-rose-200 bg-rose-50 px-5 py-6 text-sm leading-6 text-rose-700 shadow-sm">
-              {state.error}
             </div>
           ) : null}
 
