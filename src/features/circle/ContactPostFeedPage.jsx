@@ -55,6 +55,63 @@ function normalizePhotoUrl(photoUrl) {
   return `https://sfcapacitor-dev-ed.develop.my.salesforce.com/${photoUrl.replace(/^\/+/, '')}`
 }
 
+function deriveToneTheme(avatarTone = '') {
+  const tone = String(avatarTone || '')
+
+  if (/(pink|rose|fuchsia)/.test(tone)) {
+    return {
+      pageBg: 'bg-[linear-gradient(180deg,#fff1f2_0%,#ffe4e6_36%,#fff7ed_100%)]',
+      headerBg: 'bg-gradient-to-br from-rose-700 via-pink-600 to-orange-400',
+      statsPanel: 'bg-white/12',
+      primaryButton: 'bg-white text-rose-700',
+      secondaryButton: 'bg-white/10 text-white ring-1 ring-white/20',
+      actionAccent: 'text-rose-500',
+    }
+  }
+
+  if (/(purple|violet)/.test(tone)) {
+    return {
+      pageBg: 'bg-[linear-gradient(180deg,#f5f3ff_0%,#ede9fe_36%,#f8fafc_100%)]',
+      headerBg: 'bg-gradient-to-br from-violet-800 via-purple-700 to-fuchsia-600',
+      statsPanel: 'bg-white/12',
+      primaryButton: 'bg-white text-violet-700',
+      secondaryButton: 'bg-white/10 text-white ring-1 ring-white/20',
+      actionAccent: 'text-violet-500',
+    }
+  }
+
+  if (/(sky|blue|indigo)/.test(tone)) {
+    return {
+      pageBg: 'bg-[linear-gradient(180deg,#eff6ff_0%,#dbeafe_36%,#f8fafc_100%)]',
+      headerBg: 'bg-gradient-to-br from-sky-800 via-blue-700 to-indigo-700',
+      statsPanel: 'bg-white/12',
+      primaryButton: 'bg-white text-blue-700',
+      secondaryButton: 'bg-white/10 text-white ring-1 ring-white/20',
+      actionAccent: 'text-blue-500',
+    }
+  }
+
+  if (/(teal|emerald)/.test(tone)) {
+    return {
+      pageBg: 'bg-[linear-gradient(180deg,#ecfdf5_0%,#d1fae5_36%,#f8fafc_100%)]',
+      headerBg: 'bg-gradient-to-br from-emerald-800 via-teal-700 to-cyan-700',
+      statsPanel: 'bg-white/12',
+      primaryButton: 'bg-white text-emerald-700',
+      secondaryButton: 'bg-white/10 text-white ring-1 ring-white/20',
+      actionAccent: 'text-emerald-500',
+    }
+  }
+
+  return {
+    pageBg: 'bg-[linear-gradient(180deg,#f8fafc_0%,#e2e8f0_36%,#f8fafc_100%)]',
+    headerBg: 'bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900',
+    statsPanel: 'bg-white/10',
+    primaryButton: 'bg-white text-slate-800',
+    secondaryButton: 'bg-white/10 text-white ring-1 ring-white/20',
+    actionAccent: 'text-slate-500',
+  }
+}
+
 function AuthenticatedFeedImage({ src, alt, className = '' }) {
   const [resolvedSrc, setResolvedSrc] = useState('')
   const [currentSrc, setCurrentSrc] = useState(src)
@@ -480,6 +537,7 @@ export default function ContactPostFeedPage({ showToast }) {
   )
   const fallbackName = contactProfile?.name || person?.name || 'No Name'
   const fallbackStatus = person?.status || 'No Status'
+  const toneTheme = deriveToneTheme(contactProfile?.avatarTone)
 
   useEffect(() => {
     let active = true
@@ -755,18 +813,16 @@ export default function ContactPostFeedPage({ showToast }) {
     }
   }
 
-  const headerSubtitle = useMemo(() => {
-    if (state.loading) return 'Mengambil post terbaru dari Chatter...'
-    if (state.error) return state.error
-    if (state.feed.length === 0) return 'Belum ada post untuk contact ini.'
-    return `${state.feed.length} post`
-  }, [state.error, state.feed.length, state.loading])
+  const headerPostCount = useMemo(() => {
+    if (state.loading) return '...'
+    return String(state.feed.length)
+  }, [state.feed.length, state.loading])
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fff7ed_0%,#fff1f2_36%,#f8fafc_100%)]">
+    <div className={`min-h-screen ${toneTheme.pageBg}`}>
       <div className="min-h-screen pb-28">
         <section className="pb-6">
-          <div className="bg-[#101828] px-5 pb-5 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white shadow-[0_24px_60px_rgba(15,23,42,0.28)]">
+          <div className={`${toneTheme.headerBg} px-5 pb-5 pt-[calc(1rem+env(safe-area-inset-top)+1rem)] text-white shadow-[0_24px_60px_rgba(15,23,42,0.28)]`}>
             <div className="flex items-center justify-between gap-3">
               <button
                 type="button"
@@ -799,16 +855,45 @@ export default function ContactPostFeedPage({ showToast }) {
                   tone={contactProfile?.avatarTone || 'from-rose-500 via-orange-400 to-amber-300'}
                 />
               </button>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-xl font-semibold">{fallbackName}</p>
-                <p className="mt-1 truncate text-sm text-white/75">{fallbackStatus}</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.24em] text-white/50">{circleTitle}</p>
+              <div className="min-w-0 flex-1 self-center">
+                <p className="truncate text-lg font-semibold leading-tight">{fallbackName}</p>
+                <div className={`mt-1 grid w-full grid-cols-3 gap-2 rounded-[0.875rem] px-0 py-1.5 text-left ${toneTheme.statsPanel}`}>
+                  <div>
+                    <p className="text-[11px] font-semibold leading-none text-white">{headerPostCount}</p>
+                    <p className="mt-0.5 text-[8px] uppercase tracking-[0.12em] text-white/60">Posts</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold leading-none text-white">1,6M</p>
+                    <p className="mt-0.5 text-[8px] uppercase tracking-[0.12em] text-white/60">Followers</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold leading-none text-white">1,3K</p>
+                    <p className="mt-0.5 text-[8px] uppercase tracking-[0.12em] text-white/60">Following</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="mt-5 rounded-[1.5rem] bg-white/10 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.24em] text-white/55">Post Feed</p>
-              <p className="mt-2 text-sm leading-6 text-white/85">{headerSubtitle}</p>
+            <div className="mt-4">
+              <p className="truncate text-sm text-white/75">{fallbackStatus}</p>
+              <p className="mt-1 text-xs uppercase tracking-[0.24em] text-white/50">{circleTitle}</p>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                className={`rounded-full px-4 py-1.5 text-xs font-semibold shadow-sm ${toneTheme.primaryButton}`}
+                onClick={() => notify(`Follow ${fallbackName}`)}
+              >
+                Follow
+              </button>
+              <button
+                type="button"
+                className={`rounded-full px-4 py-1.5 text-xs font-semibold backdrop-blur-sm ${toneTheme.secondaryButton}`}
+                onClick={() => notify(`Message ${fallbackName}`)}
+              >
+                Message
+              </button>
             </div>
           </div>
         </section>

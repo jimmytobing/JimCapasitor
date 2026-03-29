@@ -61,26 +61,35 @@ const femalePhotoIds = [
   'photo-1631377307692-36a9b6ae3ef6',
 ]
 
-const maleToneSeed = [
+const sharedToneSeed = [
   'from-sky-400 to-blue-500',
-  'from-indigo-400 to-blue-500',
-  'from-teal-400 to-emerald-500',
-  'from-slate-500 to-slate-700',
+  'from-emerald-400 to-teal-600',
+  'from-amber-300 to-orange-500',
+  'from-violet-400 to-indigo-600',
+  'from-lime-400 to-green-600',
+  'from-rose-400 to-red-500',
+  'from-cyan-400 to-sky-600',
+  'from-fuchsia-400 to-purple-600',
+  'from-yellow-300 to-amber-500',
+  'from-teal-400 to-cyan-600',
+  'from-orange-400 to-red-600',
+  'from-indigo-400 to-blue-600',
+  'from-green-400 to-emerald-600',
+  'from-pink-400 to-rose-600',
+  'from-blue-300 to-cyan-500',
+  'from-slate-500 to-gray-700',
+  'from-red-400 to-orange-500',
+  'from-purple-400 to-violet-600',
+  'from-emerald-300 to-lime-500',
+  'from-sky-300 to-indigo-500',
+  'from-amber-400 to-yellow-500',
+  'from-zinc-400 to-slate-600',
+  'from-teal-300 to-emerald-500',
+  'from-orange-300 to-amber-500',
+  'from-cyan-300 to-blue-500',
+  'from-lime-300 to-emerald-500',
 ]
-
-const femaleToneSeed = [
-  'from-pink-400 to-rose-500',
-  'from-fuchsia-400 to-pink-500',
-  'from-purple-400 to-violet-500',
-  'from-rose-400 to-pink-500',
-]
-
-function expandToAlphabet(seed) {
-  return alphabet.map((_, index) => seed[index % seed.length])
-}
-
-const maleTones = expandToAlphabet(maleToneSeed)
-const femaleTones = expandToAlphabet(femaleToneSeed)
+const sharedTones = sharedToneSeed
 
 function createLetterProfiles(photoIds, tones) {
   return Object.fromEntries(
@@ -96,14 +105,26 @@ function createLetterProfiles(photoIds, tones) {
 }
 
 const genderLetterProfiles = {
-  pria: createLetterProfiles(malePhotoIds, maleTones),
-  wanita: createLetterProfiles(femalePhotoIds, femaleTones),
+  male: createLetterProfiles(malePhotoIds, sharedTones),
+  female: createLetterProfiles(femalePhotoIds, sharedTones),
 }
 
-const defaultLetterProfiles = genderLetterProfiles.wanita
+const defaultLetterProfiles = genderLetterProfiles.female
 
 const normalizeKey = (value) => value?.toString().trim().toLowerCase() ?? ''
-const normalizeGender = (value) => value?.toString().trim().toLowerCase() ?? ''
+const normalizeGender = (value) => {
+  const normalized = value?.toString().trim().toLowerCase() ?? ''
+
+  if (normalized === 'pria') {
+    return 'male'
+  }
+
+  if (normalized === 'wanita') {
+    return 'female'
+  }
+
+  return normalized
+}
 const normalizeLetter = (value) => value?.toString().trim().slice(0, 1).toUpperCase() ?? ''
 
 function getLetterProfile(letter) {
@@ -117,7 +138,7 @@ export function getAvatarProfileByName(value) {
 }
 
 export function getDefaultContactAvatarProfile({ gender, name = '', avatar = '' } = {}) {
-  const normalizedGender = normalizeGender(gender) || 'wanita'
+  const normalizedGender = normalizeGender(gender) || 'female'
   const letter = normalizeLetter(avatar || name)
 
   if (!letter) {
