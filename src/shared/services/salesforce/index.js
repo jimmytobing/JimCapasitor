@@ -37,6 +37,7 @@ export {
 } from './query.js'
 
 export {
+  fetchAccountContactsByCircleId,
   fetchAccountContactsByName,
   fetchAccountsWithContacts,
 } from './account.js'

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { fetchAccountContactsByName } from '../../shared/services/index.js'
+import { fetchAccountContactsByCircleId } from '../../shared/services/index.js'
 import { chatThreads, circleTitles } from './chatData.js'
 
 export default function ChatPage({ themeMode = 'default' }) {
@@ -43,7 +43,7 @@ export default function ChatPage({ themeMode = 'default' }) {
       })
 
       try {
-        const account = await fetchAccountContactsByName(accountName)
+        const account = await fetchAccountContactsByCircleId(circleId, accountName)
 
         if (!account) {
           throw new Error(`Account ${accountName} tidak ditemukan di Salesforce.`)

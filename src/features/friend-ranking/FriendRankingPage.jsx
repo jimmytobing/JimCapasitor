@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { fetchAccountContactsByName } from '../../shared/services/index.js'
+import { fetchAccountContactsByCircleId } from '../../shared/services/index.js'
 import { chatThreads, circleTitles } from '../chat/chatData.js'
 import { podiumStyles } from './friendRankingData.js'
 
@@ -18,6 +18,7 @@ export default function FriendRankingPage({ showToast }) {
     title: '',
     friends: [],
   })
+  const [loadingMessage, setLoadingMessage] = useState('')
   const localData = useMemo(() => {
     const friends = chatThreads
       .filter((thread) => thread.circles?.includes(activeCircleId))
@@ -59,10 +60,12 @@ export default function FriendRankingPage({ showToast }) {
         title: '',
         friends: [],
       })
+      setLoadingMessage('')
       return undefined
     }
 
     const loadSchoolFriends = async () => {
+      setLoadingMessage('Mengambil Account dan Contacts dari Salesforce...')
       setSalesforceState((current) => ({
         ...current,
         isLoading: true,
@@ -70,7 +73,7 @@ export default function FriendRankingPage({ showToast }) {
       }))
 
       try {
-        const account = await fetchAccountContactsByName('School Friend')
+        const account = await fetchAccountContactsByCircleId(activeCircleId, 'School Friend')
 
         if (!account) {
           throw new Error('Account School Friend tidak ditemukan di Salesforce.')
@@ -109,7 +112,7 @@ export default function FriendRankingPage({ showToast }) {
           title: `${account.name} Ranking`,
           friends,
         })
-        notify(`Salesforce memuat ${friends.length} school friends`)
+        setLoadingMessage('')
       } catch (error) {
         if (isCancelled) return
 
@@ -119,7 +122,7 @@ export default function FriendRankingPage({ showToast }) {
           title: '',
           friends: [],
         })
-        notify('Gagal mengambil ranking dari Salesforce')
+        setLoadingMessage('')
       }
     }
 
@@ -172,9 +175,9 @@ export default function FriendRankingPage({ showToast }) {
               </div>
 
               <div className="mt-4 space-y-3">
-                {activeCircleId === 'school-friend' && salesforceState.isLoading ? (
+                {activeCircleId === 'school-friend' && loadingMessage ? (
                   <div className="rounded-3xl border border-sky-100 bg-sky-50 p-4 text-sm text-sky-700">
-                    Mengambil Account dan Contacts dari Salesforce...
+                    {loadingMessage}
                   </div>
                 ) : null}
 

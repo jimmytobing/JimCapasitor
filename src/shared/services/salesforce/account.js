@@ -1,5 +1,8 @@
 import { escapeSoqlValue, getRecord, getRecords } from './query.js'
 
+const ACCOUNT_CONTACT_FIELDS =
+  'SELECT Id, Name, App_Circle_ID__c, (SELECT Id, FirstName, LastName, Name FROM Contacts ORDER BY Name ASC) FROM Account'
+
 function mapContact(contactRecord, index) {
   if (!contactRecord) {
     return null
@@ -28,6 +31,7 @@ function mapAccountContacts(accountRecord, fallbackName = 'Account') {
   return {
     id: accountRecord.Id || '',
     name: accountRecord.Name || fallbackName,
+    circleId: accountRecord.App_Circle_ID__c || '',
     contacts: contactRecords.map(mapContact).filter(Boolean),
   }
 }
@@ -39,9 +43,7 @@ function mapAccountContactsCollection(records = []) {
 }
 
 export async function fetchAccountsWithContacts() {
-  const records = await getRecords(
-    'SELECT Id, Name, (SELECT Id, FirstName, LastName, Name FROM Contacts ORDER BY Name ASC) FROM Account ORDER BY Name ASC LIMIT 200'
-  )
+  const records = await getRecords(`${ACCOUNT_CONTACT_FIELDS} ORDER BY Name ASC LIMIT 200`)
   return mapAccountContactsCollection(records)
 }
 
@@ -53,8 +55,34 @@ export async function fetchAccountContactsByName(accountName) {
   }
 
   const record = await getRecord(
-    `SELECT Id, Name, (SELECT Id, FirstName, LastName, Name FROM Contacts ORDER BY Name ASC) FROM Account WHERE Name = '${escapeSoqlValue(safeAccountName)}' LIMIT 1`
+    `${ACCOUNT_CONTACT_FIELDS} WHERE Name = '${escapeSoqlValue(safeAccountName)}' LIMIT 1`
   )
 
   return mapAccountContacts(record, safeAccountName)
+}
+
+export async function fetchAccountContactsByCircleId(circleId, fallbackAccountName = '') {
+  const safeCircleId = typeof circleId === 'string' ? circleId.trim() : ''
+  const safeFallbackName =
+    typeof fallbackAccountName === 'string' ? fallbackAccountName.trim() : ''
+
+  if (!safeCircleId && !safeFallbackName) {
+    return null
+  }
+
+  if (safeCircleId) {
+    const recordByCircleId = await getRecord(
+      `${ACCOUNT_CONTACT_FIELDS} WHERE App_Circle_ID__c = '${escapeSoqlValue(safeCircleId)}' LIMIT 1`
+    )
+
+    if (recordByCircleId) {
+      return mapAccountContacts(recordByCircleId, safeFallbackName || safeCircleId)
+    }
+  }
+
+  if (safeFallbackName) {
+    return fetchAccountContactsByName(safeFallbackName)
+  }
+
+  return null
 }
