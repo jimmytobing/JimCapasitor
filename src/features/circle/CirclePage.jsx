@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
+import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
 import { getRecords } from '../../shared/services/index.js'
 import { circleActions } from './circleData.js'
 
@@ -18,6 +19,13 @@ const circleEmojis = ['💛', '🎒', '🎮', '🔒', '🌿', '✨']
 
 function mapContactStatus(contact) {
   return contact?.Title || contact?.Email || contact?.Phone || 'Member aktif'
+}
+
+function normalizePhotoUrl(photoUrl) {
+  if (!photoUrl) return null
+  if (/^https?:\/\//i.test(photoUrl)) return photoUrl
+
+  return `https://sfcapacitor-dev-ed.develop.my.salesforce.com/${photoUrl.replace(/^\/+/, '')}`
 }
 
 export default function CirclePage({ showToast }) {
@@ -54,11 +62,24 @@ export default function CirclePage({ showToast }) {
                 emoji: circleEmojis[index % circleEmojis.length],
                 members: `${contacts.length} member aktif`,
                 accent: circleAccents[index % circleAccents.length],
-                people: contacts.map((contact, contactIndex) => ({
-                  id: contact?.Id || `${account?.Id || 'circle'}-contact-${contactIndex + 1}`,
-                  name: contact?.Name || `Contact ${contactIndex + 1}`,
-                  status: mapContactStatus(contact),
-                })),
+                people: contacts.map((contact, contactIndex) => {
+                  const displayName = contact?.Name || `Contact ${contactIndex + 1}`
+                  const person = buildAvatarProfile({
+                    id: contact?.Id || `${account?.Id || 'circle'}-contact-${contactIndex + 1}`,
+                    name: displayName,
+                    gender: contact?.GenderIdentity || '',
+                    avatarImage: normalizePhotoUrl(contact?.Photo__c),
+                  })
+
+                  return {
+                    id: person.id,
+                    name: person.name,
+                    status: mapContactStatus(contact),
+                    avatar: person.avatar,
+                    avatarTone: person.avatarTone,
+                    avatarImage: person.avatarImage,
+                  }
+                }),
               }
             })
           )
@@ -221,8 +242,11 @@ export default function CirclePage({ showToast }) {
                                   <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full">
                                     <UserAvatar
                                       name={person.name}
-                                      initial={person.name?.slice(0, 1)?.toUpperCase() || '?'}
-                                      tone="from-slate-700 to-slate-900"
+                                      image={person.avatarImage}
+                                      initial={
+                                        person.avatar ?? (person.name?.slice(0, 1)?.toUpperCase() || '?')
+                                      }
+                                      tone={person.avatarTone ?? 'from-slate-700 to-slate-900'}
                                     />
                                   </div>
                                   <div>
