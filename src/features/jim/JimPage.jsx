@@ -1,13 +1,49 @@
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getStoredUsername } from '../../shared/auth/session.js'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
-import { useJimPage } from './useJimPage.js'
+import { escapeSoqlValue, getRecords } from '../../shared/services/index.js'
 
 export default function JimPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { cards, error, loadingMessage } = useJimPage()
+  const [cards, setCards] = useState([])
+  const [error, setError] = useState('')
+  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
   const storedUsername = getStoredUsername()
+
+  useEffect(() => {
+    void (async () => {
+      setLoadingMessage('Loading Salesforce...')
+      try {
+        const safeId = escapeSoqlValue('Tanpa Alamat')
+        const records = await getRecords(
+          `SELECT Id, Name, BillingStreet FROM Account WHERE BillingStreet <> '${safeId}' LIMIT 5`
+        )
+
+        if (records.length === 0) {
+          setError('Data tidak ditemukan.')
+          setCards([])
+          return
+        }
+
+        setError('')
+        setCards(
+          records.map((account, index) => ({
+            id: account?.Id || `Aco-${index + 1}`,
+            title: account?.Name || `Account tanpa Nama - ${index + 1}`,
+            avatarInitial: account?.Name?.slice(0, 1)?.toUpperCase() || '?',
+            content: account?.BillingStreet || '-',
+          }))
+        )
+      } catch (err) {
+        setError(err.message || 'Gagal mengambil data.')
+        setCards([])
+      }
+
+      setLoadingMessage('')
+    })()
+  }, [])
 
   function handleCardClick(item) {
     navigate(`/${item.id}`, {

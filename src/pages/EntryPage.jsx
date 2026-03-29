@@ -1,7 +1,13 @@
-import { useEntryRedirect } from './useEntryRedirect.js'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getEntryRedirectPath } from './entryRouting.js'
 
 export default function EntryPage() {
-  useEntryRedirect()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    navigate(getEntryRedirectPath(), { replace: true })
+  }, [navigate])
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6 text-center">

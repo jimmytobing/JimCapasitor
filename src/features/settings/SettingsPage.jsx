@@ -1,17 +1,73 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSettingsPage } from './useSettingsPage.js'
+import {
+  fetchSampleAccounts,
+  getSalesforceConnectionSummary,
+  testSalesforceConnection,
+} from '../../shared/services/index.js'
 
 export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
   const navigate = useNavigate()
   const notify = typeof showToast === 'function' ? showToast : () => {}
-  const {
-    isCheckingSalesforce,
-    salesforceStatus,
-    salesforceAccounts,
-    salesforceConfig,
-    handleThemeChange,
-    handleSalesforceTest,
-  } = useSettingsPage({ notify, setThemeMode })
+  const [isCheckingSalesforce, setIsCheckingSalesforce] = useState(false)
+  const [salesforceStatus, setSalesforceStatus] = useState('')
+  const [salesforceAccounts, setSalesforceAccounts] = useState([])
+  const [salesforceConfig, setSalesforceConfig] = useState({
+    isReady: false,
+    authUrl: '',
+    instanceUrl: '',
+    apiVersion: '',
+    hasCachedToken: false,
+    platform: '',
+  })
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadSalesforceConfig = async () => {
+      const nextConfig = await getSalesforceConnectionSummary()
+
+      if (!isMounted) return
+      setSalesforceConfig(nextConfig)
+    }
+
+    loadSalesforceConfig()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const handleThemeChange = (nextTheme) => {
+    if (typeof setThemeMode !== 'function') return
+    setThemeMode(nextTheme)
+    notify(nextTheme === 'black' ? 'Black theme aktif' : 'Theme default aktif')
+  }
+
+  const handleSalesforceTest = async () => {
+    setIsCheckingSalesforce(true)
+    setSalesforceStatus('')
+
+    try {
+      const limits = await testSalesforceConnection()
+      const accounts = await fetchSampleAccounts(5)
+      const nextConfig = await getSalesforceConnectionSummary()
+      const totalApi = limits?.DailyApiRequests
+      const remainingApi = totalApi?.Remaining ?? '-'
+      const maxApi = totalApi?.Max ?? '-'
+
+      setSalesforceAccounts(accounts?.records || [])
+      setSalesforceConfig(nextConfig)
+      setSalesforceStatus(`Terhubung. Sisa Daily API ${remainingApi}/${maxApi}.`)
+      notify('Koneksi Salesforce berhasil')
+    } catch (error) {
+      setSalesforceAccounts([])
+      setSalesforceStatus(error.message || 'Koneksi Salesforce gagal.')
+      notify('Koneksi Salesforce gagal')
+    } finally {
+      setIsCheckingSalesforce(false)
+    }
+  }
 
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
