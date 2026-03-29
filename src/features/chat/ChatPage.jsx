@@ -58,7 +58,7 @@ export default function ChatPage({ themeMode = 'default' }) {
             name: displayName,
             avatar: displayName.slice(0, 1),
             avatarTone: 'from-sky-400 to-cyan-500',
-            preview: 'Contact dari Salesforce GraphQL',
+            preview: 'Contact dari Salesforce SOQL',
             time: '',
             inactive: false,
             messages: [],
@@ -134,7 +134,7 @@ export default function ChatPage({ themeMode = 'default' }) {
                   </h2>
                   <p className={`mt-1 text-sm ${isBlackTheme ? 'text-slate-300' : 'text-slate-500'}`}>
                     {circleId && circleTitles[circleId]
-                      ? `Teman-teman di ${circleTitles[circleId]} dari Salesforce GraphQL.`
+                      ? `Teman-teman di ${circleTitles[circleId]} dari Salesforce SOQL.`
                       : 'Pilih salah satu untuk masuk ke tampilan chat masing-masing.'}
                   </p>
                 </div>

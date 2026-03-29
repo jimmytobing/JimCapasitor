@@ -162,12 +162,12 @@ export default function FriendRankingPage({ showToast }) {
                   <h2 className="text-base font-semibold text-slate-900">{data.title}</h2>
                   <p className="mt-1 text-sm text-slate-500">
                     {activeCircleId === 'school-friend'
-                      ? 'Data school friend diambil dari Salesforce GraphQL dan diurutkan berdasarkan friendship level.'
+                      ? 'Data school friend diambil dari Salesforce SOQL dan diurutkan berdasarkan friendship level.'
                       : 'Diurutkan berdasarkan friendship level tertinggi di circle ini.'}
                   </p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                  {activeCircleId === 'school-friend' ? 'SF GraphQL' : 'Top bonds'}
+                  {activeCircleId === 'school-friend' ? 'SF SOQL' : 'Top bonds'}
                 </span>
               </div>
 

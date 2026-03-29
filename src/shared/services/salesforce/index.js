@@ -30,10 +30,7 @@ export {
   escapeSoqlValue,
   fetchSampleAccounts,
   getRecord,
-  getRecordG,
   getRecords,
-  getRecordsG,
-  querySalesforceGraphQL,
   querySalesforceSoql,
   searchLookupRecords,
   updateRecord,
@@ -43,8 +40,6 @@ export {
   fetchAccountContactsByName,
   fetchAccountsWithContacts,
 } from './account.js'
-
-export { fetchAccountsContactsAndFeedItems } from './accountContactFeed.js'
 
 export {
   ensureContactFromGoogleProfile,
