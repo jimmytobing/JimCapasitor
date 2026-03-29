@@ -61,17 +61,29 @@ export function buildContactPayloadFromGoogleProfile(profile) {
     FirstName: firstName,
     LastName: lastName || 'Google User',
     Email: profile?.email || '',
+    Google_Id__c: profile?.googleId || '',
     App_User_ID__c: profile?.username || profile?.email || '',
     Photo__c: profile?.avatarUrl || '',
     Description: buildGoogleDescription(profile),
   })
 }
 
-export async function findContactByIdentity({ username = '', email = '', id = '' } = {}) {
+export async function findContactByIdentity({
+  username = '',
+  email = '',
+  googleId = '',
+  id = '',
+} = {}) {
   const candidateQueries = []
 
   if (id) {
     candidateQueries.push(`SELECT FIELDS(ALL) FROM Contact WHERE Id = '${escapeSoqlValue(id)}' LIMIT 1`)
+  }
+
+  if (googleId) {
+    candidateQueries.push(
+      `SELECT FIELDS(ALL) FROM Contact WHERE Google_Id__c = '${escapeSoqlValue(googleId)}' LIMIT 1`
+    )
   }
 
   if (username) {
@@ -123,6 +135,7 @@ export async function updateContact(id, payload) {
 export async function ensureContactFromGoogleProfile(profile) {
   const payload = buildContactPayloadFromGoogleProfile(profile)
   const existingContact = await findContactByIdentity({
+    googleId: profile?.googleId || '',
     username: profile?.username || '',
     email: profile?.email || '',
   })
