@@ -3,18 +3,19 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { getStoredUsername } from '../../shared/auth/session.js'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { escapeSoqlValue, getRecords } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 
 export default function JimPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const [cards, setCards] = useState([])
   const [error, setError] = useState('')
-  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
+  const [loadingMessage, setLoadingMessage] = useState('Loading HypeZone...')
   const storedUsername = getStoredUsername()
 
   useEffect(() => {
     void (async () => {
-      setLoadingMessage('Loading Salesforce...')
+      setLoadingMessage('Loading HypeZone...')
       try {
         const safeId = escapeSoqlValue('Tanpa Alamat')
         const records = await getRecords(
@@ -37,7 +38,7 @@ export default function JimPage() {
           }))
         )
       } catch (err) {
-        setError(err.message || 'Gagal mengambil data.')
+        setError(maskBackendName(err.message, 'Gagal mengambil data.'))
         setCards([])
       }
 

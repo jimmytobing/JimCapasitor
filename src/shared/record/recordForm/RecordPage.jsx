@@ -58,7 +58,7 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
   }
 
   async function handleDelete() {
-    const confirmed = window.confirm('Hapus record ini dari Salesforce?')
+    const confirmed = window.confirm('Hapus record ini dari HypeZone?')
     if (!confirmed) return
 
     const success = await deleteRecord()
@@ -230,7 +230,7 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
             <div className="mt-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
-                  {isCreateMode ? 'Create Mode' : recordView?.apiName || 'Salesforce Record'}
+                  {isCreateMode ? 'Create Mode' : recordView?.apiName || 'HypeZone Record'}
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold">
                   {isCreateMode ? `Add New ${objectApiName}` : recordView?.title || recordId}
@@ -239,7 +239,7 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
                   {isCreateMode ? (
                     <>
                       Form ini dibentuk dari <code>{`/ui-api/record-defaults/create/${objectApiName}`}</code>,
-                      jadi field create mengikuti layout Salesforce yang aktif.
+                      jadi field create mengikuti layout HypeZone yang aktif.
                     </>
                   ) : (
                     <>
@@ -302,7 +302,7 @@ export default function RecordPage({ showToast, defaultObjectApiName = 'Account'
                     </p>
                   ) : (
                     <p className="mt-1 text-xs text-slate-500">
-                      Field create mengikuti metadata layout aktif dari Salesforce.
+                      Field create mengikuti metadata layout aktif dari HypeZone.
                     </p>
                   )}
                 </div>

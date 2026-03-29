@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getRecords } from '../services/index.js'
 import { sendSalesforceRequest } from '../services/salesforce/client.js'
+import { maskBackendName } from '../utils/branding.js'
 import {
   buildListQuery,
   mapRecordsToCards,
@@ -21,14 +22,14 @@ async function resolveTitleField(objectApiName) {
 export function useListView(objectApiName, filters = []) {
   const [cards, setCards] = useState([])
   const [error, setError] = useState('')
-  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
+  const [loadingMessage, setLoadingMessage] = useState('Loading HypeZone...')
   const filtersKey = JSON.stringify(filters)
 
   useEffect(() => {
     let isMounted = true
 
     void (async () => {
-      setLoadingMessage('Loading Salesforce...')
+      setLoadingMessage('Loading HypeZone...')
       setError('')
 
       try {
@@ -48,7 +49,7 @@ export function useListView(objectApiName, filters = []) {
       } catch (err) {
         if (!isMounted) return
 
-        setError(err.message || `Gagal mengambil ${objectApiName}.`)
+        setError(maskBackendName(err.message, `Gagal mengambil ${objectApiName}.`))
         setCards([])
       } finally {
         if (isMounted) {

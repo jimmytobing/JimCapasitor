@@ -5,6 +5,7 @@ import {
   getSalesforceConnectionSummary,
   testSalesforceConnection,
 } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 
 export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
   const navigate = useNavigate()
@@ -58,12 +59,12 @@ export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
 
       setSalesforceAccounts(accounts?.records || [])
       setSalesforceConfig(nextConfig)
-      setSalesforceStatus(`Terhubung. Sisa Daily API ${remainingApi}/${maxApi}.`)
-      notify('Koneksi Salesforce berhasil')
+      setSalesforceStatus(`HypeZone aktif. Sisa kuota sinkronisasi hari ini ${remainingApi}/${maxApi}.`)
+      notify('Koneksi HypeZone berhasil')
     } catch (error) {
       setSalesforceAccounts([])
-      setSalesforceStatus(error.message || 'Koneksi Salesforce gagal.')
-      notify('Koneksi Salesforce gagal')
+      setSalesforceStatus(maskBackendName(error.message, 'Koneksi HypeZone gagal.'))
+      notify('Koneksi HypeZone gagal')
     } finally {
       setIsCheckingSalesforce(false)
     }
@@ -140,9 +141,9 @@ export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
             <div className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-base font-semibold text-slate-900">Salesforce API</h2>
+                  <h2 className="text-base font-semibold text-slate-900">HypeZone Cloud</h2>
                   <p className="mt-1 text-sm text-slate-500">
-                    App akan minta access token Salesforce otomatis lewat client credentials flow.
+                    Sinkronisasi data HypeZone berjalan otomatis di background saat koneksi siap.
                   </p>
                 </div>
                 <span
@@ -152,28 +153,25 @@ export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
                       : 'bg-amber-100 text-amber-700'
                   }`}
                 >
-                  {salesforceConfig.isReady ? 'Configured' : 'Missing .env'}
+                  {salesforceConfig.isReady ? 'Connected' : 'Setup needed'}
                 </span>
               </div>
 
               <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Connection Info
+                  Sync Info
                 </p>
                 <p className="mt-3 text-sm text-slate-700">
-                  Platform: <span className="font-semibold">{salesforceConfig.platform}</span>
-                </p>
-                <p className="mt-1 break-all text-sm text-slate-700">
-                  Auth URL: {salesforceConfig.authUrl || 'Belum diisi'}
-                </p>
-                <p className="mt-1 break-all text-sm text-slate-700">
-                  Instance: {salesforceConfig.instanceUrl || 'Belum diisi'}
+                  Status:{' '}
+                  <span className="font-semibold">
+                    {salesforceConfig.isReady ? 'Siap sinkron' : 'Belum siap'}
+                  </span>
                 </p>
                 <p className="mt-1 text-sm text-slate-700">
-                  API Version: {salesforceConfig.apiVersion}
+                  Mode: {salesforceConfig.platform ? 'Cloud sync aktif' : 'Menunggu konfigurasi'}
                 </p>
                 <p className="mt-1 text-sm text-slate-700">
-                  Cached Token: {salesforceConfig.hasCachedToken ? 'Ada' : 'Belum ada'}
+                  Session: {salesforceConfig.hasCachedToken ? 'Tersimpan' : 'Belum tersimpan'}
                 </p>
               </div>
 
@@ -183,12 +181,12 @@ export default function SettingsPage({ showToast, themeMode, setThemeMode }) {
                 onClick={handleSalesforceTest}
                 disabled={isCheckingSalesforce || !salesforceConfig.isReady}
               >
-                {isCheckingSalesforce ? 'Menghubungkan ke Salesforce...' : 'Tes Koneksi Salesforce'}
+                {isCheckingSalesforce ? 'Menghubungkan ke HypeZone...' : 'Cek Koneksi HypeZone'}
               </button>
 
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 {salesforceStatus ||
-                  'Isi kredensial client credentials di `.env`, lalu tekan tombol di atas untuk ambil token, limits API, dan contoh data Account.'}
+                  'Siapkan kredensial di `.env`, lalu tekan tombol di atas untuk mengecek sinkronisasi dan mengambil contoh data account.'}
               </p>
 
               {salesforceAccounts.length > 0 ? (

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { fetchAccountContactsByCircleId } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 import { chatThreads, circleTitles } from '../chat/chatData.js'
 import { podiumStyles } from './friendRankingData.js'
 
@@ -65,7 +66,7 @@ export default function FriendRankingPage({ showToast }) {
     }
 
     const loadSchoolFriends = async () => {
-      setLoadingMessage('Mengambil Account dan Contacts dari Salesforce...')
+      setLoadingMessage('Mengambil Account dan Contacts dari HypeZone...')
       setSalesforceState((current) => ({
         ...current,
         isLoading: true,
@@ -76,7 +77,7 @@ export default function FriendRankingPage({ showToast }) {
         const account = await fetchAccountContactsByCircleId(activeCircleId, 'School Friend')
 
         if (!account) {
-          throw new Error('Account School Friend tidak ditemukan di Salesforce.')
+          throw new Error('Account School Friend tidak ditemukan di HypeZone.')
         }
 
         const friends = account.contacts
@@ -118,7 +119,7 @@ export default function FriendRankingPage({ showToast }) {
 
         setSalesforceState({
           isLoading: false,
-          error: error.message || 'Gagal memuat school friends dari Salesforce.',
+          error: maskBackendName(error.message, 'Gagal memuat school friends dari HypeZone.'),
           title: '',
           friends: [],
         })
@@ -165,12 +166,12 @@ export default function FriendRankingPage({ showToast }) {
                   <h2 className="text-base font-semibold text-slate-900">{data.title}</h2>
                   <p className="mt-1 text-sm text-slate-500">
                     {activeCircleId === 'school-friend'
-                      ? 'Data school friend diambil dari Salesforce SOQL dan diurutkan berdasarkan friendship level.'
+                      ? 'Data school friend diambil dari HypeZone dan diurutkan berdasarkan friendship level.'
                       : 'Diurutkan berdasarkan friendship level tertinggi di circle ini.'}
                   </p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                  {activeCircleId === 'school-friend' ? 'SF SOQL' : 'Top bonds'}
+                  {activeCircleId === 'school-friend' ? 'HypeZone' : 'Top bonds'}
                 </span>
               </div>
 

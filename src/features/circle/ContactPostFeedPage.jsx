@@ -15,6 +15,7 @@ import {
   uploadFileToRecord,
   uploadInlineImageToRecord,
 } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 
 function formatPostDate(value) {
   if (!value) return ''
@@ -238,7 +239,7 @@ function ComposerModal({
           />
 
           <label className="flex cursor-pointer items-center justify-between rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-sm text-slate-600">
-            <span>{file ? file.name : 'Tambah foto untuk Salesforce File'}</span>
+            <span>{file ? file.name : 'Tambah foto untuk lampiran HypeZone'}</span>
             <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
               Choose
             </span>
@@ -262,7 +263,7 @@ function ComposerModal({
           ) : null}
 
           <p className="text-xs leading-5 text-slate-500">
-            Jika memilih foto, file akan di-upload ke Contact ini sebagai Salesforce File. Jika
+            Jika memilih foto, file akan di-upload ke contact ini sebagai lampiran HypeZone. Jika
             caption diisi juga, caption akan dikirim sebagai post teks terpisah.
           </p>
 
@@ -564,7 +565,7 @@ export default function ContactPostFeedPage({ showToast }) {
 
         setState({
           loading: false,
-          error: error?.message || 'Gagal mengambil feed post dari Salesforce.',
+          error: maskBackendName(error?.message, 'Gagal mengambil feed post dari HypeZone.'),
           feed: [],
         })
       }

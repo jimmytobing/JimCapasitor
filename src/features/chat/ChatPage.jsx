@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { fetchAccountContactsByCircleId } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 import { chatThreads, circleTitles } from './chatData.js'
 
 export default function ChatPage({ themeMode = 'default' }) {
@@ -46,7 +47,7 @@ export default function ChatPage({ themeMode = 'default' }) {
         const account = await fetchAccountContactsByCircleId(circleId, accountName)
 
         if (!account) {
-          throw new Error(`Account ${accountName} tidak ditemukan di Salesforce.`)
+          throw new Error(`Account ${accountName} tidak ditemukan di HypeZone.`)
         }
 
         const threads = account.contacts.map((contact, index) => {
@@ -58,7 +59,7 @@ export default function ChatPage({ themeMode = 'default' }) {
             name: displayName,
             avatar: displayName.slice(0, 1),
             avatarTone: 'from-sky-400 to-cyan-500',
-            preview: 'Contact dari Salesforce SOQL',
+            preview: 'Contact dari HypeZone',
             time: '',
             inactive: false,
             messages: [],
@@ -78,7 +79,7 @@ export default function ChatPage({ themeMode = 'default' }) {
 
         setSalesforceState({
           isLoading: false,
-          error: error.message || `Gagal memuat chat ${accountName} dari Salesforce.`,
+          error: maskBackendName(error.message, `Gagal memuat chat ${accountName} dari HypeZone.`),
           threads: [],
         })
       }
@@ -134,7 +135,7 @@ export default function ChatPage({ themeMode = 'default' }) {
                   </h2>
                   <p className={`mt-1 text-sm ${isBlackTheme ? 'text-slate-300' : 'text-slate-500'}`}>
                     {circleId && circleTitles[circleId]
-                      ? `Teman-teman di ${circleTitles[circleId]} dari Salesforce SOQL.`
+                      ? `Teman-teman di ${circleTitles[circleId]} dari HypeZone.`
                       : 'Pilih salah satu untuk masuk ke tampilan chat masing-masing.'}
                   </p>
                 </div>
@@ -158,7 +159,7 @@ export default function ChatPage({ themeMode = 'default' }) {
                         : 'border border-sky-100 bg-sky-50 text-sky-700'
                     }`}
                   >
-                    {`Mengambil daftar contact ${circleTitles[circleId]} dari Salesforce...`}
+                    {`Mengambil daftar contact ${circleTitles[circleId]} dari HypeZone...`}
                   </div>
                 ) : null}
 
@@ -231,7 +232,7 @@ export default function ChatPage({ themeMode = 'default' }) {
                                 : 'bg-cyan-50 text-cyan-700'
                             }`}
                           >
-                            Salesforce
+                            HypeZone
                           </span>
                         ) : thread.inactive ? (
                           <span
@@ -258,7 +259,7 @@ export default function ChatPage({ themeMode = 'default' }) {
                       )}
                       {thread.source === 'salesforce' ? (
                         <p className={`mt-1 text-xs ${isBlackTheme ? 'text-cyan-200/80' : 'text-cyan-700'}`}>
-                          Contact tampil dari Salesforce. Detail chat lokal belum dibuat.
+                          Contact tampil dari HypeZone. Detail chat lokal belum dibuat.
                         </p>
                       ) : null}
                     </button>

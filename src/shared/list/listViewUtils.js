@@ -4,7 +4,7 @@ function sanitizeSoqlIdentifier(value, label = 'identifier') {
   const normalizedValue = String(value || '').trim()
 
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(normalizedValue)) {
-    throw new Error(`Salesforce ${label} tidak valid.`)
+    throw new Error(`Data ${label} tidak valid.`)
   }
 
   return normalizedValue

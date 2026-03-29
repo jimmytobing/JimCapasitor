@@ -4,6 +4,7 @@ import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
 import { getRecords } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 import { circleActions } from './circleData.js'
 
 const circleAccents = [
@@ -33,12 +34,12 @@ export default function CirclePage({ showToast }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const [circles, setCircles] = useState([])
   const [error, setError] = useState('')
-  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
+  const [loadingMessage, setLoadingMessage] = useState('Loading HypeZone...')
   const [openCircleId, setOpenCircleId] = useState('')
 
   useEffect(() => {
     void (async () => {
-      setLoadingMessage('Loading Salesforce...')
+      setLoadingMessage('Loading HypeZone...')
       setError('')
 
       try {
@@ -85,7 +86,7 @@ export default function CirclePage({ showToast }) {
           )
         }
       } catch (err) {
-        setError(err.message || 'Gagal mengambil circle dari Salesforce.')
+        setError(maskBackendName(err.message, 'Gagal mengambil circle dari HypeZone.'))
         setCircles([])
       }
 

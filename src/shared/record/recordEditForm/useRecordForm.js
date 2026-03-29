@@ -27,11 +27,12 @@ import {
   extractFieldErrors,
   mergeEditValueState,
 } from '../recordEditUtils/index.js'
+import { maskBackendName } from '../../utils/branding.js'
 
 function getLoadingMessage(isCreateMode, objectApiName) {
   return isCreateMode
     ? `Mengambil create defaults ${objectApiName}...`
-    : 'Mengambil detail record dari Salesforce...'
+    : 'Mengambil detail record dari HypeZone...'
 }
 
 function buildComponentLookup(sections = []) {
@@ -159,10 +160,12 @@ export function useRecordForm(objectApiName, recordId, showToast) {
         setEditValues({})
         setFieldErrors({})
         setError(
-          err.message ||
-            (isCreateMode
+          maskBackendName(
+            err.message,
+            isCreateMode
               ? `Gagal mengambil create defaults ${objectApiName}.`
-              : 'Gagal mengambil detail record.')
+              : 'Gagal mengambil detail record.'
+          )
         )
       } finally {
         if (isMounted) {
@@ -231,7 +234,7 @@ export function useRecordForm(objectApiName, recordId, showToast) {
         [url]: normalizePicklistMeta(result, fieldApiName, fieldInfo),
       }))
     } catch (err) {
-      setError(err.message || 'Gagal mengambil picklist.')
+      setError(maskBackendName(err.message, 'Gagal mengambil picklist.'))
       setFieldErrors({})
     }
   }
@@ -334,7 +337,7 @@ export function useRecordForm(objectApiName, recordId, showToast) {
       notify('Perubahan record berhasil disimpan.')
       return true
     } catch (err) {
-      const nextError = err.message || 'Gagal menyimpan record.'
+      const nextError = maskBackendName(err.message, 'Gagal menyimpan record.')
       setError(nextError)
       setFieldErrors(extractFieldErrors(nextError, editValues))
       return false
@@ -366,13 +369,13 @@ export function useRecordForm(objectApiName, recordId, showToast) {
       const createdRecordId = result?.id || result?.record?.id || result?.recordId || ''
 
       if (!createdRecordId) {
-        throw new Error('Record berhasil dibuat, tetapi Salesforce tidak mengembalikan record id.')
+        throw new Error('Record berhasil dibuat, tetapi HypeZone tidak mengembalikan record id.')
       }
 
       notify(`${objectApiName} berhasil dibuat.`)
       return createdRecordId
     } catch (err) {
-      const nextError = err.message || `Gagal membuat ${objectApiName}.`
+      const nextError = maskBackendName(err.message, `Gagal membuat ${objectApiName}.`)
       setError(nextError)
       setFieldErrors(extractFieldErrors(nextError, editValues))
       return null
@@ -394,7 +397,7 @@ export function useRecordForm(objectApiName, recordId, showToast) {
       notify('Record berhasil dihapus.')
       return true
     } catch (err) {
-      setError(err.message || 'Gagal menghapus record.')
+      setError(maskBackendName(err.message, 'Gagal menghapus record.'))
       setFieldErrors({})
       return false
     } finally {

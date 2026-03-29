@@ -25,12 +25,12 @@ export default function ListView({ showToast, defaultObjectApiName = 'Account' }
             <div className="mt-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/75">
-                  Salesforce Object
+                  HypeZone Object
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold">{objectTitle}</h1>
                 <p className="mt-3 max-w-[24rem] text-sm leading-6 text-white/90">
-                  List memakai query sederhana ke Salesforce, lalu detail dibuka lewat UI API dan
-                  dirender dinamis berdasarkan metadata layout object aktif.
+                  List ini mengambil data HypeZone lalu menampilkan detail secara dinamis sesuai
+                  struktur object yang aktif.
                 </p>
               </div>
               <div className="rounded-3xl bg-white/15 px-4 py-3 text-right backdrop-blur-sm">
@@ -45,8 +45,8 @@ export default function ListView({ showToast, defaultObjectApiName = 'Account' }
             <section className="rounded-3xl bg-white p-4 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900">Generic List View</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                List ini memakai <code>{`SELECT Id, Name FROM ${objectApiName}`}</code>, lalu
-                detail memakai <code>/services/data/&lt;apiVersion&gt;/ui-api/record-ui/:id</code>.
+                List ini memuat data inti untuk <code>{objectApiName}</code>, lalu membuka detail
+                secara dinamis dari metadata record yang tersedia.
               </p>
               <div className="mt-4">
                 <button

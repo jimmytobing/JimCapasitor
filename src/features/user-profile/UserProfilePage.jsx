@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getAuthSession, getStoredUsername } from '../../shared/auth/session.js'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { findContactByIdentity } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 import { buildCardsFromRecord } from '../../shared/utils/cards.js'
 import { calculateAge, formatBirthdate } from '../../shared/utils/date.js'
 import { profileTimeline } from './profileTimeline.js'
@@ -19,11 +20,11 @@ export default function UserProfilePage({ showToast }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const [cards, setCards] = useState([])
   const [error, setError] = useState('')
-  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
+  const [loadingMessage, setLoadingMessage] = useState('Loading HypeZone...')
 
   useEffect(() => {
     void (async () => {
-      setLoadingMessage('Loading Salesforce...')
+      setLoadingMessage('Loading HypeZone...')
 
       try {
         const session = getAuthSession()
@@ -83,7 +84,7 @@ export default function UserProfilePage({ showToast }) {
             },
             {
               label: 'Source',
-              getValue: () => (record ? 'Salesforce Contact' : 'Local fallback'),
+              getValue: () => (record ? 'HypeZone Contact' : 'Local fallback'),
             },
           ],
         })
@@ -99,7 +100,7 @@ export default function UserProfilePage({ showToast }) {
         setError('')
         setCards(nextCards)
       } catch (err) {
-        setError(err.message || 'Gagal mengambil data.')
+        setError(maskBackendName(err.message, 'Gagal mengambil data.'))
         setCards([])
       } finally {
         setLoadingMessage('')

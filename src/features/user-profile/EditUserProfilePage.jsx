@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAuthSession, getStoredUsername } from '../../shared/auth/session.js'
 import { findContactByIdentity, updateContact } from '../../shared/services/index.js'
+import { maskBackendName } from '../../shared/utils/branding.js'
 import { createFormChangeHandler } from '../../shared/utils/forms.js'
 
 function splitName(fullName) {
@@ -58,7 +59,7 @@ export default function EditUserProfilePage({ showToast }) {
   const notify = typeof showToast === 'function' ? showToast : () => {}
   const [contactId, setContactId] = useState('')
   const [formState, setFormState] = useState(createEmptyForm)
-  const [loadingMessage, setLoadingMessage] = useState('Loading Salesforce...')
+  const [loadingMessage, setLoadingMessage] = useState('Loading HypeZone...')
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
@@ -66,7 +67,7 @@ export default function EditUserProfilePage({ showToast }) {
     let isMounted = true
 
     void (async () => {
-      setLoadingMessage('Loading Salesforce...')
+      setLoadingMessage('Loading HypeZone...')
       setError('')
 
       try {
@@ -82,7 +83,7 @@ export default function EditUserProfilePage({ showToast }) {
 
         if (!record?.Id) {
           throw new Error(
-            `Contact untuk session login '${username || email}' tidak ditemukan di Salesforce.`
+            `Contact untuk session login '${username || email}' tidak ditemukan di HypeZone.`
           )
         }
 
@@ -100,7 +101,7 @@ export default function EditUserProfilePage({ showToast }) {
         })
       } catch (err) {
         if (!isMounted) return
-        setError(err.message || 'Gagal mengambil data profile.')
+        setError(maskBackendName(err.message, 'Gagal mengambil data profile.'))
       } finally {
         if (!isMounted) return
         setLoadingMessage('')
@@ -121,7 +122,7 @@ export default function EditUserProfilePage({ showToast }) {
     const { lastName } = splitName(trimmedName)
 
     if (!trimmedName || !lastName) {
-      setError('Nama wajib diisi agar LastName Contact tetap valid di Salesforce.')
+      setError('Nama wajib diisi agar LastName Contact tetap valid di HypeZone.')
       return
     }
 
@@ -138,7 +139,7 @@ export default function EditUserProfilePage({ showToast }) {
       notify('Profile data updated')
       navigate('/user-profile')
     } catch (err) {
-      setError(err.message || 'Gagal menyimpan perubahan profile.')
+      setError(maskBackendName(err.message, 'Gagal menyimpan perubahan profile.'))
     } finally {
       setIsSaving(false)
     }
@@ -156,7 +157,7 @@ export default function EditUserProfilePage({ showToast }) {
           </button>
           <h1 className="mt-1 text-2xl font-semibold">Change Data Detail</h1>
           <p className="mt-2 max-w-[24rem] text-sm leading-6 text-white/90">
-            Ubah data Contact user yang sedang login lalu simpan langsung ke Salesforce.
+            Ubah data Contact user yang sedang login lalu simpan langsung ke HypeZone.
           </p>
         </div>
 

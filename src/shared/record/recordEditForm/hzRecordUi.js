@@ -138,7 +138,7 @@ export function mapRecentItemsToCards(recentItems = []) {
   return recentItems.map((item, index) => ({
     id: item?.Id || `recent-${index + 1}`,
     title: item?.Name || item?.CaseNumber || item?.attributes?.type || `Record ${index + 1}`,
-    subtitle: item?.attributes?.type || 'Salesforce Record',
+    subtitle: item?.attributes?.type || 'HypeZone Record',
     meta: item?.CaseNumber ? `Case ${item.CaseNumber}` : item?.LastViewedDate || '',
     objectType: item?.attributes?.type || '',
     raw: item,
@@ -157,7 +157,7 @@ export function mapRecordUiToLayoutModel(recordId, recordView) {
   const entityLayout = recordView?.layouts?.[apiName]
 
   if (!objectInfo || !entityLayout) {
-    throw new Error('Metadata layout Salesforce tidak lengkap.')
+    throw new Error('Metadata layout HypeZone tidak lengkap.')
   }
 
   const recordTypeId =
@@ -208,7 +208,7 @@ export function mapCreateDefaultsToLayoutModel(defaults, objectApiName) {
   const layout = defaults?.layout
 
   if (!objectInfo || !record || !layout) {
-    throw new Error('Create defaults Salesforce tidak lengkap.')
+    throw new Error('Create defaults HypeZone tidak lengkap.')
   }
 
   const recordTypeId =
