@@ -2,12 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
+import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
 import {
   createFeedElementComment,
   createRecordFeedElement,
   createRecordFeedElementWithSegments,
+  escapeSoqlValue,
   fetchFeedElementComments,
   fetchRecordFeedElements,
+  getRecords,
   sendSalesforceBinaryRequest,
   uploadFileToRecord,
   uploadInlineImageToRecord,
@@ -43,6 +46,13 @@ function fileToBase64(file) {
 
     reader.readAsDataURL(file)
   })
+}
+
+function normalizePhotoUrl(photoUrl) {
+  if (!photoUrl) return null
+  if (/^https?:\/\//i.test(photoUrl)) return photoUrl
+
+  return `https://sfcapacitor-dev-ed.develop.my.salesforce.com/${photoUrl.replace(/^\/+/, '')}`
 }
 
 function AuthenticatedFeedImage({ src, alt, className = '' }) {
@@ -213,8 +223,12 @@ function ComposerModal({
 }
 
 function PostCard({
+  avatarImage,
+  avatarTone,
+  contactId,
   fallbackName,
   loadingCommentsForId,
+  onOpenContactRecord,
   onCreateComment,
   onLoadComments,
   pendingCommentForId,
@@ -297,13 +311,20 @@ function PostCard({
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-950/70 via-slate-950/35 to-transparent" />
 
         <div className="absolute left-4 top-4 flex items-center gap-3">
-          <div className="h-12 w-12 overflow-hidden rounded-full ring-2 ring-white/70 ring-offset-2 ring-offset-transparent">
+          <button
+            type="button"
+            className="h-12 w-12 overflow-hidden rounded-full ring-2 ring-white/70 ring-offset-2 ring-offset-transparent"
+            onClick={() => onOpenContactRecord(contactId)}
+            aria-label={`Open ${displayName}`}
+            title={displayName}
+          >
             <UserAvatar
               name={displayName}
+              image={avatarImage}
               initial={displayName.slice(0, 1).toUpperCase()}
-              tone="from-rose-500 via-orange-400 to-amber-300"
+              tone={avatarTone}
             />
-          </div>
+          </button>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-white drop-shadow-sm">{displayName}</p>
             <p className="truncate text-xs text-white/85 drop-shadow-sm">
@@ -393,13 +414,20 @@ function PostCard({
             <div className="mt-4 space-y-3 rounded-[1.5rem] bg-slate-50 p-4">
               {visibleComments.map((comment) => (
                 <div key={comment.id || `${post.id}-${comment.createdDate}`} className="flex gap-3">
-                  <div className="h-9 w-9 overflow-hidden rounded-full">
+                  <button
+                    type="button"
+                    className="h-9 w-9 overflow-hidden rounded-full"
+                    onClick={() => onOpenContactRecord(contactId)}
+                    aria-label={`Open ${displayName}`}
+                    title={displayName}
+                  >
                     <UserAvatar
                       name={displayName}
+                      image={avatarImage}
                       initial={displayName.slice(0, 1).toUpperCase()}
-                      tone="from-slate-700 to-slate-900"
+                      tone={avatarTone}
                     />
-                  </div>
+                  </button>
                   <div className="min-w-0 flex-1 rounded-2xl bg-white px-3 py-2 shadow-sm">
                     <p className="text-xs font-semibold text-slate-900">{displayName}</p>
                     {comment.text ? (
@@ -447,7 +475,10 @@ export default function ContactPostFeedPage({ showToast }) {
 
   const person = location.state?.person || null
   const circleTitle = location.state?.circleTitle || 'Circle'
-  const fallbackName = person?.name || 'No Name'
+  const [contactProfile, setContactProfile] = useState(() =>
+    person ? buildAvatarProfile(person) : null
+  )
+  const fallbackName = contactProfile?.name || person?.name || 'No Name'
   const fallbackStatus = person?.status || 'No Status'
 
   useEffect(() => {
@@ -487,6 +518,79 @@ export default function ContactPostFeedPage({ showToast }) {
       active = false
     }
   }, [contactId])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadContactProfile() {
+      if (person) {
+        setContactProfile(buildAvatarProfile(person))
+        return
+      }
+
+      if (!contactId) {
+        setContactProfile(null)
+        return
+      }
+
+      try {
+        const safeContactId = escapeSoqlValue(contactId)
+        const records = await getRecords(
+          `SELECT Id, Name, Title, Email, Phone, GenderIdentity, Photo__c FROM Contact WHERE Id = '${safeContactId}' LIMIT 1`
+        )
+
+        if (!active) return
+
+        const record = records[0]
+        if (!record) {
+          setContactProfile(
+            buildAvatarProfile({
+              id: contactId,
+              name: 'No Name',
+            })
+          )
+          return
+        }
+
+        setContactProfile(
+          buildAvatarProfile({
+            id: record.Id || contactId,
+            name: record.Name || 'No Name',
+            gender: record.GenderIdentity || '',
+            avatarImage: normalizePhotoUrl(record.Photo__c),
+          })
+        )
+      } catch {
+        if (!active) return
+
+        setContactProfile(
+          buildAvatarProfile({
+            id: contactId,
+            name: person?.name || 'No Name',
+          })
+        )
+      }
+    }
+
+    void loadContactProfile()
+
+    return () => {
+      active = false
+    }
+  }, [contactId, person])
+
+  function openContactRecord(id) {
+    if (!id) {
+      return
+    }
+
+    navigate(`/${id}`, {
+      state: {
+        from: `/circle/contact/${contactId}/posts`,
+        objectApiName: 'Contact',
+      },
+    })
+  }
 
   useEffect(() => {
     if (!composerFile) {
@@ -681,13 +785,20 @@ export default function ContactPostFeedPage({ showToast }) {
             </div>
 
             <div className="mt-5 flex items-center gap-4">
-              <div className="h-16 w-16 overflow-hidden rounded-full ring-4 ring-white/15">
+              <button
+                type="button"
+                className="h-16 w-16 overflow-hidden rounded-full ring-4 ring-white/15"
+                onClick={() => openContactRecord(contactId)}
+                aria-label={`Open ${fallbackName}`}
+                title={fallbackName}
+              >
                 <UserAvatar
                   name={fallbackName}
+                  image={contactProfile?.avatarImage}
                   initial={fallbackName.slice(0, 1).toUpperCase()}
-                  tone="from-rose-500 via-orange-400 to-amber-300"
+                  tone={contactProfile?.avatarTone || 'from-rose-500 via-orange-400 to-amber-300'}
                 />
-              </div>
+              </button>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xl font-semibold">{fallbackName}</p>
                 <p className="mt-1 truncate text-sm text-white/75">{fallbackStatus}</p>
@@ -742,9 +853,13 @@ export default function ContactPostFeedPage({ showToast }) {
           {!state.loading && state.feed.length > 0
             ? state.feed.map((post) => (
                 <PostCard
+                  avatarImage={contactProfile?.avatarImage}
+                  avatarTone={contactProfile?.avatarTone || 'from-slate-700 to-slate-900'}
+                  contactId={contactId}
                   key={post.id || `${contactId}-${post.createdDate}`}
                   fallbackName={fallbackName}
                   loadingCommentsForId={loadingCommentsForId}
+                  onOpenContactRecord={openContactRecord}
                   onCreateComment={handleCreateComment}
                   onLoadComments={handleLoadComments}
                   pendingCommentForId={pendingCommentForId}

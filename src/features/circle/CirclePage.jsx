@@ -115,6 +115,20 @@ export default function CirclePage({ showToast }) {
     notify(`${circle.title} - ${action.label}`)
   }
 
+  function openContactPosts(person, circleTitle) {
+    navigate(`/circle/contact/${person.id}/posts`, {
+      state: {
+        from: '/circle',
+        person,
+        circleTitle,
+      },
+    })
+  }
+
+  function openContactChat(person, circleId) {
+    navigate(circleId ? `/chat/${person.id}?circle=${circleId}` : `/chat/${person.id}`)
+  }
+
   return (
     <div className="h-screen overflow-y-auto bg-[#edf2f7] hide-scrollbar">
       <div className="min-h-screen pb-28">
@@ -227,15 +241,7 @@ export default function CirclePage({ showToast }) {
                                 <button
                                   type="button"
                                   className="flex flex-1 items-center gap-3 text-left"
-                                  onClick={() =>
-                                    navigate(`/circle/contact/${person.id}/posts`, {
-                                      state: {
-                                        from: '/circle',
-                                        person,
-                                        circleTitle: circle.title,
-                                      },
-                                    })
-                                  }
+                                  onClick={() => openContactPosts(person, circle.title)}
                                   aria-label={`Open ${person.name} posts`}
                                   title={person.name}
                                 >
@@ -257,18 +263,12 @@ export default function CirclePage({ showToast }) {
                               </div>
                               <button
                                 type="button"
-                                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-200"
-                                onClick={() =>
-                                  navigate(`/circle/contact/${person.id}/posts`, {
-                                    state: {
-                                      from: '/circle',
-                                      person,
-                                      circleTitle: circle.title,
-                                    },
-                                  })
-                                }
+                                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-base text-slate-600 transition hover:bg-slate-200"
+                                onClick={() => openContactChat(person, circle.id)}
+                                aria-label={`Open chat with ${person.name}`}
+                                title={`Chat ${person.name}`}
                               >
-                                View Post
+                                💬
                               </button>
                             </div>
                           </div>
