@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import BottomStickyNav from '../../shared/components/BottomStickyNav.jsx'
+import { moodOptions } from '../daily/dailyData.js'
 import UserAvatar from '../../shared/components/UserAvatar.jsx'
 import { buildAvatarProfile } from '../../shared/data/avatarDirectory.js'
 import {
@@ -199,6 +200,103 @@ function AuthenticatedFeedImage({ src, alt, className = '' }) {
   )
 }
 
+const moodOptionByLabel = Object.fromEntries(
+  moodOptions.map((mood) => [mood.label.toLowerCase(), mood])
+)
+
+function detectMoodPost(text = '') {
+  const lines = String(text || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+  if (lines.length < 4 || !/CHECK-IN|MODE|ALERT/i.test(lines[0] || '')) {
+    return null
+  }
+
+  const moodLine = String(lines[1] || '')
+  const matchedMood = moodOptions.find((mood) => moodLine.includes(mood.emoji)) ||
+    moodOptionByLabel[moodLine.replace(/^[^\p{L}\p{N}]+/u, '').toLowerCase()] ||
+    moodOptions.find((mood) => moodLine.toLowerCase().includes(mood.label.toLowerCase()))
+
+  if (!matchedMood) {
+    return null
+  }
+
+  return {
+    mood: matchedMood,
+    frame: lines[0] || '',
+    headline: lines[2] || matchedMood.headline,
+    status: lines[4] || lines[3] || `Hari ini aku lagi merasa ${matchedMood.label}.`,
+    subtext: lines[5] || lines[4] || matchedMood.subtext,
+    closing: lines.at(-1) || '',
+  }
+}
+
+function getMoodBadge(moodId) {
+  const badgeByMoodId = {
+    happy: 'Good vibes',
+    excited: 'High energy',
+    productive: 'Focus mode',
+    biasa: 'Take it easy',
+    capek: 'Need recharge',
+    males: 'Low battery',
+    ngantuk: 'Sleepy mode',
+    sedih: 'Need support',
+    anxious: 'Go gently',
+    'bad-mood': 'Handle softly',
+  }
+
+  return badgeByMoodId[moodId] || 'Today'
+}
+
+function getMoodQuickActions(moodId) {
+  const actionByMoodId = {
+    happy: [
+      { label: 'Ikut senang', text: 'Ikut senang lihat mood kamu hari ini.' },
+      { label: 'Gas terus', text: 'Semoga vibe bagusnya bertahan seharian.' },
+    ],
+    excited: [
+      { label: 'Nular dong', text: 'Energinya kerasa banget, semoga nular juga.' },
+      { label: 'Seru nih', text: 'Kelihatannya hari ini bakal seru banget buat kamu.' },
+    ],
+    productive: [
+      { label: 'Kasih semangat', text: 'Semangat terus, semoga semua yang dikerjain lancar.' },
+      { label: 'Fokus terus', text: 'Semoga fokusnya awet sampai semua beres.' },
+    ],
+    biasa: [
+      { label: 'Temenin santai', text: 'Semoga harinya tetap adem dan nyaman dijalanin.' },
+      { label: 'Stay steady', text: 'Pelan-pelan juga tetap bagus, semoga harinya enak.' },
+    ],
+    capek: [
+      { label: 'Suruh istirahat', text: 'Kalau bisa, istirahat dulu ya. Jangan dipaksa terus.' },
+      { label: 'Kirim support', text: 'Semoga capeknya cepat reda dan energinya balik lagi.' },
+    ],
+    males: [
+      { label: 'Santai aja', text: 'Santai aja, hari ini nggak harus terlalu keras ke diri sendiri.' },
+      { label: 'Recharge dulu', text: 'Isi ulang energi dulu, nanti lanjut lagi pelan-pelan.' },
+    ],
+    ngantuk: [
+      { label: 'Tidur bentar', text: 'Kalau sempat, power nap dulu kayaknya enak.' },
+      { label: 'Stay awake', text: 'Semoga kantuknya pelan-pelan lewat ya.' },
+    ],
+    sedih: [
+      { label: 'Temenin ngobrol', text: 'Kalau mau ngobrol, aku siap nemenin.' },
+      { label: 'Kirim peluk', text: 'Peluk jauh buat kamu. Semoga hati kamu pelan-pelan lebih ringan.' },
+    ],
+    anxious: [
+      { label: 'Tenang dulu', text: 'Tarik napas pelan-pelan dulu, kamu nggak sendirian.' },
+      { label: 'Pelan aja', text: 'Nggak apa-apa jalan pelan, yang penting tetap jaga diri.' },
+    ],
+    'bad-mood': [
+      { label: 'Handle softly', text: 'Semoga harinya cepat membaik. Aku respon pelan-pelan ya.' },
+      { label: 'Kasih ruang', text: 'Kalau butuh ruang dulu juga nggak apa-apa.' },
+    ],
+  }
+
+  return actionByMoodId[moodId] || []
+}
+
 function ComposerModal({
   caption,
   file,
@@ -295,12 +393,19 @@ function PostCard({
   const [commentText, setCommentText] = useState('')
   const [showCommentComposer, setShowCommentComposer] = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const [quickResponseState, setQuickResponseState] = useState({
+    active: false,
+    label: '',
+  })
   const displayName = fallbackName || 'Contact'
   const firstAttachment = post.attachments[0]
   const visibleComments = post.comments || []
   const hasCommentItems = visibleComments.length > 0
   const isCommentSubmitting = pendingCommentForId === post.id
   const isCommentsLoading = loadingCommentsForId === post.id
+  const moodPost = detectMoodPost(post.text)
+  const moodBadge = moodPost ? getMoodBadge(moodPost.mood.id) : ''
+  const moodQuickActions = moodPost ? getMoodQuickActions(moodPost.mood.id) : []
 
   useEffect(() => {
     if (!showComments || hasCommentItems || post.commentsCount === 0) {
@@ -309,6 +414,23 @@ function PostCard({
 
     void onLoadComments(post.id, post.commentsUrl)
   }, [hasCommentItems, onLoadComments, post.commentsCount, post.commentsUrl, post.id, showComments])
+
+  useEffect(() => {
+    if (!quickResponseState.active) {
+      return undefined
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setQuickResponseState({
+        active: false,
+        label: '',
+      })
+    }, 2200)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [quickResponseState.active])
 
   async function handleCommentSubmit(event) {
     event.preventDefault()
@@ -327,6 +449,23 @@ function PostCard({
     }
   }
 
+  async function handleQuickMoodResponse(text) {
+    if (!text || isCommentSubmitting) {
+      return
+    }
+
+    const success = await onCreateComment(post.id, text)
+
+    if (success) {
+      setShowComments(true)
+      setShowCommentComposer(false)
+      setQuickResponseState({
+        active: true,
+        label: 'Quick response sent',
+      })
+    }
+  }
+
   return (
     <article className="overflow-hidden border-y border-slate-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
       <div className="relative">
@@ -339,31 +478,83 @@ function PostCard({
             />
           </div>
         ) : (
-          <div className="relative aspect-[4/5] overflow-hidden bg-[linear-gradient(160deg,#fef08a_0%,#f9a8d4_48%,#93c5fd_100%)] px-6 py-12">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.48)_0%,rgba(255,255,255,0)_36%)]" />
-            <div className="absolute -left-6 top-8 h-24 w-24 rounded-full bg-white/25 blur-2xl" />
-            <div className="absolute right-2 top-14 h-16 w-16 rounded-full bg-fuchsia-200/40 blur-2xl" />
-            <div className="absolute bottom-8 left-10 h-20 w-20 rounded-full bg-sky-200/45 blur-3xl" />
-            <div className="absolute bottom-10 right-8 h-24 w-24 rounded-full bg-amber-200/35 blur-3xl" />
-            <div className="relative flex h-full items-center justify-center">
-              <div className="relative w-full max-w-[82%] rotate-[-4deg] rounded-[1.4rem_1.1rem_1.5rem_1.2rem] bg-[#fff278] px-6 py-8 shadow-[0_24px_50px_rgba(131,24,67,0.22)] ring-2 ring-white/45">
-                <div className="absolute -left-3 top-5 h-6 w-6 rounded-full bg-fuchsia-400 shadow-[0_6px_14px_rgba(190,24,93,0.35)] ring-4 ring-pink-100/80" />
-                <div className="absolute right-6 top-0 h-7 w-24 -translate-y-1/2 rotate-[8deg] rounded-full bg-white/55 shadow-[0_10px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm" />
-                <div className="absolute inset-0 rounded-[1.4rem_1.1rem_1.5rem_1.2rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0)_26%,rgba(249,168,212,0.08)_100%)]" />
-                <div className="absolute left-4 top-4 h-3 w-3 rounded-full bg-rose-300/70" />
-                <div className="absolute right-5 top-10 h-2.5 w-2.5 rounded-full bg-sky-300/80" />
-                <div className="absolute bottom-5 left-6 h-2.5 w-2.5 rounded-full bg-orange-300/80" />
-                <div className="absolute inset-x-0 top-9 border-t border-amber-300/45" />
-                <div className="absolute inset-x-0 top-[5.5rem] border-t border-amber-300/30" />
-                <div className="absolute inset-x-0 top-[8rem] border-t border-amber-300/25" />
-                <div className="relative">
-                  <p className="whitespace-pre-wrap text-lg font-bold leading-8 text-slate-800">
-                    {post.text || 'Belum ada caption di post ini.'}
+          moodPost ? (
+            <div className={`relative min-h-[38rem] overflow-hidden bg-gradient-to-br ${moodPost.mood.accent} px-4 pb-6 pt-20 text-white`}>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35)_0%,rgba(255,255,255,0)_34%)]" />
+              <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-white/15 blur-3xl" />
+              <div className="absolute bottom-12 right-4 h-24 w-24 rounded-full bg-slate-950/10 blur-3xl" />
+              <div className="relative flex items-start justify-center">
+                <div className="w-full rounded-[2rem] border border-white/25 bg-slate-950/15 px-6 py-7 shadow-[0_28px_60px_rgba(15,23,42,0.25)] backdrop-blur-[10px]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-white/72">
+                    {moodPost.frame}
                   </p>
+                  <div className="mt-5 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-5xl leading-none">{moodPost.mood.emoji}</p>
+                      <p className="mt-4 text-xl font-black uppercase tracking-[0.16em] text-white">
+                        {moodPost.mood.label}
+                      </p>
+                    </div>
+                    <div className="rounded-full bg-white/18 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/90">
+                      {moodBadge}
+                    </div>
+                  </div>
+                  <p className="mt-6 text-2xl font-semibold leading-tight text-white">
+                    {moodPost.headline}
+                  </p>
+                  <div className="mt-5 h-px w-full bg-white/22" />
+                  <p className="mt-5 text-sm leading-6 text-white/92">{moodPost.status}</p>
+                  <p className="mt-3 text-sm leading-6 text-white/80">{moodPost.subtext}</p>
+                  {moodPost.closing ? (
+                    <div className="mt-6 rounded-2xl bg-white/14 px-4 py-3 text-xs leading-5 text-white/90 ring-1 ring-white/16">
+                      {moodPost.closing}
+                    </div>
+                  ) : null}
+                  {moodQuickActions.length > 0 ? (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {moodQuickActions.map((action) => (
+                        <button
+                          key={`${post.id}-${action.label}`}
+                          type="button"
+                          className="rounded-full bg-white/18 px-3 py-2 text-xs font-semibold text-white ring-1 ring-white/16 transition hover:bg-white/24 disabled:cursor-not-allowed disabled:opacity-60"
+                          onClick={() => void handleQuickMoodResponse(action.text)}
+                          disabled={isCommentSubmitting}
+                        >
+                          {action.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="relative aspect-[4/5] overflow-hidden bg-[linear-gradient(160deg,#fef08a_0%,#f9a8d4_48%,#93c5fd_100%)] px-6 py-12">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.48)_0%,rgba(255,255,255,0)_36%)]" />
+              <div className="absolute -left-6 top-8 h-24 w-24 rounded-full bg-white/25 blur-2xl" />
+              <div className="absolute right-2 top-14 h-16 w-16 rounded-full bg-fuchsia-200/40 blur-2xl" />
+              <div className="absolute bottom-8 left-10 h-20 w-20 rounded-full bg-sky-200/45 blur-3xl" />
+              <div className="absolute bottom-10 right-8 h-24 w-24 rounded-full bg-amber-200/35 blur-3xl" />
+              <div className="relative flex h-full items-center justify-center">
+                <div className="relative w-full max-w-[82%] rotate-[-4deg] rounded-[1.4rem_1.1rem_1.5rem_1.2rem] bg-[#fff278] px-6 py-8 shadow-[0_24px_50px_rgba(131,24,67,0.22)] ring-2 ring-white/45">
+                  <div className="absolute -left-3 top-5 h-6 w-6 rounded-full bg-fuchsia-400 shadow-[0_6px_14px_rgba(190,24,93,0.35)] ring-4 ring-pink-100/80" />
+                  <div className="absolute right-6 top-0 h-7 w-24 -translate-y-1/2 rotate-[8deg] rounded-full bg-white/55 shadow-[0_10px_18px_rgba(15,23,42,0.14)] backdrop-blur-sm" />
+                  <div className="absolute inset-0 rounded-[1.4rem_1.1rem_1.5rem_1.2rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0)_26%,rgba(249,168,212,0.08)_100%)]" />
+                  <div className="absolute left-4 top-4 h-3 w-3 rounded-full bg-rose-300/70" />
+                  <div className="absolute right-5 top-10 h-2.5 w-2.5 rounded-full bg-sky-300/80" />
+                  <div className="absolute bottom-5 left-6 h-2.5 w-2.5 rounded-full bg-orange-300/80" />
+                  <div className="absolute inset-x-0 top-9 border-t border-amber-300/45" />
+                  <div className="absolute inset-x-0 top-[5.5rem] border-t border-amber-300/30" />
+                  <div className="absolute inset-x-0 top-[8rem] border-t border-amber-300/25" />
+                  <div className="relative">
+                    <p className="whitespace-pre-wrap text-lg font-bold leading-8 text-slate-800">
+                      {post.text || 'Belum ada caption di post ini.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
         )}
 
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-950/70 via-slate-950/35 to-transparent" />
@@ -400,6 +591,13 @@ function PostCard({
       </div>
 
       <div className="px-4 py-4">
+        {quickResponseState.active ? (
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+            <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+            {quickResponseState.label}
+          </div>
+        ) : null}
+
         <div className="flex items-center gap-4 text-slate-900">
           <button type="button" className="text-xl">
             ♡
@@ -469,7 +667,13 @@ function PostCard({
               Mengambil komentar...
             </div>
           ) : hasCommentItems ? (
-            <div className="mt-4 space-y-3 rounded-[1.5rem] bg-slate-50 p-4">
+            <div
+              className={`mt-4 space-y-3 rounded-[1.5rem] p-4 transition ${
+                quickResponseState.active
+                  ? 'bg-emerald-50 ring-2 ring-emerald-200'
+                  : 'bg-slate-50'
+              }`}
+            >
               {visibleComments.map((comment) => (
                 <div key={comment.id || `${post.id}-${comment.createdDate}`} className="flex gap-3">
                   <button

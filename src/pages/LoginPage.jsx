@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AUTH_STORAGE_KEY } from '../shared/auth/session.js'
+import { AUTH_STORAGE_KEY, setAuthSession } from '../shared/auth/session.js'
 import { ensureContactFromGoogleProfile } from '../shared/services/index.js'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -53,6 +53,20 @@ function loadGoogleScript() {
     script.onerror = reject
     document.head.appendChild(script)
   })
+}
+
+function buildStoredContact(contact) {
+  if (!contact?.Id) {
+    return null
+  }
+
+  return {
+    id: contact.Id,
+    name: contact.Name || '',
+    email: contact.Email || '',
+    username: contact.App_User_ID__c || '',
+    mood: contact.Mood__c || '',
+  }
 }
 
 export default function LoginPage() {
@@ -116,9 +130,13 @@ export default function LoginPage() {
                 username: deriveGoogleUsername(profile),
               }
 
-              window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session))
+              setAuthSession(session)
               try {
                 const syncResult = await ensureContactFromGoogleProfile(session)
+                setAuthSession({
+                  ...session,
+                  contact: buildStoredContact(syncResult.contact),
+                })
                 const syncLabel = syncResult.created
                   ? 'Contact baru dibuat'
                   : syncResult.updated

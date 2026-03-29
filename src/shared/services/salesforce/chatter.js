@@ -28,24 +28,34 @@ function formatActor(actor = {}, instanceUrl) {
 }
 
 function extractMessageText(body = {}) {
-  if (Array.isArray(body?.messageSegments)) {
-    const text = body.messageSegments
-      .filter((segment) => !['InlineImage', 'MarkupBegin', 'MarkupEnd'].includes(segment?.type))
-      .map((segment) => segment?.text || segment?.name || '')
-      .join('')
-      .trim()
-
-    if (text) {
-      return text
-    }
-  }
-
   if (typeof body?.text === 'string' && body.text.trim()) {
     return body.text
       .split('\n')
       .filter((line) => !/^\[Image:\s*.+\]$/.test(line.trim()))
       .join('\n')
       .trim()
+  }
+
+  if (Array.isArray(body?.messageSegments)) {
+    const text = body.messageSegments
+      .map((segment) => {
+        if (segment?.type === 'InlineImage') {
+          return ''
+        }
+
+        if (segment?.type === 'MarkupEnd' && ['Paragraph', 'ListItem'].includes(segment?.markupType)) {
+          return '\n'
+        }
+
+        return segment?.text || segment?.name || ''
+      })
+      .join('')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+
+    if (text) {
+      return text
+    }
   }
 
   return ''
@@ -233,6 +243,33 @@ export async function createRecordFeedElement(recordId, text) {
   })
 
   const session = await ensureSalesforceConnection()
+  return mapFeedElement(payload, session.instanceUrl)
+}
+
+export async function createRichTextFeedItem(recordId, html) {
+  const trimmedHtml = typeof html === 'string' ? html.trim() : ''
+
+  if (!trimmedHtml) {
+    throw new Error('Isi rich text post tidak boleh kosong.')
+  }
+
+  const createResult = await sendSalesforceRequest('sobjects/FeedItem', {
+    method: 'POST',
+    data: {
+      ParentId: recordId,
+      IsRichText: true,
+      Body: trimmedHtml,
+    },
+  })
+
+  const feedItemId = createResult?.id || ''
+
+  if (!feedItemId) {
+    throw new Error('Salesforce berhasil menerima FeedItem, tapi tidak mengembalikan Id.')
+  }
+
+  const session = await ensureSalesforceConnection()
+  const payload = await sendSalesforceRequest(`chatter/feed-elements/${feedItemId}`)
   return mapFeedElement(payload, session.instanceUrl)
 }
 

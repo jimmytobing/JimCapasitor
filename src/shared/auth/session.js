@@ -17,6 +17,17 @@ export function getAuthSession() {
   return readStoredSession()
 }
 
+export function setAuthSession(session) {
+  if (typeof window === 'undefined') return
+
+  if (!session) {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY)
+    return
+  }
+
+  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session))
+}
+
 export function deriveUsernameFromSession(session) {
   if (typeof session?.username === 'string' && session.username.trim()) {
     return session.username.trim()
@@ -36,4 +47,9 @@ export function deriveUsernameFromSession(session) {
 export function getStoredUsername() {
   const session = readStoredSession()
   return deriveUsernameFromSession(session)
+}
+
+export function getAuthContact() {
+  const session = readStoredSession()
+  return session?.contact ?? null
 }
